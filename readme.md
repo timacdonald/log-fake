@@ -143,3 +143,7 @@ Log::channel('slack')->assertNothingLogged('alert');
 
 Log::stack(['bugsnag', 'sentry'])->assertNothingLogged('critical');
 ```
+
+## Thanksware
+
+You are free to use this package, but I ask that you reach out to someone (not me) who has previously, or is currently, maintaining or contributing to an open source library you are using in your project and thank them for their work. Consider your entire tech stack: packages, frameworks, languages, databases, operating systems, frontend, backend, etc.
