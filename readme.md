@@ -137,11 +137,11 @@ Log::stack(['bugsnag', 'sentry'])->assertNotLogged('critical', function ($messag
 ### assertNothingLogged()
 
 ```php
-Log::assertNothingLogged('info');
+Log::assertNothingLogged();
 
-Log::channel('slack')->assertNothingLogged('alert');
+Log::channel('slack')->assertNothingLogged();
 
-Log::stack(['bugsnag', 'sentry'])->assertNothingLogged('critical');
+Log::stack(['bugsnag', 'sentry'])->assertNothingLogged();
 ```
 
 ## Thanksware
