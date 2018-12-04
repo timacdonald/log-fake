@@ -9,7 +9,7 @@ A bunch of Laravel facades / services are able to be faked, such as the Dispatch
 You can install using [composer](https://getcomposer.org/) from [Packagist](https://packagist.org/packages/timacdonald/log-fake)
 
 ```
-$ composer require timacdonald/log-fake
+$ composer require timacdonald/log-fake --dev
 ```
 
 ## Basic usage
