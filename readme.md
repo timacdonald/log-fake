@@ -76,7 +76,7 @@ Log::assertLogged('critical'); // ❌ fails
 
 All assertions are relative to the channel or stack as shown in the previous examples.
 
-### assertLogged($level, $callback = null)
+### assertLogged($level, $callback = null, $times = null)
 
 ```php
 Log::assertLogged('info');
@@ -98,6 +98,20 @@ Log::channel('slack')->assertLogged('alert', function ($message, $context) {
 Log::stack(['bugsnag', 'sentry'])->assertLogged('critical', function ($message, $context) {
     return str_contains($message, 'evasive maneuvers');
 });
+
+// with a callback and times
+
+Log::assertLogged('info', function ($message, $context) {
+    return str_contains($message, 'Donuts');
+}, 42);
+
+Log::channel('slack')->assertLogged('alert', function ($message, $context) {
+    return str_contains($message, '5pm');
+}, 42);
+
+Log::stack(['bugsnag', 'sentry'])->assertLogged('critical', function ($message, $context) {
+    return str_contains($message, 'evasive maneuvers');
+}, 42);
 ```
 
 ### assertLoggedTimes($level, $times = 1)
