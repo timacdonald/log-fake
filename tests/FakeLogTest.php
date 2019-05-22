@@ -14,7 +14,7 @@ class LogFakeTest extends TestCase
 {
     protected $message = 'Oh Hai Mark!';
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
