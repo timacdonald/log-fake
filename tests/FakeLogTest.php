@@ -275,6 +275,10 @@ class LogFakeTest extends TestCase
         $log->info($this->message);
         $this->assertFalse($log->logged('info')->isEmpty());
 
+        $this->assertFalse($log->channel('stack')->logged('info')->isEmpty());
+        $log->info($this->message);
+        $this->assertCount(2, $log->channel('stack')->logged('info'));
+
         $this->assertTrue($log->channel('channel')->logged('info')->isEmpty());
         $log->channel('channel')->info($this->message);
         $this->assertFalse($log->channel('channel')->logged('info')->isEmpty());
@@ -471,5 +475,38 @@ class LogFakeTest extends TestCase
             $this->assertSame(['key' => 'expected'], $context);
             return false;
         });
+    }
+
+    public function testAssertSameLoggedMessage()
+    {
+        $log = new LogFake;
+
+        $log->alert('example alert log');
+        $log->info('example info log');
+
+        $log->assertLogged('alert');
+
+        $log->assertSameLoggedMessage('alert', 'example alert log');
+        $log->assertSameLoggedMessage('info', 'example info log');
+
+        $log->assertSameLoggedMessage('alert', 'example alert');
+        $log->assertSameLoggedMessage('info', 'example info');
+
+        $log->assertSameLoggedMessage('alert', 'example');
+        $log->assertSameLoggedMessage('info', 'example');
+
+        try {
+            $log->assertSameLoggedMessage('alert', 'fake alert message');
+            $this->fail('it is not the right alert message');
+        } catch (ExpectationFailedException $e) {
+            $this->assertThat($e, new ExceptionMessage('The expected log with level [alert] that was logged in stack has not the same message as fake alert message.'));
+        }
+
+        try {
+            $log->assertSameLoggedMessage('info', 'fake info message');
+            $this->fail('it is not the right info message');
+        } catch (ExpectationFailedException $e) {
+            $this->assertThat($e, new ExceptionMessage('The expected log with level [info] that was logged in stack has not the same message as fake info message.'));
+        }
     }
 }

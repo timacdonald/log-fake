@@ -81,6 +81,23 @@ class LogFake implements LoggerInterface
     }
 
     /**
+     * Assert log message.
+     *
+     * @param  string  $level
+     * @param  string  $message
+     * @return void
+     */
+    public function assertSameLoggedMessage(string $level, string $message) : void
+    {
+        PHPUnit::assertTrue(
+            $this->logged($level, function ($logMessage, $context) use ($message) {
+                return mb_strpos($logMessage, $message) !== false;
+            })->count() > 0,
+            "The expected log with level [{$level}] that was logged in {$this->currentChannel()} has not the same message as {$message}."
+        );
+    }
+
+    /**
      * Get all of the logs matching a truth-test callback.
      *
      * @param  string  $level
@@ -291,7 +308,7 @@ class LogFake implements LoggerInterface
      */
     public function driver($driver = null)
     {
-        return new ChannelFake($this, $driver);
+        return new ChannelFake($this, $driver ?? $this->getDefaultDriver());
     }
 
     /**
