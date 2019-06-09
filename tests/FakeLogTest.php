@@ -107,7 +107,7 @@ class LogFakeTest extends TestCase
         }
     }
 
-    public function testAssertLoggedWithCallbackMultipleTimes()
+    public function testAssertLoggedTimesWithCallback()
     {
         $log = new LogFake;
 
