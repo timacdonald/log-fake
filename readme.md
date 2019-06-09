@@ -100,6 +100,16 @@ Log::stack(['bugsnag', 'sentry'])->assertLogged('critical', function ($message, 
 });
 ```
 
+### assertLoggedMessage($level, $message)
+
+```php
+Log::assertLoggedMessage('info', 'User registered');
+
+Log::channel('slack')->assertLoggedMessage('alert', 'It is 5pm, go home');
+
+Log::stack(['bugsnag', 'sentry'])->assertLoggedMessage('critical', 'Perform evasive maneuvers');
+```
+
 ### assertLoggedTimes($level, $times = 1, $callback = null)
 
 ```php
