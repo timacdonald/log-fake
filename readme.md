@@ -100,7 +100,7 @@ Log::stack(['bugsnag', 'sentry'])->assertLogged('critical', function ($message, 
 });
 ```
 
-### assertLoggedTimes($level, $times = 1)
+### assertLoggedTimes($level, $times = 1, $callback = null)
 
 ```php
 Log::assertLoggedTimes('info', 5);
@@ -108,6 +108,20 @@ Log::assertLoggedTimes('info', 5);
 Log::channel('slack')->assertLoggedTimes('alert', 5);
 
 Log::stack(['bugsnag', 'sentry'])->assertLoggedTimes('critical', 5);
+
+// with a callback
+
+Log::assertLogged('info', 5, function ($message, $context) {
+    return str_contains($message, 'Donuts');
+});
+
+Log::channel('slack')->assertLogged('alert', 5, function ($message, $context) {
+    return str_contains($message, '5pm');
+});
+
+Log::stack(['bugsnag', 'sentry'])->assertLogged('critical', 5, function ($message, $context) {
+    return str_contains($message, 'evasive maneuvers');
+});
 ```
 
 ### assertNotLogged($level, $callback = null)

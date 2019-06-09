@@ -44,12 +44,13 @@ class LogFake implements LoggerInterface
      *
      * @param  string  $level
      * @param  int  $times
+     * @param  callable|null  $callback
      * @return void
      */
-    public function assertLoggedTimes($level, $times = 1)
+    public function assertLoggedTimes($level, $times = 1, $callback = null)
     {
         PHPUnit::assertTrue(
-            ($count = $this->logged($level)->count()) === $times,
+            ($count = $this->logged($level, $callback)->count()) === $times,
             "The expected log with level [{$level}] was logged {$count} times instead of {$times} times in {$this->currentChannel()}."
         );
     }
@@ -376,11 +377,11 @@ class LogFake implements LoggerInterface
     }
 
     /**
-    * Set the default log driver name.
-    *
-    * @param  string  $name
-    * @return void
-    */
+     * Set the default log driver name.
+     *
+     * @param  string  $name
+     * @return void
+     */
     public function setDefaultDriver($name)
     {
         config()->set('logging.default', $name);

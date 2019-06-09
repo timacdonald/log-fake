@@ -107,6 +107,47 @@ class LogFakeTest extends TestCase
         }
     }
 
+    public function testAssertLoggedWithCallbackMultipleTimes()
+    {
+        $log = new LogFake;
+
+        try {
+            $log->assertLoggedTimes('info', 42, function ($message) {
+                return true;
+            });
+            $this->fail();
+        } catch (ExpectationFailedException $e) {
+            $this->assertThat($e, new ExceptionMessage('The expected log with level [info] was logged 0 times instead of 42 times in stack.'));
+        }
+
+        try {
+            $log->channel('channel')->assertLoggedTimes('info', 42, function ($message) {
+                return true;
+            });
+            $this->fail();
+        } catch (ExpectationFailedException $e) {
+            $this->assertThat($e, new ExceptionMessage('The expected log with level [info] was logged 0 times instead of 42 times in channel.'));
+        }
+
+        try {
+            $log->stack(['channel'], 'name')->assertLogged('info', 42, function ($message) {
+                return true;
+            });
+            $this->fail();
+        } catch (ExpectationFailedException $e) {
+            $this->assertThat($e, new ExceptionMessage('The expected log with level [info] was logged 0 times instead of 42 times in Stack:name.channel.'));
+        }
+
+        try {
+            $log->stack(['channel'], 'name')->assertLogged('info', 42, function ($message) {
+                return true;
+            });
+            $this->fail();
+        } catch (ExpectationFailedException $e) {
+            $this->assertThat($e, new ExceptionMessage('The expected log with level [info] was logged 0 times instead of 42 times in Stack:name.channel.'));
+        }
+    }
+
     public function testAssertLoggedTimes()
     {
         $log = new LogFake;
@@ -413,7 +454,7 @@ class LogFakeTest extends TestCase
 
     public function testAssertLoggedInStackDotNotatesSortedChannels()
     {
-        $this->assertSame('Stack:name.a.b.c', (new LogFake)->stack(['c','b', 'a'], 'name')->currentChannel());
+        $this->assertSame('Stack:name.a.b.c', (new LogFake)->stack(['c', 'b', 'a'], 'name')->currentChannel());
     }
 
     public function testClosuresProvideMessageAndContext()
