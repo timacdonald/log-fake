@@ -27,17 +27,11 @@ class LogFake implements LoggerInterface
      * @param  callable|int|null  $callback
      * @return void
      */
-    public function assertLogged($level, $callback = null, $times = null)
+    public function assertLogged($level, $callback = null)
     {
         if (is_numeric($callback)) {
             return $this->assertLoggedTimes($level, $callback);
         }
-
-        if (is_numeric($times)) {
-            $logged = $this->logged($level, $callback);
-            PHPUnit::assertTrue($logged->count() == $times, "The expected log with level [{$level}] was logged {$logged->count()} times instead of {$times} times in {$this->currentChannel()}.");
-        }
-
 
         PHPUnit::assertTrue(
             $this->logged($level, $callback)->count() > 0,
@@ -50,12 +44,13 @@ class LogFake implements LoggerInterface
      *
      * @param  string  $level
      * @param  int  $times
+     * @param  callable|null  $callback
      * @return void
      */
-    public function assertLoggedTimes($level, $times = 1)
+    public function assertLoggedTimes($level, $times = 1, $callback = null)
     {
         PHPUnit::assertTrue(
-            ($count = $this->logged($level)->count()) === $times,
+            ($count = $this->logged($level, $callback)->count()) === $times,
             "The expected log with level [{$level}] was logged {$count} times instead of {$times} times in {$this->currentChannel()}."
         );
     }
@@ -122,7 +117,7 @@ class LogFake implements LoggerInterface
      */
     public function hasNotLogged($level)
     {
-        return !$this->hasLogged($level);
+        return ! $this->hasLogged($level);
     }
 
     /**
@@ -308,7 +303,7 @@ class LogFake implements LoggerInterface
      */
     public function stack(array $channels, $channel = null)
     {
-        return $this->driver('Stack:' . $this->createStackChannelName($channels, $channel));
+        return $this->driver('Stack:'.$this->createStackChannelName($channels, $channel));
     }
 
     /**

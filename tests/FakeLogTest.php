@@ -112,36 +112,36 @@ class LogFakeTest extends TestCase
         $log = new LogFake;
 
         try {
-            $log->assertLogged('info', function ($message) {
+            $log->assertLoggedTimes('info', 42, function ($message) {
                 return true;
-            }, 42);
+            });
             $this->fail();
         } catch (ExpectationFailedException $e) {
             $this->assertThat($e, new ExceptionMessage('The expected log with level [info] was logged 0 times instead of 42 times in stack.'));
         }
 
         try {
-            $log->channel('channel')->assertLogged('info', function ($message) {
+            $log->channel('channel')->assertLoggedTimes('info', 42, function ($message) {
                 return true;
-            }, 42);
+            });
             $this->fail();
         } catch (ExpectationFailedException $e) {
             $this->assertThat($e, new ExceptionMessage('The expected log with level [info] was logged 0 times instead of 42 times in channel.'));
         }
 
         try {
-            $log->stack(['channel'], 'name')->assertLogged('info', function ($message) {
+            $log->stack(['channel'], 'name')->assertLogged('info', 42, function ($message) {
                 return true;
-            }, 42);
+            });
             $this->fail();
         } catch (ExpectationFailedException $e) {
             $this->assertThat($e, new ExceptionMessage('The expected log with level [info] was logged 0 times instead of 42 times in Stack:name.channel.'));
         }
 
         try {
-            $log->stack(['channel'], 'name')->assertLogged('info', function ($message) {
+            $log->stack(['channel'], 'name')->assertLogged('info', 42, function ($message) {
                 return true;
-            }, 42);
+            });
             $this->fail();
         } catch (ExpectationFailedException $e) {
             $this->assertThat($e, new ExceptionMessage('The expected log with level [info] was logged 0 times instead of 42 times in Stack:name.channel.'));
