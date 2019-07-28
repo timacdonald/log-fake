@@ -2,6 +2,7 @@
 
 namespace Tests;
 
+use Psr\Log\LoggerInterface;
 use stdClass;
 use TiMacDonald\Log\LogFake;
 use PHPUnit\Framework\TestCase;
@@ -267,6 +268,13 @@ class LogFakeTest extends TestCase
         }
     }
 
+
+    public function testChannelLoggerInstanceOfLoggerInterface()
+    {
+        $log = new LogFake;
+        $this->assertInstanceOf(LoggerInterface::class, $log->channel('channel'));
+    }
+
     public function testLogged()
     {
         $log = new LogFake;
@@ -460,15 +468,18 @@ class LogFakeTest extends TestCase
 
         $items = $log->logged('info', function ($message, $context) {
             $this->assertSame(['key' => 'expected'], $context);
+
             return true;
         });
         $this->assertTrue($items->isNotEmpty());
         $log->assertLogged('info', function ($message, $context) {
             $this->assertSame(['key' => 'expected'], $context);
+
             return true;
         });
         $log->assertNotLogged('info', function ($message, $context) {
             $this->assertSame(['key' => 'expected'], $context);
+
             return false;
         });
     }
