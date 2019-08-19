@@ -6,8 +6,10 @@ use Psr\Log\LoggerInterface;
 use Illuminate\Support\Collection;
 use PHPUnit\Framework\Assert as PHPUnit;
 
-class LogFake extends FakeLogger implements LoggerInterface
+class LogFake implements LoggerInterface
 {
+    use LogHelpers;
+
     /**
      * All of the created logs.
      *
@@ -17,14 +19,16 @@ class LogFake extends FakeLogger implements LoggerInterface
 
     /**
      * The channel being logged to.
+     *
+     * @var string|null
      */
     protected $currentChannel;
 
     /**
      * Assert if a log was created based on a truth-test callback.
      *
-     * @param  string  $level
-     * @param  callable|int|null  $callback
+     * @param string $level
+     * @param callable|int|null $callback
      * @return void
      */
     public function assertLogged($level, $callback = null)
@@ -42,9 +46,9 @@ class LogFake extends FakeLogger implements LoggerInterface
     /**
      * Assert if a log was created a number of times.
      *
-     * @param  string  $level
-     * @param  int  $times
-     * @param  callable|null  $callback
+     * @param string $level
+     * @param int $times
+     * @param callable|null $callback
      * @return void
      */
     public function assertLoggedTimes($level, $times = 1, $callback = null)
@@ -58,8 +62,8 @@ class LogFake extends FakeLogger implements LoggerInterface
     /**
      * Determine if a log was not created based on a truth-test callback.
      *
-     * @param  string  $level
-     * @param  callable|null  $callback
+     * @param string $level
+     * @param callable|null $callback
      * @return void
      */
     public function assertNotLogged($level, $callback = null)
@@ -83,8 +87,8 @@ class LogFake extends FakeLogger implements LoggerInterface
     /**
      * Assert logged a specfic message.
      *
-     * @param  string  $level
-     * @param  string  $message
+     * @param string $level
+     * @param string $message
      * @return void
      */
     public function assertLoggedMessage($level, $message)
@@ -97,8 +101,8 @@ class LogFake extends FakeLogger implements LoggerInterface
     /**
      * Get all of the logs matching a truth-test callback.
      *
-     * @param  string  $level
-     * @param  callable|null  $callback
+     * @param string $level
+     * @param callable|null $callback
      * @return \Illuminate\Support\Collection
      */
     public function logged($level, $callback = null)
@@ -115,7 +119,7 @@ class LogFake extends FakeLogger implements LoggerInterface
     /**
      * Determine if the given log level has been created.
      *
-     * @param  string  $level
+     * @param string $level
      * @return bool
      */
     public function hasLogged($level)
@@ -126,7 +130,7 @@ class LogFake extends FakeLogger implements LoggerInterface
     /**
      * Determine if the given log level has not been created.
      *
-     * @param  string  $level
+     * @param string $level
      * @return bool
      */
     public function hasNotLogged($level)
@@ -137,7 +141,7 @@ class LogFake extends FakeLogger implements LoggerInterface
     /**
      * Get all of the created logs for a given level.
      *
-     * @param  string  $type
+     * @param string $type
      * @return \Illuminate\Support\Collection
      */
     protected function logsOfLevel($level)
@@ -162,9 +166,9 @@ class LogFake extends FakeLogger implements LoggerInterface
     /**
      * Log a message to the logs.
      *
-     * @param  string  $level
-     * @param  string  $message
-     * @param  array  $context
+     * @param string $level
+     * @param string $message
+     * @param array $context
      * @return void
      */
     public function log($level, $message, array $context = [])
@@ -180,9 +184,9 @@ class LogFake extends FakeLogger implements LoggerInterface
     /**
      * Dynamically pass log calls into the writer.
      *
-     * @param  string  $level
-     * @param  string  $message
-     * @param  array  $context
+     * @param string $level
+     * @param string $message
+     * @param array $context
      * @return void
      */
     public function write($level, $message, array $context = [])
@@ -193,8 +197,8 @@ class LogFake extends FakeLogger implements LoggerInterface
     /**
      * Get a log channel instance.
      *
-     * @param  string|null  $channel
-     * @return ChannelFake
+     * @param string|null $channel
+     * @return \TiMacDonald\Log\ChannelFake
      */
     public function channel($channel = null)
     {
@@ -204,8 +208,8 @@ class LogFake extends FakeLogger implements LoggerInterface
     /**
      * Get a log driver instance.
      *
-     * @param  string|null  $driver
-     * @return ChannelFake
+     * @param string|null $driver
+     * @return \TiMacDonald\Log\ChannelFake
      */
     public function driver($driver = null)
     {
@@ -215,9 +219,9 @@ class LogFake extends FakeLogger implements LoggerInterface
     /**
      * Create a new, on-demand aggregate logger instance.
      *
-     * @param  array  $channels
-     * @param  string|null  $channel
-     * @return ChannelFake
+     * @param array $channels
+     * @param string|null $channel
+     * @return \TiMacDonald\Log\ChannelFake
      */
     public function stack(array $channels, $channel = null)
     {
@@ -227,8 +231,8 @@ class LogFake extends FakeLogger implements LoggerInterface
     /**
      * Create a stack based channel name.
      *
-     * @param  array  $channels
-     * @param  string|null  $channel
+     * @param array $channels
+     * @param string|null $channel
      * @return string
      */
     protected function createStackChannelName($channels, $channel)
@@ -239,7 +243,7 @@ class LogFake extends FakeLogger implements LoggerInterface
     /**
      * Set the current channel being logged to.
      *
-     * @param  string  $name
+     * @param string|null $name
      * @return void
      */
     public function setCurrentChannel($name)
@@ -260,6 +264,7 @@ class LogFake extends FakeLogger implements LoggerInterface
     /**
      * Determine if in provided channel.
      *
+     * @param string|null $channel
      * @return string
      */
     protected function currentChannelIs($channel)
@@ -280,7 +285,7 @@ class LogFake extends FakeLogger implements LoggerInterface
     /**
      * Set the default log driver name.
      *
-     * @param  string  $name
+     * @param string $name
      * @return void
      */
     public function setDefaultDriver($name)

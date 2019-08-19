@@ -2,9 +2,9 @@
 
 namespace Tests;
 
-use Psr\Log\LoggerInterface;
 use stdClass;
 use TiMacDonald\Log\LogFake;
+use Psr\Log\LoggerInterface;
 use PHPUnit\Framework\TestCase;
 use Illuminate\Container\Container;
 use Illuminate\Config\Repository as Config;
@@ -468,18 +468,15 @@ class LogFakeTest extends TestCase
 
         $items = $log->logged('info', function ($message, $context) {
             $this->assertSame(['key' => 'expected'], $context);
-
             return true;
         });
         $this->assertTrue($items->isNotEmpty());
         $log->assertLogged('info', function ($message, $context) {
             $this->assertSame(['key' => 'expected'], $context);
-
             return true;
         });
         $log->assertNotLogged('info', function ($message, $context) {
             $this->assertSame(['key' => 'expected'], $context);
-
             return false;
         });
     }

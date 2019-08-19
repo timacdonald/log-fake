@@ -6,8 +6,8 @@ if (! function_exists('app')) {
     /**
      * Get the available container instance.
      *
-     * @param  string  $abstract
-     * @param  array   $parameters
+     * @param string $abstract
+     * @param array $parameters
      * @return mixed|\Illuminate\Foundation\Application
      */
     function app($abstract = null, array $parameters = [])
@@ -25,8 +25,8 @@ if (! function_exists('config')) {
      *
      * If an array is passed as the key, we will assume you want to set an array of values.
      *
-     * @param  array|string  $key
-     * @param  mixed  $default
+     * @param array|string $key
+     * @param mixed $default
      * @return mixed|\Illuminate\Config\Repository
      */
     function config($key = null, $default = null)

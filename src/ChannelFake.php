@@ -4,62 +4,81 @@ namespace TiMacDonald\Log;
 
 use Psr\Log\LoggerInterface;
 
-class ChannelFake extends FakeLogger implements LoggerInterface
+class ChannelFake implements LoggerInterface
 {
+    use LogHelpers;
+
     /**
-     * @var $log LogFake
+     * The logger to proxy calls to.
+     *
+     * @var \TiMacDonald\Log\LogFake
      */
     protected $log;
 
     /**
-     * @var $name string
+     * The name of the current channel.
+     *
+     * @var string
      */
     protected $name;
 
     /**
-     * ChannelFake constructor.
+     * Create a new instance.
      *
-     * @param $log
-     * @param $name
+     * @param \TiMacDonald\Log\LogFake $log
+     * @param string $name
+     * @return void
      */
     public function __construct($log, $name)
     {
         $this->log = $log;
+
         $this->name = $name;
     }
 
     /**
-     * @param $method
-     * @param $arguments
-     *
-     * @return mixed
-     */
-    public function __call($method, $arguments)
-    {
-        $this->log->setCurrentChannel($this->name);
-
-        $result = $this->log->{$method}(...$arguments);
-
-        $this->log->setCurrentChannel(null);
-
-        return $result;
-    }
-
-    /**
-     * Log a message to the logs.
+     * Proxy a 'log' call to the logger.
      *
      * @param string $level
      * @param string $message
-     * @param array  $context
-     *
+     * @param array $context
      * @return void
      */
     public function log($level, $message, array $context = [])
     {
+        $this->proxy(function () use ($level, $message, $context) {
+            $this->log->log($level, $message, $context);
+        });
+    }
+
+    /**
+     * Handle dynamic calls to the instance.
+     *
+     * @param string $method
+     * @param array $arguments
+     * @return mixed
+     */
+    public function __call($method, $arguments)
+    {
+        return $this->proxy(function () use ($method, $arguments) {
+            return $this->log->{$method}(...$arguments);
+        });
+    }
+
+    /**
+     * Proxy calls to the logger.
+     *
+     * @param \Closure $closure
+     * @return mixed
+     */
+    private function proxy($closure)
+    {
         $this->log->setCurrentChannel($this->name);
 
-        $this->log->log($level, $message, $context);
+        $result = $closure();
 
         $this->log->setCurrentChannel(null);
+
+        return $result;
     }
 }
