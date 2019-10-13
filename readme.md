@@ -12,6 +12,12 @@ You can install using [composer](https://getcomposer.org/) from [Packagist](http
 $ composer require timacdonald/log-fake --dev
 ```
 
+For Laravel versions `>=5.6 && <6.0` install `1.3.0` of the this package...
+
+```
+$ composer require timacdonald/log-fake:1.3.0 --dev
+```
+
 ## Basic usage
 
 ```php
