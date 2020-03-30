@@ -1,6 +1,6 @@
 # Log fake for Laravel
 
-[![Latest Stable Version](https://poser.pugx.org/timacdonald/log-fake/v/stable)](https://packagist.org/packages/timacdonald/log-fake) [![Total Downloads](https://poser.pugx.org/timacdonald/log-fake/downloads)](https://packagist.org/packages/timacdonald/log-fake) [![License](https://poser.pugx.org/timacdonald/log-fake/license)](https://packagist.org/packages/timacdonald/log-fake)
+![CI](https://github.com/timacdonald/log-fake/workflows/CI/badge.svg)[![Latest Stable Version](https://poser.pugx.org/timacdonald/log-fake/v/stable)](https://packagist.org/packages/timacdonald/log-fake) [![Total Downloads](https://poser.pugx.org/timacdonald/log-fake/downloads)](https://packagist.org/packages/timacdonald/log-fake) [![License](https://poser.pugx.org/timacdonald/log-fake/license)](https://packagist.org/packages/timacdonald/log-fake)
 
 A bunch of Laravel facades / services are able to be faked, such as the Dispatcher with `Bus::fake()`, to help with testing and assertions. This package gives you the ability to fake the logger in your app, and includes the ability to make assertions against channels and stacks introduced in logging overhaul in Laravel `5.6`.
 
