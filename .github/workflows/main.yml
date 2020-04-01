@@ -31,7 +31,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-          composer require "laravel/config:${{ matrix.laravel }}" "laravel/container:${{ matrix.laravel }}" "laravel/support:${{ matrix.laravel }}" --no-interaction --no-update
+          composer require "illuminate/config:${{ matrix.laravel }}" "illuminate/container:${{ matrix.laravel }}" "illuminate/support:${{ matrix.laravel }}" --no-interaction --no-update
           composer update --${{ matrix.dependency-version }} --prefer-dist --no-interaction --no-suggest
 
     - name: Run tests
