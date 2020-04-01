@@ -8,27 +8,49 @@ on:
 
 jobs:
   tests:
+    strategy:
+      matrix:
+        php: [7.1, 7.2, 7.3, 7.4]
+        laravel: [5.6.*, 5.7.*, 5.8.*, 6.*, 7.*]
+        phpunit: [7.*, 8.*, 9.*]
+        dependency-version: [prefer-lowest, prefer-stable]
+        exclude:
+            - laravel: 6.*
+              php: 7.1
+            - laravel: 7.*
+              php: 7.1
+            - phpunit: 8.*
+              php: 7.1
+            - phpunit: 9.*
+              php: 7.1
+            - phpunit: 9.*
+              php: 7.2
+
     runs-on: ubuntu-latest
-    name: Tests
+    name: "PHP: ${{ matrix.php }}; Laravel: ${{ matrix.laravel }}; PHPUnit: ${{ matrix.phpunit }}; Dependecies: ${{ matrix.dependency-version }}"
+
     steps:
     - name: checkout code
       uses: actions/checkout@v2
-      
-    - name: Cache dependencies
-      uses: actions/cache@v1
-      with:
-        path: ~/.composer/cache/files
-        key: dependencies-composer-${{ hashFiles('composer.json') }}
-      
+
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
-        php-version: 7.3
+        php-version: ${{ matrix.php }}
         extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite
         coverage: none
 
-    - name: Install Composer dependencies
-      run: composer install --prefer-dist --no-interaction --no-suggest
-      
-    - name: Execute tests
+    - name: Cache dependencies
+      uses: actions/cache@v1
+      with:
+          path: ~/.composer/cache/files
+          key: dependencies-laravel-${{ matrix.laravel }}-phpunit-${{ matrix.phpunit }}-php-${{ matrix.php }}-composer-${{ hashFiles('composer.json') }}-v2
+
+    - name: Install dependencies
+      run: |
+          composer remove infection/infection --dev
+            composer require "illuminate/config:${{ matrix.laravel }}" "illuminate/container:${{ matrix.laravel }}" "illuminate/support:${{ matrix.laravel }}" "phpunit/phpunit:${{ matrix.phpunit }}" --no-interaction --no-update
+          composer update --${{ matrix.dependency-version }} --prefer-dist --no-interaction --no-suggest
+
+    - name: Run tests
       run: ./vendor/bin/phpunit --verbose
