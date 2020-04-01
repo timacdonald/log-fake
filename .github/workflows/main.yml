@@ -25,7 +25,7 @@ jobs:
               php: 7.1,7.2
 
     runs-on: ubuntu-latest
-    name: "PHP: ${{ matrix.php }}; Laravel: ${{ matrix.laravel }}; Dependecies: ${{ matrix.dependency-version }}"
+    name: "PHP: ${{ matrix.php }}; Laravel: ${{ matrix.laravel }}; PHPUnit: ${{ matrix.phpunit }}; Dependecies: ${{ matrix.dependency-version }}"
 
     steps:
     - name: checkout code
