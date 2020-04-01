@@ -37,5 +37,12 @@
         "files": [
             "tests/helpers.php"
         ]
+    },
+    "scripts": {
+        "test": [
+            "clear",
+            "./vendor/bin/phpunit",
+            "./vendor/bin/infection --threads=4"
+        ]
     }
 }
