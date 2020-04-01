@@ -52,5 +52,8 @@ jobs:
             composer require "illuminate/config:${{ matrix.laravel }}" "illuminate/container:${{ matrix.laravel }}" "illuminate/support:${{ matrix.laravel }}" "phpunit/phpunit:${{ matrix.phpunit }}" --no-interaction --no-update
           composer update --${{ matrix.dependency-version }} --prefer-dist --no-interaction --no-suggest
 
+    - name: Check platform requirements
+      run: composer check-platform-reqs
+
     - name: Run tests
       run: ./vendor/bin/phpunit --verbose
