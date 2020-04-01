@@ -37,7 +37,7 @@ jobs:
       uses: shivammathur/setup-php@v2
       with:
         php-version: ${{ matrix.php }}
-        extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite
+        extensions: dom, json, libxml, mbstring, Phar, tokenizer, xml, xmlwriter
         coverage: none
 
     - name: Cache dependencies
