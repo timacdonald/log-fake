@@ -8,27 +8,30 @@ on:
 
 jobs:
   tests:
+    strategy:
+      matrix:
+        php: [7.1, 7.2, 7.3, 7.4]
+        laravel: [5.6.*, 5.7.*, 5.8.*, 6.*, 7.*]
+        phpunit: [7.*, 8.*, 9.*]
+        dependency-version: [prefer-lowest, prefer-stable]
+
     runs-on: ubuntu-latest
-    name: Tests
+    name: PHP: ${{ matrix.php }}; Laravel: ${{ matrix.laravel }}; Dependecies: ${{ matrix.dependency-version }}
+
     steps:
     - name: checkout code
       uses: actions/checkout@v2
-      
-    - name: Cache dependencies
-      uses: actions/cache@v1
-      with:
-        path: ~/.composer/cache/files
-        key: dependencies-composer-${{ hashFiles('composer.json') }}
-      
+
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
-        php-version: 7.3
+        php-version: ${{ matrix.php }}
         extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite
         coverage: none
 
-    - name: Install Composer dependencies
-      run: composer install --prefer-dist --no-interaction --no-suggest
-      
-    - name: Execute tests
+    - name: Install dependencies
+      run: composer require "laravel/config:${{ matrix.laravel }}" "laravel/container:${{ matrix.laravel }}" "laravel/support:${{ matrix.laravel }}" --no-interaction --no-update
+      run: composer update --${{ matrix.dependency-version }} --prefer-dist --no-interaction --no-suggest
+
+    - name: Run tests
       run: ./vendor/bin/phpunit --verbose
