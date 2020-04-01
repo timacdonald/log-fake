@@ -149,30 +149,95 @@ class LogFakeTest extends TestCase
         }
     }
 
+    public function testAssertLoggedMessage()
+    {
+        $log = new LogFake;
+
+        try {
+            $log->assertLoggedMessage('info', 'expected message');
+            $this->fail();
+        } catch (ExpectationFailedException $e) {
+            $this->assertThat($e, new ExceptionMessage('The expected log with level [info] was not logged in stack'));
+        }
+
+        $log->info('expected message');
+        $log->assertLoggedMessage('info', 'expected message');
+    }
+
     public function testAssertLoggedTimes()
     {
         $log = new LogFake;
 
         try {
-            $log->assertLoggedTimes('info', 1);
+            $log->assertLoggedTimes('info');
             $this->fail();
         } catch (ExpectationFailedException $e) {
             $this->assertThat($e, new ExceptionMessage('The expected log with level [info] was logged 0 times instead of 1 times in stack.'));
         }
 
+        $log->info('expected info log');
+        $log->assertLoggedTimes('info');
+
         try {
-            $log->channel('channel')->assertLoggedTimes('info', 1);
+            $log->assertLoggedTimes('info', 2);
+            $this->fail();
+        } catch (ExpectationFailedException $e) {
+            $this->assertThat($e, new ExceptionMessage('The expected log with level [info] was logged 1 times instead of 2 times in stack.'));
+        }
+
+        $log->info('expected info log');
+        $log->assertLoggedTimes('info', 2);
+    }
+
+
+    public function testAssertLoggedTimesInChannel()
+    {
+        $log = new LogFake;
+
+        try {
+            $log->channel('channel')->assertLoggedTimes('info');
             $this->fail();
         } catch (ExpectationFailedException $e) {
             $this->assertThat($e, new ExceptionMessage('The expected log with level [info] was logged 0 times instead of 1 times in channel.'));
         }
 
+        $log->channel('channel')->log('info', 'expected info log');
+        $log->channel('channel')->assertLoggedTimes('info');
+
         try {
-            $log->stack(['channel'], 'name')->assertLoggedTimes('info', 1);
+            $log->channel('channel')->assertLoggedTimes('info', 2);
             $this->fail();
         } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('The expected log with level [info] was logged 0 times instead of 1 times in Stack:name.channel.'));
+            $this->assertThat($e, new ExceptionMessage('The expected log with level [info] was logged 1 times instead of 2 times in channel.'));
         }
+
+        $log->channel('channel')->info('expected info log');
+        $log->channel('channel')->assertLoggedTimes('info', 2);
+    }
+
+    public function testAssertLoggedTimesInStack()
+    {
+        $log = new LogFake;
+
+        try {
+            $log->stack(['channel'], 'name')->assertLoggedTimes('info');
+            $this->fail();
+        } catch (ExpectationFailedException $e) {
+            $this->assertThat($e, new ExceptionMessage('The expected log with level [info] was logged 0 times instead of 1 times in Stack:name.'));
+        }
+
+        $log->stack(['channel'], 'name')->log('info', 'expected info log');
+        $log->stack(['channel'], 'name')->assertLoggedTimes('info');
+
+        try {
+            $log->stack(['channel'], 'name')->assertLoggedTimes('info', 2);
+            $this->fail();
+        } catch (ExpectationFailedException $e) {
+            $this->assertThat($e, new ExceptionMessage('The expected log with level [info] was logged 1 times instead of 2 times in Stack:name.channel.'));
+        }
+
+        $log->stack(['channel'], 'name')->info('expected info log');
+        $log->stack(['channel'], 'name')->assertLoggedTimes('info', 2);
     }
 
     public function testAssertNotLogged()
@@ -365,6 +430,7 @@ class LogFakeTest extends TestCase
         $log->error('error log');
         $log->warning('warning log');
         $log->info('info log');
+        $log->notice('notice log');
         $log->debug('debug log');
         $log->log('custom', 'custom log');
         $log->write('custom_2', 'custom log 2');
@@ -386,6 +452,9 @@ class LogFakeTest extends TestCase
         });
         $log->assertLogged('info', function ($message, $context) {
             return $message === 'info log';
+        });
+        $log->assertLogged('notice', function ($message, $context) {
+            return $message === 'notice log';
         });
         $log->assertLogged('debug', function ($message, $context) {
             return $message === 'debug log';
@@ -479,5 +548,13 @@ class LogFakeTest extends TestCase
             $this->assertSame(['key' => 'expected'], $context);
             return false;
         });
+    }
+
+    public function testSetDefaultDriver()
+    {
+        $log = new LogFake;
+        $log->setDefaultDriver('expected-driver');
+
+        $this->assertSame('expected-driver', config()->get('logging.default'));
     }
 }
