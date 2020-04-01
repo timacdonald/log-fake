@@ -30,8 +30,9 @@ jobs:
         coverage: none
 
     - name: Install dependencies
-      run: composer require "laravel/config:${{ matrix.laravel }}" "laravel/container:${{ matrix.laravel }}" "laravel/support:${{ matrix.laravel }}" --no-interaction --no-update
-      run: composer update --${{ matrix.dependency-version }} --prefer-dist --no-interaction --no-suggest
+      run: |
+          composer require "laravel/config:${{ matrix.laravel }}" "laravel/container:${{ matrix.laravel }}" "laravel/support:${{ matrix.laravel }}" --no-interaction --no-update
+          composer update --${{ matrix.dependency-version }} --prefer-dist --no-interaction --no-suggest
 
     - name: Run tests
       run: ./vendor/bin/phpunit --verbose
