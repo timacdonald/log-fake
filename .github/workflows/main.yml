@@ -22,7 +22,9 @@ jobs:
             - phpunit: 8.*
               php: 7.1
             - phpunit: 9.*
-              php: 7.1,7.2
+              php: 7.1
+            - phpunit: 9.*
+              php: 7.2
 
     runs-on: ubuntu-latest
     name: "PHP: ${{ matrix.php }}; Laravel: ${{ matrix.laravel }}; PHPUnit: ${{ matrix.phpunit }}; Dependecies: ${{ matrix.dependency-version }}"
