@@ -31,6 +31,7 @@ jobs:
 
     - name: Install dependencies
       run: |
+          composer remove infection/infection --dev
           composer require "illuminate/config:${{ matrix.laravel }}" "illuminate/container:${{ matrix.laravel }}" "illuminate/support:${{ matrix.laravel }}" --no-interaction --no-update
           composer update --${{ matrix.dependency-version }} --prefer-dist --no-interaction --no-suggest
 
