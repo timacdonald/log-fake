@@ -16,9 +16,9 @@ jobs:
         dependency-version: [prefer-lowest, prefer-stable]
         exclude:
             - laravel: 6.*
-              php: 7.2
+              php: 7.1
             - laravel: 7.*
-              php: 7.2
+              php: 7.1
 
     runs-on: ubuntu-latest
     name: "PHP: ${{ matrix.php }}; Laravel: ${{ matrix.laravel }}; Dependecies: ${{ matrix.dependency-version }}"
