@@ -56,9 +56,4 @@ jobs:
       run: composer check-platform-reqs --verbose
 
     - name: Run tests
-      if: matrix.phpunit == '7.*' || matrix.phpunit == '8.*'
       run: ./vendor/bin/phpunit --coverage-text --debug --verbose
-
-    - name: Run tests
-      if: matrix.phpunit != '7.*' && matrix.phpunit != '8.*'
-      run: ./vendor/bin/phpunit --coverage-text --debug --order-by=random --verbose
