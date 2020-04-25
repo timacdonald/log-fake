@@ -10,6 +10,56 @@ on:
     branches: [ master ]
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    name: 'Lint'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+          coverage: pcov
+
+      - name: Cache dependencies
+        uses: actions/cache@v1
+        with:
+          path: ~/.composer/cache/files
+          key: dependencies-composer-${{ hashFiles('composer.json') }}-v1
+
+      - name: Install dependencies
+        run: composer install --no-suggest --no-interaction --verbosekkkkkkkk
+
+      - name: Check platform requirements
+        run: composer check-platform-reqs --verbose
+
+      # - name: PHP-CS-Fixer
+        # run: ./vendor/bin/php-cs-fixer fix --dry-run --no-interaction --verbose
+
+      - name: composer normalize
+        run: composer normalize --dry-run --no-interaction --verbose
+
+      - name: test coverage
+        run: |
+          ./vendor/bin/phpunit --coverage-clover=coverage.xml --debug --verbose
+          bash <(curl -s https://codecov.io/bash)
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+      # - name: Infection
+        # run: ./vendor/bin/infection --show-mutations --min-msi=100 --no-progress --no-interaction --verbose
+        # run: ./vendor/bin/infection --show-mutations --no-progress --no-interaction --verbose
+        # env:
+          # INFECTION_BADGE_API_KEY: ${{ secrets.INFECTION_BADGE_API_KEY }}
+
+      - name: Psalm
+        run: ./vendor/bin/psalm --shepherd --no-progress
+
+      - name: PHPStan
+        run: ./vendor/bin/phpstan --no-interaction --verbose
+
   tests:
     runs-on: ubuntu-latest
     name: 'PHP: ${{ matrix.php }}; Laravel: ${{ matrix.laravel }}; PHPUnit: ${{ matrix.phpunit }}; Dependecies: ${{ matrix.dependency-version }}'
