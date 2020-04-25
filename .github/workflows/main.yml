@@ -49,7 +49,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-          composer remove infection/infection --dev --no-update --no-interaction --verbose
+          composer remove 'infection/infection' 'ergebnis/composer-normalize' 'vimeo/psalm' 'phpstan/phpstan' --dev --no-update --no-interaction --verbose
           composer require 'illuminate/config:${{ matrix.laravel }}' 'illuminate/container:${{ matrix.laravel }}' 'illuminate/support:${{ matrix.laravel }}' 'phpunit/phpunit:${{ matrix.phpunit }}' --no-update --no-interaction --verbose
           composer update --${{ matrix.dependency-version }} --no-suggest --no-interaction --verbose
 

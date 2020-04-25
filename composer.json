@@ -1,7 +1,6 @@
 {
     "name": "timacdonald/log-fake",
     "description": "A drop in fake logger for testing with the Laravel framework.",
-    "license": "MIT",
     "keywords": [
         "fake",
         "log",
@@ -9,6 +8,7 @@
         "testing",
         "laravel"
     ],
+    "license": "MIT",
     "authors": [
         {
             "name": "Tim MacDonald",
@@ -18,14 +18,21 @@
     ],
     "require": {
         "php": "^7.1",
-        "illuminate/config": "~5.6|^6.0|^7.0",
-        "illuminate/container": "~5.6|^6.0|^7.0",
-        "illuminate/support": "~5.6|^6.0|^7.0",
-        "phpunit/phpunit": "^7.0|^8.0|^9.0",
+        "illuminate/config": "~5.6.0 || ~5.7.0 || ~5.8.0 || ^6.0 || ^7.0",
+        "illuminate/container": "~5.6.0 || ~5.7.0 || ~5.8.0 || ^6.0 || ^7.0",
+        "illuminate/support": "~5.6.0 || ~5.7.0 || ~5.8.0 || ^6.0 || ^7.0",
+        "phpunit/phpunit": "^7.0 || ^8.0 || ^9.0",
         "psr/log": "^1.0"
     },
     "require-dev": {
-        "infection/infection": "^0.16.1"
+        "ergebnis/composer-normalize": "^2.0",
+        "phpstan/phpstan": "^0.12",
+        "infection/infection": "^0.16.0",
+        "vimeo/psalm": "^3.0"
+    },
+    "config": {
+        "preferred-install": "dist",
+        "sort-packages": true
     },
     "autoload": {
         "psr-4": {
@@ -40,11 +47,30 @@
             "tests/helpers.php"
         ]
     },
+    "minimum-stability": "stable",
+    "prefer-stable": true,
     "scripts": {
+        "fix": [
+            "clear",
+            "@composer normalize",
+            "./vendor/bin/php-cs-fixer fix"
+        ],
+        "lint": [
+            "clear",
+            "@composer normalize --dry-run",
+            "./vendor/bin/php-cs-fixer fix --dry-run",
+            "./vendor/bin/psalm --threads=8",
+            "./vendor/bin/phpstan analyse"
+        ],
         "test": [
             "clear",
             "./vendor/bin/phpunit",
-            "./vendor/bin/infection --threads=4"
+            "./vendor/bin/infection --threads=8"
         ]
+    },
+    "support": {
+        "issues": "https://github.com/timacdonald/log-fake/issues",
+        "source": "https://github.com/timacdonald/log-fake/releases/latest",
+        "docs": "https://github.com/timacdonald/log-fake/blob/master/readme.md"
     }
 }
