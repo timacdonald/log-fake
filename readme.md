@@ -4,6 +4,12 @@
 
 A bunch of Laravel facades / services are able to be faked, such as the Dispatcher with `Bus::fake()`, to help with testing and assertions. This package gives you the ability to fake the logger in your app, and includes the ability to make assertions against channels and stacks introduced in logging overhaul in Laravel `5.6`.
 
+## Version support
+
+- **PHP**: 7.1, 7.2, 7.3, 7.4
+- **Laravel**: 5.6, 5.7, 5.8, 6.0, 7.0
+- **PHPUnit**: 7.0, 8.0, 9.0
+
 ## Installation
 
 You can install using [composer](https://getcomposer.org/) from [Packagist](https://packagist.org/packages/timacdonald/log-fake).
