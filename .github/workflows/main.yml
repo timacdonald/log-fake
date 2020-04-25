@@ -30,7 +30,7 @@ jobs:
           key: dependencies-composer-${{ hashFiles('composer.json') }}-v1
 
       - name: Install dependencies
-        run: composer install --no-suggest --no-interaction --verbosekkkkkkkk
+        run: composer install --no-suggest --no-interaction --verbose
 
       - name: Check platform requirements
         run: composer check-platform-reqs --verbose
