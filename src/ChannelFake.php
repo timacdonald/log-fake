@@ -4,29 +4,26 @@ namespace TiMacDonald\Log;
 
 use Psr\Log\LoggerInterface;
 
+/**
+ * @mixin \TiMacDonald\Log\LogFake
+ */
 class ChannelFake implements LoggerInterface
 {
     use LogHelpers;
 
     /**
-     * The logger to proxy calls to.
-     *
      * @var \TiMacDonald\Log\LogFake
      */
     protected $log;
 
     /**
-     * The name of the current channel.
-     *
-     * @var string
+     * @var mixed
      */
     protected $name;
 
     /**
-     * Create a new instance.
-     *
      * @param \TiMacDonald\Log\LogFake $log
-     * @param string $name
+     * @param mixed $name
      * @return void
      */
     public function __construct($log, $name)
@@ -37,37 +34,36 @@ class ChannelFake implements LoggerInterface
     }
 
     /**
-     * Proxy a 'log' call to the logger.
-     *
-     * @param string $level
+     * @param mixed $level
      * @param string $message
      * @param array $context
      * @return void
      */
     public function log($level, $message, array $context = [])
     {
-        $this->proxy(function () use ($level, $message, $context) {
+        $this->proxy(function () use ($level, $message, $context): void {
             $this->log->log($level, $message, $context);
         });
     }
 
     /**
-     * Handle dynamic calls to the instance.
-     *
      * @param string $method
      * @param array $arguments
      * @return mixed
      */
     public function __call($method, $arguments)
     {
-        return $this->proxy(function () use ($method, $arguments) {
-            return $this->log->{$method}(...$arguments);
-        });
+        return $this->proxy(
+            /**
+             * @return mixed
+             */
+            function () use ($method, $arguments) {
+                return $this->log->{$method}(...$arguments);
+            }
+        );
     }
 
     /**
-     * Proxy calls to the logger.
-     *
      * @param \Closure $closure
      * @return mixed
      */
@@ -75,6 +71,7 @@ class ChannelFake implements LoggerInterface
     {
         $this->log->setCurrentChannel($this->name);
 
+        /** @var mixed */
         $result = $closure();
 
         $this->log->setCurrentChannel(null);

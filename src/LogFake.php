@@ -11,42 +11,35 @@ class LogFake implements LoggerInterface
     use LogHelpers;
 
     /**
-     * All of the created logs.
-     *
      * @var array
      */
     protected $logs = [];
 
     /**
-     * The channel being logged to.
-     *
-     * @var string|null
+     * @var mixed
      */
     protected $currentChannel;
 
     /**
-     * Assert if a log was created based on a truth-test callback.
-     *
-     * @param string $level
+     * @param mixed $level
      * @param callable|int|null $callback
      * @return void
      */
     public function assertLogged($level, $callback = null)
     {
-        if (is_numeric($callback)) {
-            return $this->assertLoggedTimes($level, $callback);
+        if ($callback === null || is_callable($callback)) {
+            PHPUnit::assertTrue(
+                $this->logged($level, $callback)->count() > 0,
+                "The expected log with level [{$level}] was not logged in {$this->currentChannel()}."
+            );
+            return;
         }
 
-        PHPUnit::assertTrue(
-            $this->logged($level, $callback)->count() > 0,
-            "The expected log with level [{$level}] was not logged in {$this->currentChannel()}."
-        );
+        $this->assertLoggedTimes($level, $callback);
     }
 
     /**
-     * Assert if a log was created a number of times.
-     *
-     * @param string $level
+     * @param mixed $level
      * @param int $times
      * @param callable|null $callback
      * @return void
@@ -60,9 +53,7 @@ class LogFake implements LoggerInterface
     }
 
     /**
-     * Determine if a log was not created based on a truth-test callback.
-     *
-     * @param string $level
+     * @param mixed $level
      * @param callable|null $callback
      * @return void
      */
@@ -75,8 +66,6 @@ class LogFake implements LoggerInterface
     }
 
     /**
-     * Assert that no logs were created.
-     *
      * @return void
      */
     public function assertNothingLogged()
@@ -85,41 +74,37 @@ class LogFake implements LoggerInterface
     }
 
     /**
-     * Assert logged a specfic message.
-     *
-     * @param string $level
+     * @param mixed $level
      * @param string $message
      * @return void
      */
     public function assertLoggedMessage($level, $message)
     {
-        $this->assertLogged($level, function ($loggedMessage, $context) use ($message) {
+        $this->assertLogged($level, function (string $loggedMessage) use ($message): bool {
             return $loggedMessage === $message;
         });
     }
 
     /**
-     * Get all of the logs matching a truth-test callback.
-     *
-     * @param string $level
+     * @param mixed $level
      * @param callable|null $callback
      * @return \Illuminate\Support\Collection
      */
     public function logged($level, $callback = null)
     {
-        $callback = $callback ?: function () {
-            return true;
-        };
+        if ($callback === null) {
+            $callback = function (): bool {
+                return true;
+            };
+        }
 
-        return $this->logsOfLevel($level)->filter(function ($log) use ($callback) {
-            return $callback($log['message'], $log['context']);
+        return $this->logsOfLevel($level)->filter(function (array $log) use ($callback): bool {
+            return (bool) $callback($log['message'], $log['context']);
         });
     }
 
     /**
-     * Determine if the given log level has been created.
-     *
-     * @param string $level
+     * @param mixed $level
      * @return bool
      */
     public function hasLogged($level)
@@ -128,9 +113,7 @@ class LogFake implements LoggerInterface
     }
 
     /**
-     * Determine if the given log level has not been created.
-     *
-     * @param string $level
+     * @param mixed $level
      * @return bool
      */
     public function hasNotLogged($level)
@@ -139,34 +122,28 @@ class LogFake implements LoggerInterface
     }
 
     /**
-     * Get all of the created logs for a given level.
-     *
-     * @param string $type
+     * @param mixed $level
      * @return \Illuminate\Support\Collection
      */
     protected function logsOfLevel($level)
     {
-        return $this->logsInCurrentChannel()->filter(function ($log) use ($level) {
+        return $this->logsInCurrentChannel()->filter(function (array $log) use ($level): bool {
             return $log['level'] === $level;
         });
     }
 
     /**
-     * Get all of the created logs for the current channel.
-     *
      * @return \Illuminate\Support\Collection
      */
     protected function logsInCurrentChannel()
     {
-        return Collection::make($this->logs)->filter(function ($log) {
+        return Collection::make($this->logs)->filter(function (array $log): bool {
             return $this->currentChannelIs($log['channel']);
         });
     }
 
     /**
-     * Log a message to the logs.
-     *
-     * @param string $level
+     * @param mixed $level
      * @param string $message
      * @param array $context
      * @return void
@@ -182,9 +159,7 @@ class LogFake implements LoggerInterface
     }
 
     /**
-     * Dynamically pass log calls into the writer.
-     *
-     * @param string $level
+     * @param mixed $level
      * @param string $message
      * @param array $context
      * @return void
@@ -195,9 +170,7 @@ class LogFake implements LoggerInterface
     }
 
     /**
-     * Get a log channel instance.
-     *
-     * @param string|null $channel
+     * @param mixed $channel
      * @return \TiMacDonald\Log\ChannelFake
      */
     public function channel($channel = null)
@@ -206,9 +179,7 @@ class LogFake implements LoggerInterface
     }
 
     /**
-     * Get a log driver instance.
-     *
-     * @param string|null $driver
+     * @param mixed $driver
      * @return \TiMacDonald\Log\ChannelFake
      */
     public function driver($driver = null)
@@ -217,10 +188,8 @@ class LogFake implements LoggerInterface
     }
 
     /**
-     * Create a new, on-demand aggregate logger instance.
-     *
      * @param array $channels
-     * @param string|null $channel
+     * @param mixed $channel
      * @return \TiMacDonald\Log\ChannelFake
      */
     public function stack(array $channels, $channel = null)
@@ -229,10 +198,8 @@ class LogFake implements LoggerInterface
     }
 
     /**
-     * Create a stack based channel name.
-     *
      * @param array $channels
-     * @param string|null $channel
+     * @param mixed $channel
      * @return string
      */
     protected function createStackChannelName($channels, $channel)
@@ -241,9 +208,7 @@ class LogFake implements LoggerInterface
     }
 
     /**
-     * Set the current channel being logged to.
-     *
-     * @param string|null $name
+     * @param mixed $name
      * @return void
      */
     public function setCurrentChannel($name)
@@ -252,9 +217,7 @@ class LogFake implements LoggerInterface
     }
 
     /**
-     * Get the current channel being logged to.
-     *
-     * @return string
+     * @return mixed
      */
     public function currentChannel()
     {
@@ -262,10 +225,8 @@ class LogFake implements LoggerInterface
     }
 
     /**
-     * Determine if in provided channel.
-     *
-     * @param string|null $channel
-     * @return string
+     * @param mixed $channel
+     * @return bool
      */
     protected function currentChannelIs($channel)
     {
@@ -273,18 +234,14 @@ class LogFake implements LoggerInterface
     }
 
     /**
-     * Get the default log driver name.
-     *
-     * @return string
+     * @return mixed
      */
     public function getDefaultDriver()
     {
-        return config('logging.default');
+        return config()->get('logging.default');
     }
 
     /**
-     * Set the default log driver name.
-     *
      * @param string $name
      * @return void
      */
@@ -294,30 +251,40 @@ class LogFake implements LoggerInterface
     }
 
     /**
-     * Get the underlying logger implementation.
-     *
-     * @return $this
+     * @return self
      */
     public function getLogger()
     {
         return $this;
     }
 
+    /**
+     * @return void
+     */
     public function listen()
     {
         //
     }
 
+    /**
+     * @return void
+     */
     public function extend()
     {
         //
     }
 
+    /**
+     * @return void
+     */
     public function getEventDispatcher()
     {
         //
     }
 
+    /**
+     * @return void
+     */
     public function setEventDispatcher()
     {
         //

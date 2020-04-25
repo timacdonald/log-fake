@@ -1,0 +1,8 @@
+parameters:
+    checkMissingIterableValueType: false
+    level: max
+    paths:
+        - src
+        - tests
+    ignoreErrors:
+        - '#Call to an undefined method TiMacDonald\\Log\\ChannelFake::#'
