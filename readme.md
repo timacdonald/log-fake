@@ -21,6 +21,8 @@ $ composer require timacdonald/log-fake --dev
 ## Basic usage
 
 ```php
+<?php
+
 use TiMacDonald\Log\LogFake;
 use Illuminate\Support\Facades\Log;
 
@@ -40,6 +42,8 @@ Log::assertLogged('info', function ($message, $context) {
 If you are logging to a specific channel in your app, such as Slack with `Log::channel('slack')->critical('It is 5pm, go home')`, you need to also prefix your assertions in the same manner.
 
 ```php
+<?php
+
 use TiMacDonald\Log\LogFake;
 use Illuminate\Support\Facades\Log;
 
@@ -61,6 +65,8 @@ Log::assertLogged('alert');  // ❌ fails
 If you are logging to a stack in your app, like with channels, you will need to prefix your assertions. Note that the order of the stack does not matter.
 
 ```php
+<?php
+
 use TiMacDonald\Log\LogFake;
 use Illuminate\Support\Facades\Log;
 
@@ -85,6 +91,8 @@ All assertions are relative to the channel or stack as shown in the previous exa
 ### assertLogged($level, $callback = null)
 
 ```php
+<?php
+
 Log::assertLogged('info');
 
 Log::channel('slack')->assertLogged('alert');
@@ -109,6 +117,8 @@ Log::stack(['bugsnag', 'sentry'])->assertLogged('critical', function ($message, 
 ### assertLoggedMessage($level, $message)
 
 ```php
+<?php
+
 Log::assertLoggedMessage('info', 'User registered');
 
 Log::channel('slack')->assertLoggedMessage('alert', 'It is 5pm, go home');
@@ -119,6 +129,8 @@ Log::stack(['bugsnag', 'sentry'])->assertLoggedMessage('critical', 'Perform evas
 ### assertLoggedTimes($level, $times = 1, $callback = null)
 
 ```php
+<?php
+
 Log::assertLoggedTimes('info', 5);
 
 Log::channel('slack')->assertLoggedTimes('alert', 5);
@@ -143,6 +155,8 @@ Log::stack(['bugsnag', 'sentry'])->assertLogged('critical', 5, function ($messag
 ### assertNotLogged($level, $callback = null)
 
 ```php
+<?php
+
 Log::assertNotLogged('info');
 
 Log::channel('slack')->assertNotLogged('alert');
@@ -167,6 +181,8 @@ Log::stack(['bugsnag', 'sentry'])->assertNotLogged('critical', function ($messag
 ### assertNothingLogged()
 
 ```php
+<?php
+
 Log::assertNothingLogged();
 
 Log::channel('slack')->assertNothingLogged();
