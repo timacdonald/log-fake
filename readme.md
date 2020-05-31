@@ -23,6 +23,7 @@ $ composer require timacdonald/log-fake --dev
 ```php
 <?php
 
+use Illuminate\Support\Str;
 use TiMacDonald\Log\LogFake;
 use Illuminate\Support\Facades\Log;
 
@@ -33,7 +34,7 @@ Log::swap(new LogFake);
 Log::info('Donuts have arrived');
 
 Log::assertLogged('info', function ($message, $context) {
-    return str_contains($message, 'Donuts');
+    return Str::contains($message, 'Donuts');
 });
 ```
 
@@ -93,6 +94,8 @@ All assertions are relative to the channel or stack as shown in the previous exa
 ```php
 <?php
 
+use Illuminate\Support\Str;
+
 Log::assertLogged('info');
 
 Log::channel('slack')->assertLogged('alert');
@@ -102,15 +105,15 @@ Log::stack(['bugsnag', 'sentry'])->assertLogged('critical');
 // with a callback
 
 Log::assertLogged('info', function ($message, $context) {
-    return str_contains($message, 'Donuts');
+    return Str::contains($message, 'Donuts');
 });
 
 Log::channel('slack')->assertLogged('alert', function ($message, $context) {
-    return str_contains($message, '5pm');
+    return Str::contains($message, '5pm');
 });
 
 Log::stack(['bugsnag', 'sentry'])->assertLogged('critical', function ($message, $context) {
-    return str_contains($message, 'evasive maneuvers');
+    return Str::contains($message, 'evasive maneuvers');
 });
 ```
 
@@ -131,6 +134,8 @@ Log::stack(['bugsnag', 'sentry'])->assertLoggedMessage('critical', 'Perform evas
 ```php
 <?php
 
+use Illuminate\Support\Str;
+
 Log::assertLoggedTimes('info', 5);
 
 Log::channel('slack')->assertLoggedTimes('alert', 5);
@@ -140,15 +145,15 @@ Log::stack(['bugsnag', 'sentry'])->assertLoggedTimes('critical', 5);
 // with a callback
 
 Log::assertLogged('info', 5, function ($message, $context) {
-    return str_contains($message, 'Donuts');
+    return Str::contains($message, 'Donuts');
 });
 
 Log::channel('slack')->assertLogged('alert', 5, function ($message, $context) {
-    return str_contains($message, '5pm');
+    return Str::contains($message, '5pm');
 });
 
 Log::stack(['bugsnag', 'sentry'])->assertLogged('critical', 5, function ($message, $context) {
-    return str_contains($message, 'evasive maneuvers');
+    return Str::contains($message, 'evasive maneuvers');
 });
 ```
 
@@ -156,6 +161,8 @@ Log::stack(['bugsnag', 'sentry'])->assertLogged('critical', 5, function ($messag
 
 ```php
 <?php
+
+use Illuminate\Support\Str;
 
 Log::assertNotLogged('info');
 
@@ -166,15 +173,15 @@ Log::stack(['bugsnag', 'sentry'])->assertNotLogged('critical');
 // with a callback
 
 Log::assertNotLogged('info', function ($message, $context) {
-    return str_contains($message, 'Donuts');
+    return Str::contains($message, 'Donuts');
 });
 
 Log::channel('slack')->assertNotLogged('alert' , function ($message, $context) {
-    return str_contains($message, '5pm');
+    return Str::contains($message, '5pm');
 });
 
 Log::stack(['bugsnag', 'sentry'])->assertNotLogged('critical', function ($message, $context) {
-    return str_contains($message, 'evasive maneuvers');
+    return Str::contains($message, 'evasive maneuvers');
 });
 ```
 
