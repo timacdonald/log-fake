@@ -567,4 +567,16 @@ class LogFakeTest extends TestCase
 
         $this->assertSame('expected-driver', config()->get('logging.default'));
     }
+
+    public function testLoggedClosureWithNonBooleanReturn(): void
+    {
+        $log = new LogFake();
+        $log->info('xxxx');
+
+        $log->logged('info', function () {
+            $this->assertTrue(true);
+
+            return 1;
+        });
+    }
 }
