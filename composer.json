@@ -28,6 +28,7 @@
         "ergebnis/composer-normalize": "^2.0",
         "infection/infection": "^0.17.0",
         "phpstan/phpstan": "^0.12",
+        "timacdonald/php-style": "dev-master",
         "vimeo/psalm": "^3.0"
     },
     "config": {
