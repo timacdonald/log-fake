@@ -1,33 +1,38 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests;
 
-use Illuminate\Contracts\Config\Repository;
-use stdClass;
-use TiMacDonald\Log\LogFake;
-use Psr\Log\LoggerInterface;
-use PHPUnit\Framework\TestCase;
-use Illuminate\Container\Container;
+use function config;
 use Illuminate\Config\Repository as Config;
-use PHPUnit\Framework\ExpectationFailedException;
+use Illuminate\Container\Container;
+use Illuminate\Contracts\Config\Repository;
 use PHPUnit\Framework\Constraint\ExceptionMessage;
+use PHPUnit\Framework\ExpectationFailedException;
+use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
+use TiMacDonald\Log\LogFake;
 
+/**
+ * @small
+ */
 class LogFakeTest extends TestCase
 {
     const MESSAGE = 'Expected logged message';
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
-        Container::setInstance(new Container)->singleton('config', function (): Repository {
+        Container::setInstance(new Container())->singleton('config', static function (): Repository {
             return new Config(['logging' => ['default' => 'stack']]);
         });
     }
 
     public function testAssertLogged(): void
     {
-        $log = new LogFake;
+        $log = new LogFake();
 
         try {
             $log->assertLogged('info');
@@ -53,7 +58,7 @@ class LogFakeTest extends TestCase
 
     public function testAssertLoggedWithCount(): void
     {
-        $log = new LogFake;
+        $log = new LogFake();
 
         try {
             $log->assertLogged('info', 1);
@@ -79,10 +84,10 @@ class LogFakeTest extends TestCase
 
     public function testAssertLoggedWithCallback(): void
     {
-        $log = new LogFake;
+        $log = new LogFake();
 
         try {
-            $log->assertLogged('info', function () {
+            $log->assertLogged('info', static function () {
                 return true;
             });
             $this->fail();
@@ -91,7 +96,7 @@ class LogFakeTest extends TestCase
         }
 
         try {
-            $log->channel('channel')->assertLogged('info', function () {
+            $log->channel('channel')->assertLogged('info', static function () {
                 return true;
             });
             $this->fail();
@@ -100,7 +105,7 @@ class LogFakeTest extends TestCase
         }
 
         try {
-            $log->stack(['channel'], 'name')->assertLogged('info', function () {
+            $log->stack(['channel'], 'name')->assertLogged('info', static function () {
                 return true;
             });
             $this->fail();
@@ -111,10 +116,10 @@ class LogFakeTest extends TestCase
 
     public function testAssertLoggedTimesWithCallback(): void
     {
-        $log = new LogFake;
+        $log = new LogFake();
 
         try {
-            $log->assertLoggedTimes('info', 42, function () {
+            $log->assertLoggedTimes('info', 42, static function () {
                 return true;
             });
             $this->fail();
@@ -123,7 +128,7 @@ class LogFakeTest extends TestCase
         }
 
         try {
-            $log->channel('channel')->assertLoggedTimes('info', 42, function () {
+            $log->channel('channel')->assertLoggedTimes('info', 42, static function () {
                 return true;
             });
             $this->fail();
@@ -132,7 +137,7 @@ class LogFakeTest extends TestCase
         }
 
         try {
-            $log->stack(['channel'], 'name')->assertLoggedTimes('info', 42, function () {
+            $log->stack(['channel'], 'name')->assertLoggedTimes('info', 42, static function () {
                 return true;
             });
             $this->fail();
@@ -141,7 +146,7 @@ class LogFakeTest extends TestCase
         }
 
         try {
-            $log->stack(['channel'], 'name')->assertLoggedTimes('info', 42, function () {
+            $log->stack(['channel'], 'name')->assertLoggedTimes('info', 42, static function () {
                 return true;
             });
             $this->fail();
@@ -152,7 +157,7 @@ class LogFakeTest extends TestCase
 
     public function testAssertLoggedMessage(): void
     {
-        $log = new LogFake;
+        $log = new LogFake();
 
         try {
             $log->assertLoggedMessage('info', 'expected message');
@@ -167,7 +172,7 @@ class LogFakeTest extends TestCase
 
     public function testAssertLoggedTimes(): void
     {
-        $log = new LogFake;
+        $log = new LogFake();
 
         try {
             $log->assertLoggedTimes('info');
@@ -190,10 +195,9 @@ class LogFakeTest extends TestCase
         $log->assertLoggedTimes('info', 2);
     }
 
-
     public function testAssertLoggedTimesInChannel(): void
     {
-        $log = new LogFake;
+        $log = new LogFake();
 
         try {
             $log->channel('channel')->assertLoggedTimes('info');
@@ -218,7 +222,7 @@ class LogFakeTest extends TestCase
 
     public function testAssertLoggedTimesInStack(): void
     {
-        $log = new LogFake;
+        $log = new LogFake();
 
         try {
             $log->stack(['channel'], 'name')->assertLoggedTimes('info');
@@ -243,7 +247,7 @@ class LogFakeTest extends TestCase
 
     public function testAssertNotLogged(): void
     {
-        $log = new LogFake;
+        $log = new LogFake();
         $log->info(self::MESSAGE);
         $log->channel('channel')->info(self::MESSAGE);
         $log->stack(['channel'], 'name')->info(self::MESSAGE);
@@ -272,13 +276,13 @@ class LogFakeTest extends TestCase
 
     public function testAssertNotLoggedWithCallback(): void
     {
-        $log = new LogFake;
+        $log = new LogFake();
         $log->info(self::MESSAGE);
         $log->channel('channel')->info(self::MESSAGE);
         $log->stack(['channel'], 'name')->info(self::MESSAGE);
 
         try {
-            $log->assertNotLogged('info', function () {
+            $log->assertNotLogged('info', static function () {
                 return true;
             });
             $this->fail();
@@ -287,7 +291,7 @@ class LogFakeTest extends TestCase
         }
 
         try {
-            $log->channel('channel')->assertNotLogged('info', function () {
+            $log->channel('channel')->assertNotLogged('info', static function () {
                 return true;
             });
             $this->fail();
@@ -296,7 +300,7 @@ class LogFakeTest extends TestCase
         }
 
         try {
-            $log->stack(['channel'], 'name')->assertNotLogged('info', function () {
+            $log->stack(['channel'], 'name')->assertNotLogged('info', static function () {
                 return true;
             });
             $this->fail();
@@ -307,7 +311,7 @@ class LogFakeTest extends TestCase
 
     public function testAssertNothingLogged(): void
     {
-        $log = new LogFake;
+        $log = new LogFake();
         $log->info(self::MESSAGE);
         $log->channel('channel')->info(self::MESSAGE);
         $log->stack(['channel'], 'name')->info(self::MESSAGE);
@@ -334,16 +338,15 @@ class LogFakeTest extends TestCase
         }
     }
 
-
     public function testChannelLoggerInstanceOfLoggerInterface(): void
     {
-        $log = new LogFake;
+        $log = new LogFake();
         $this->assertInstanceOf(LoggerInterface::class, $log->channel('channel'));
     }
 
     public function testLogged(): void
     {
-        $log = new LogFake;
+        $log = new LogFake();
 
         $this->assertTrue($log->logged('info')->isEmpty());
         $log->info(self::MESSAGE);
@@ -360,36 +363,36 @@ class LogFakeTest extends TestCase
 
     public function testLoggedWithCallback(): void
     {
-        $log = new LogFake;
+        $log = new LogFake();
 
-        $this->assertTrue($log->logged('info', function () {
+        $this->assertTrue($log->logged('info', static function () {
             return true;
         })->isEmpty());
         $log->info(self::MESSAGE);
-        $this->assertFalse($log->logged('info', function () {
+        $this->assertFalse($log->logged('info', static function () {
             return true;
         })->isEmpty());
 
-        $this->assertTrue($log->channel('channel')->logged('info', function () {
+        $this->assertTrue($log->channel('channel')->logged('info', static function () {
             return true;
         })->isEmpty());
         $log->channel('channel')->info(self::MESSAGE);
-        $this->assertFalse($log->channel('channel')->logged('info', function () {
+        $this->assertFalse($log->channel('channel')->logged('info', static function () {
             return true;
         })->isEmpty());
 
-        $this->assertTrue($log->stack(['channel'], 'name')->logged('info', function () {
+        $this->assertTrue($log->stack(['channel'], 'name')->logged('info', static function () {
             return true;
         })->isEmpty());
         $log->stack(['channel'], 'name')->info(self::MESSAGE);
-        $this->assertFalse($log->stack(['channel'], 'name')->logged('info', function () {
+        $this->assertFalse($log->stack(['channel'], 'name')->logged('info', static function () {
             return true;
         })->isEmpty());
     }
 
     public function testHasLogged(): void
     {
-        $log = new LogFake;
+        $log = new LogFake();
 
         $this->assertFalse($log->hasLogged('info'));
         $log->info(self::MESSAGE);
@@ -406,7 +409,7 @@ class LogFakeTest extends TestCase
 
     public function testHasNotLogged(): void
     {
-        $log = new LogFake;
+        $log = new LogFake();
 
         $this->assertTrue($log->hasNotLogged('info'));
         $log->info(self::MESSAGE);
@@ -423,7 +426,7 @@ class LogFakeTest extends TestCase
 
     public function testLoggingLevelMethods(): void
     {
-        $log = new LogFake;
+        $log = new LogFake();
 
         $log->emergency('emergency log');
         $log->alert('alert log');
@@ -436,51 +439,51 @@ class LogFakeTest extends TestCase
         $log->log('custom', 'custom log');
         $log->write('custom_2', 'custom log 2');
 
-        $log->assertLogged('emergency', function (string $message) {
+        $log->assertLogged('emergency', static function (string $message) {
             return $message === 'emergency log';
         });
-        $log->assertLogged('alert', function (string $message) {
+        $log->assertLogged('alert', static function (string $message) {
             return $message === 'alert log';
         });
-        $log->assertLogged('critical', function (string $message) {
+        $log->assertLogged('critical', static function (string $message) {
             return $message === 'critical log';
         });
-        $log->assertLogged('error', function (string $message) {
+        $log->assertLogged('error', static function (string $message) {
             return $message === 'error log';
         });
-        $log->assertLogged('warning', function (string $message) {
+        $log->assertLogged('warning', static function (string $message) {
             return $message === 'warning log';
         });
-        $log->assertLogged('info', function (string $message) {
+        $log->assertLogged('info', static function (string $message) {
             return $message === 'info log';
         });
-        $log->assertLogged('notice', function (string $message) {
+        $log->assertLogged('notice', static function (string $message) {
             return $message === 'notice log';
         });
-        $log->assertLogged('debug', function (string $message) {
+        $log->assertLogged('debug', static function (string $message) {
             return $message === 'debug log';
         });
-        $log->assertLogged('custom', function (string $message) {
+        $log->assertLogged('custom', static function (string $message) {
             return $message === 'custom log';
         });
-        $log->assertLogged('custom_2', function (string $message) {
+        $log->assertLogged('custom_2', static function (string $message) {
             return $message === 'custom log 2';
         });
     }
 
     public function assertChannelAndDriverMethodsCanBeUsedInterchangably(): void
     {
-        $log = new LogFake;
+        $log = new LogFake();
 
         $log->driver('channel')->info(self::MESSAGE);
-        $log->channel('channel')->assertLogged('info', function () {
+        $log->channel('channel')->assertLogged('info', static function () {
             return true;
         });
     }
 
     public function testCurrentStackIsTakenIntoAccount(): void
     {
-        $log = new LogFake;
+        $log = new LogFake();
 
         $log->stack(['bugsnag', 'sentry'], 'dev_team')->info(self::MESSAGE);
 
@@ -490,7 +493,7 @@ class LogFakeTest extends TestCase
 
     public function testCanHaveStackChannelsInAnyOrder(): void
     {
-        $log = new LogFake;
+        $log = new LogFake();
 
         $log->stack(['bugsnag', 'sentry'], 'dev_team')->info(self::MESSAGE);
 
@@ -500,7 +503,7 @@ class LogFakeTest extends TestCase
 
     public function testDifferentiatesBetweenStacksWithANameAndThoseWithout(): void
     {
-        $log = new LogFake;
+        $log = new LogFake();
 
         $log->stack(['bugsnag', 'sentry'], 'dev_team')->info(self::MESSAGE);
         $log->stack(['bugsnag', 'sentry'])->alert(self::MESSAGE);
@@ -511,7 +514,7 @@ class LogFakeTest extends TestCase
 
     public function testDifferentiatesBetweenStacksAndChannelsWithTheSameName(): void
     {
-        $log = new LogFake;
+        $log = new LogFake();
 
         $log->stack(['bugsnag', 'sentry'])->info(self::MESSAGE);
         $log->channel('bugsnag.sentry')->alert(self::MESSAGE);
@@ -528,35 +531,38 @@ class LogFakeTest extends TestCase
 
     public function testAssertLoggedInStackDotNotatesSortedChannels(): void
     {
-        $this->assertSame('Stack:name.a.b.c', (new LogFake)->stack(['c', 'b', 'a'], 'name')->currentChannel());
+        $this->assertSame('Stack:name.a.b.c', (new LogFake())->stack(['c', 'b', 'a'], 'name')->currentChannel());
     }
 
     public function testClosuresProvideMessageAndContext(): void
     {
-        $log = new LogFake;
+        $log = new LogFake();
         $log->info(self::MESSAGE, ['key' => 'expected']);
 
         $items = $log->logged('info', function (string $message, array $context) {
             $this->assertSame(self::MESSAGE, $message);
             $this->assertSame(['key' => 'expected'], $context);
+
             return true;
         });
         $this->assertTrue($items->isNotEmpty());
         $log->assertLogged('info', function (string $message, array $context) {
             $this->assertSame(self::MESSAGE, $message);
             $this->assertSame(['key' => 'expected'], $context);
+
             return true;
         });
         $log->assertNotLogged('info', function (string $message, array $context) {
             $this->assertSame(self::MESSAGE, $message);
             $this->assertSame(['key' => 'expected'], $context);
+
             return false;
         });
     }
 
     public function testSetDefaultDriver(): void
     {
-        $log = new LogFake;
+        $log = new LogFake();
         $log->setDefaultDriver('expected-driver');
 
         $this->assertSame('expected-driver', config()->get('logging.default'));

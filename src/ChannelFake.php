@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace TiMacDonald\Log;
 
+use Closure;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -24,7 +27,6 @@ class ChannelFake implements LoggerInterface
     /**
      * @param \TiMacDonald\Log\LogFake $log
      * @param mixed $name
-     * @return void
      */
     public function __construct($log, $name)
     {
@@ -36,10 +38,8 @@ class ChannelFake implements LoggerInterface
     /**
      * @param mixed $level
      * @param string $message
-     * @param array $context
-     * @return void
      */
-    public function log($level, $message, array $context = [])
+    public function log($level, $message, array $context = []): void
     {
         $this->proxy(function () use ($level, $message, $context): void {
             $this->log->log($level, $message, $context);
@@ -49,6 +49,7 @@ class ChannelFake implements LoggerInterface
     /**
      * @param string $method
      * @param array $arguments
+     *
      * @return mixed
      */
     public function __call($method, $arguments)
@@ -64,7 +65,8 @@ class ChannelFake implements LoggerInterface
     }
 
     /**
-     * @param \Closure $closure
+     * @param Closure $closure
+     *
      * @return mixed
      */
     private function proxy($closure)
