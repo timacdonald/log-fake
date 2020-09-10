@@ -35,8 +35,8 @@ jobs:
       - name: Check platform requirements
         run: composer check-platform-reqs --verbose
 
-      # - name: PHP-CS-Fixer
-        # run: ./vendor/bin/php-cs-fixer fix --dry-run --no-interaction --verbose
+      - name: PHP-CS-Fixer
+        run: ./vendor/bin/php-cs-fixer fix --dry-run --no-interaction --verbose
 
       - name: composer normalize
         run: composer normalize --dry-run --no-interaction --verbose
