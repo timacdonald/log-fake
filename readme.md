@@ -1,3 +1,5 @@
+<p align="center"><img src="/art/header.png" alt="Log Fake: a Laravel package by Tim MacDonald"></p>
+
 # Log fake for Laravel
 
 ![CI](https://github.com/timacdonald/log-fake/workflows/CI/badge.svg) [![codecov](https://codecov.io/gh/timacdonald/log-fake/branch/master/graph/badge.svg)](https://codecov.io/gh/timacdonald/log-fake) ![Type coverage](https://shepherd.dev/github/timacdonald/log-fake/coverage.svg) [![Total Downloads](https://poser.pugx.org/timacdonald/log-fake/downloads)](https://packagist.org/packages/timacdonald/log-fake)
@@ -196,6 +198,13 @@ Log::channel('slack')->assertNothingLogged();
 
 Log::stack(['bugsnag', 'sentry'])->assertNothingLogged();
 ```
+
+## Credits
+
+- [Tim MacDonald](https://github.com/timacdonald)
+- [All Contributors](../../contributors)
+
+And a special (vegi) thanks to [Caneco](https://twitter.com/caneco) for the logo ✨
 
 ## Thanksware
 
