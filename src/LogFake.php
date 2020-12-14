@@ -91,9 +91,9 @@ class LogFake implements LoggerInterface
     public function logged($level, $callback = null): Collection
     {
         if ($callback === null) {
-            $callback = static function (): bool {
+            return $this->logsOfLevel($level)->filter(static function (): bool {
                 return true;
-            };
+            });
         }
 
         return $this->logsOfLevel($level)->filter(static function (array $log) use ($callback): bool {
