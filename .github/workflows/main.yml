@@ -27,7 +27,7 @@ jobs:
         uses: actions/cache@v1
         with:
           path: ~/.composer/cache/files
-          key: dependencies-composer-${{ hashFiles('composer.json') }}-v2
+          key: dependencies-composer-${{ hashFiles('composer.json') }}-v3
 
       - name: Install dependencies
         run: composer install --no-suggest --no-interaction --verbose
@@ -105,7 +105,7 @@ jobs:
       uses: actions/cache@v1
       with:
           path: ~/.composer/cache/files
-          key: dependencies-${{ matrix.dependency-version }}-laravel-${{ matrix.laravel }}-phpunit-${{ matrix.phpunit }}-php-${{ matrix.php }}-composer-${{ hashFiles('composer.json') }}-v3
+          key: dependencies-${{ matrix.dependency-version }}-laravel-${{ matrix.laravel }}-phpunit-${{ matrix.phpunit }}-php-${{ matrix.php }}-composer-${{ hashFiles('composer.json') }}-v4
 
     - name: Install dependencies
       run: |
