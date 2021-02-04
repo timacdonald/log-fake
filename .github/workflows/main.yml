@@ -48,11 +48,11 @@ jobs:
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
-      # - name: Infection
-        # run: ./vendor/bin/infection --show-mutations --min-msi=100 --no-progress --no-interaction --verbose
-        # run: ./vendor/bin/infection --show-mutations --no-progress --no-interaction --verbose
-        # env:
-          # INFECTION_BADGE_API_KEY: ${{ secrets.INFECTION_BADGE_API_KEY }}
+      - name: Infection
+        run: ./vendor/bin/infection --show-mutations --min-msi=100 --no-progress --no-interaction --verbose
+        run: ./vendor/bin/infection --show-mutations --no-progress --no-interaction --verbose
+        env:
+          INFECTION_BADGE_API_KEY: ${{ secrets.INFECTION_BADGE_API_KEY }}
 
       - name: Psalm
         run: ./vendor/bin/psalm --shepherd --no-progress
