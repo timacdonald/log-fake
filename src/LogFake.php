@@ -7,13 +7,10 @@ namespace TiMacDonald\Log;
 use function collect;
 use function config;
 
-use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Collection;
 use function is_callable;
 use PHPUnit\Framework\Assert as PHPUnit;
-use PHPUnit\Framework\ExpectationFailedException;
 use Psr\Log\LoggerInterface;
-use SebastianBergmann\RecursionContext\InvalidArgumentException;
 
 class LogFake implements LoggerInterface
 {
@@ -32,6 +29,7 @@ class LogFake implements LoggerInterface
     /**
      * @param mixed $level
      * @param callable|int|null $callback
+     *
      * @return void
      */
     public function assertLogged($level, $callback = null)
@@ -52,6 +50,7 @@ class LogFake implements LoggerInterface
      * @param mixed $level
      * @param int $times
      * @param callable|null $callback
+     *
      * @return void
      */
     public function assertLoggedTimes($level, $times = 1, $callback = null)
@@ -65,6 +64,7 @@ class LogFake implements LoggerInterface
     /**
      * @param mixed $level
      * @param callable|null $callback
+     *
      * @return void
      */
     public function assertNotLogged($level, $callback = null)
@@ -86,6 +86,7 @@ class LogFake implements LoggerInterface
     /**
      * @param mixed $level
      * @param string $message
+     *
      * @return void
      */
     public function assertLoggedMessage($level, $message)
@@ -98,6 +99,7 @@ class LogFake implements LoggerInterface
     /**
      * @param mixed $level
      * @param callable|null $callback
+     *
      * @return \Illuminate\Support\Collection
      */
     public function logged($level, $callback = null)
@@ -115,6 +117,7 @@ class LogFake implements LoggerInterface
 
     /**
      * @param mixed $level
+     *
      * @return bool
      */
     public function hasLogged($level)
@@ -124,6 +127,7 @@ class LogFake implements LoggerInterface
 
     /**
      * @param mixed $level
+     *
      * @return bool
      */
     public function hasNotLogged($level)
@@ -133,6 +137,7 @@ class LogFake implements LoggerInterface
 
     /**
      * @param mixed $level
+     *
      * @return \Illuminate\Support\Collection
      */
     protected function logsOfLevel($level)
@@ -155,6 +160,7 @@ class LogFake implements LoggerInterface
     /**
      * @param mixed $level
      * @param string $message
+     *
      * @return void
      */
     public function log($level, $message, array $context = [])
@@ -170,6 +176,7 @@ class LogFake implements LoggerInterface
     /**
      * @param mixed $level
      * @param string $message
+     *
      * @return void
      */
     public function write($level, $message, array $context = [])
@@ -210,6 +217,7 @@ class LogFake implements LoggerInterface
     /**
      * @param array $channels
      * @param mixed $channel
+     *
      * @return string
      */
     protected function createStackChannelName($channels, $channel)
@@ -219,6 +227,7 @@ class LogFake implements LoggerInterface
 
     /**
      * @param mixed $name
+     *
      * @return void
      */
     public function setCurrentChannel($name)
@@ -236,6 +245,7 @@ class LogFake implements LoggerInterface
 
     /**
      * @param mixed $channel
+     *
      * @return bool
      */
     protected function currentChannelIs($channel)
@@ -253,6 +263,7 @@ class LogFake implements LoggerInterface
 
     /**
      * @param string $name
+     *
      * @return void
      */
     public function setDefaultDriver($name)
@@ -261,7 +272,7 @@ class LogFake implements LoggerInterface
     }
 
     /**
-     * @return self 
+     * @return self
      */
     public function getLogger()
     {
