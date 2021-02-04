@@ -50,7 +50,6 @@ jobs:
 
       - name: Infection
         run: ./vendor/bin/infection --show-mutations --min-msi=100 --no-progress --no-interaction --verbose
-        # run: ./vendor/bin/infection --show-mutations --no-progress --no-interaction --verbose
         env:
           INFECTION_BADGE_API_KEY: ${{ secrets.INFECTION_BADGE_API_KEY }}
 
