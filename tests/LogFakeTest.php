@@ -579,4 +579,15 @@ class LogFakeTest extends TestCase
             return 1;
         });
     }
+
+    public function testDummyMethods(): void
+    {
+        $logFake = new LogFake();
+
+        $this->assertSame($logFake->getLogger(), $logFake);
+        $this->assertNull($logFake->listen());
+        $this->assertNull($logFake->extend());
+        $this->assertNull($logFake->getEventDispatcher());
+        $this->assertNull($logFake->setEventDispatcher());
+    }
 }
