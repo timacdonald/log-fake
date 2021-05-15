@@ -584,10 +584,10 @@ class LogFakeTest extends TestCase
     {
         $logFake = new LogFake();
 
+        $logFake->listen();
+        $logFake->extend();
+        $logFake->getEventDispatcher();
+        $logFake->setEventDispatcher();
         $this->assertSame($logFake->getLogger(), $logFake);
-        $this->assertNull($logFake->listen());
-        $this->assertNull($logFake->extend());
-        $this->assertNull($logFake->getEventDispatcher());
-        $this->assertNull($logFake->setEventDispatcher());
     }
 }
