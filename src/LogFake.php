@@ -11,6 +11,7 @@ use Illuminate\Support\Collection;
 use function is_callable;
 use PHPUnit\Framework\Assert as PHPUnit;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\VarDumper\VarDumper;
 
 class LogFake implements LoggerInterface
 {
@@ -276,6 +277,37 @@ class LogFake implements LoggerInterface
      */
     public function getLogger()
     {
+        return $this;
+    }
+
+    /**
+     * Dump all logs in the current channel and end the script
+     *
+     * @return void
+     */
+    public function dd()
+    {
+        $this->dump();
+
+        exit(1);
+    }
+
+    /**
+     * Dump all logs in the current channel
+     *
+     * @return self
+     */
+    public function dump()
+    {
+        $logs = $this->logs;
+
+        if ($this->currentChannel) {
+            $logs = $this->logsInCurrentChannel()
+                ->all();
+        }
+
+        VarDumper::dump($logs);
+
         return $this;
     }
 

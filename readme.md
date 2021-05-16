@@ -199,6 +199,79 @@ Log::channel('slack')->assertNothingLogged();
 Log::stack(['bugsnag', 'sentry'])->assertNothingLogged();
 ```
 
+## Inspection
+
+Sometimes when debugging tests it's useful to be able to take a peek at the stack of messages that have been logged. There are a couple of helpers to assist with this.
+
+### dump()
+
+Dump all logs in the current channel. If not in a specific channel, all logs are dumped.
+
+For each logged message an associative array containing the following keys will be output:
+- `level`
+- `message`
+- `context`
+- `channel`
+
+```php
+<?php
+
+Log::channel('slack')->info('foo message');
+Log::channel('single')->debug('bar message');
+Log::dump();
+
+// array:2 [
+//   0 => array:4 [
+//     "level" => "info"
+//     "message" => "foo message"
+//     "context" => []
+//     "channel" => "slack"
+//   ]
+//   1 => array:4 [
+//     "level" => "debug"
+//     "message" => "bar message"
+//     "context" => []
+//     "channel" => "single"
+//   ]
+// ]
+
+Log::channel('single')->dump();
+
+// ^ array:1 [
+//   1 => array:4 [
+//     "level" => "debug"
+//     "message" => "bar message"
+//     "context" => []
+//     "channel" => "single"
+//   ]
+// ]
+
+```
+
+### dd()
+
+Similar to `dump`, but also ends the execution of the test.
+
+```php
+<?php
+
+Log::channel('slack')->info('foo message');
+Log::channel('single')->debug('bar message');
+
+Log::channel('slack')->dd();
+
+// ^ array:1 [
+//   1 => array:4 [
+//     "level" => "info"
+//     "message" => "foo message"
+//     "context" => []
+//     "channel" => "slack"
+//   ]
+// ]
+
+```
+
+
 ## Credits
 
 - [Tim MacDonald](https://github.com/timacdonald)
