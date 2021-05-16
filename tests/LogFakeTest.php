@@ -643,4 +643,57 @@ class LogFakeTest extends TestCase
         $this->assertEquals('foo info log', $first['message'], "Expected foo message to match");
         $this->assertEquals('foo', $first['channel'], "Expected foo channel to match");
     }
+
+    public function testDumpALevel(): void
+    {
+        $log = new LogFake();
+        $log->channel('foo')->log('info', 'foo info log');
+        $log->channel('bar')->log('info', 'bar info log');
+        $log->channel('bar')->log('debug', 'bar debug log');
+
+        // spy on the call to VarDumper
+        $spy = new Collection();
+        VarDumper::setHandler(function ($value) use ($spy) {
+            $spy->add($value);
+        });
+        $log->dump('info');
+        VarDumper::setHandler(null);
+
+        $this->assertCount(1, $spy, "Expected a single call to dump");
+        $this->assertCount(2, $spy[0], "Expected two log entries to be dumped");
+
+        [$first, $second] = collect($spy[0])->toArray();
+
+        $this->assertEquals('info', $first['level'], "Expected foo info level to match");
+        $this->assertEquals('foo info log', $first['message'], "Expected foo info message to match");
+        $this->assertEquals('foo', $first['channel'], "Expected foo info channel to match");
+
+        $this->assertEquals('info', $second['level'], "Expected bar info level to match");
+        $this->assertEquals('bar info log', $second['message'], "Expected bar info message to match");
+        $this->assertEquals('bar', $second['channel'], "Expected bar info channel to match");
+    }
+
+    public function testDumpALevelInsideChannel(): void
+    {
+        $log = new LogFake();
+        $log->channel('foo')->log('info', 'foo info log');
+        $log->channel('bar')->log('info', 'bar info log');
+        $log->channel('bar')->log('debug', 'bar debug log');
+
+        // spy on the call to VarDumper
+        $spy = new Collection();
+        VarDumper::setHandler(function ($value) use ($spy) {
+            $spy->add($value);
+        });
+        $log->channel('bar')->dump('debug');
+        VarDumper::setHandler(null);
+
+        $this->assertCount(1, $spy, "Expected a single call to dump");
+        $this->assertCount(1, $spy[0], "Expected a single log entry");
+
+        $first = collect($spy[0])->shift();
+        $this->assertEquals('debug', $first['level'], "Expected bar level to match");
+        $this->assertEquals('bar debug log', $first['message'], "Expected bar message to match");
+        $this->assertEquals('bar', $first['channel'], "Expected bar channel to match");
+    }
 }

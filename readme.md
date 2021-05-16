@@ -203,9 +203,11 @@ Log::stack(['bugsnag', 'sentry'])->assertNothingLogged();
 
 Sometimes when debugging tests it's useful to be able to take a peek at the stack of messages that have been logged. There are a couple of helpers to assist with this.
 
-### dump()
+### dump($level = null)
 
 Dump all logs in the current channel. If not in a specific channel, all logs are dumped.
+
+You can optionally specify a specific level to filter to.
 
 For each logged message an associative array containing the following keys will be output:
 - `level`
@@ -237,7 +239,7 @@ Log::dump();
 
 Log::channel('single')->dump();
 
-// ^ array:1 [
+// array:1 [
 //   1 => array:4 [
 //     "level" => "debug"
 //     "message" => "bar message"
@@ -246,11 +248,15 @@ Log::channel('single')->dump();
 //   ]
 // ]
 
+Log::channel('single')->dump('info');
+
+// []
+
 ```
 
-### dd()
+### dd($level = null)
 
-Similar to `dump`, but also ends the execution of the test.
+Works the same as `dump`, but also ends the execution of the test.
 
 ```php
 <?php
@@ -260,7 +266,7 @@ Log::channel('single')->debug('bar message');
 
 Log::channel('slack')->dd();
 
-// ^ array:1 [
+// array:1 [
 //   1 => array:4 [
 //     "level" => "info"
 //     "message" => "foo message"
