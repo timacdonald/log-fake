@@ -283,11 +283,13 @@ class LogFake implements LoggerInterface
     /**
      * Dump all logs in the current channel and end the script
      *
+     * @param mixed $level optional level to filter to
+     *
      * @return void
      */
-    public function dd()
+    public function dd($level = null)
     {
-        $this->dump();
+        $this->dump($level);
 
         exit(1);
     }
@@ -295,18 +297,22 @@ class LogFake implements LoggerInterface
     /**
      * Dump all logs in the current channel
      *
+     * @param mixed $level optional level to filter to
+     *
      * @return self
      */
-    public function dump()
+    public function dump($level = null)
     {
-        $logs = $this->logs;
+        $logs = $this->currentChannel ? $this->logsInCurrentChannel()
+            : collect($this->logs);
 
-        if ($this->currentChannel) {
-            $logs = $this->logsInCurrentChannel()
-                ->all();
+        if ($level) {
+            $logs = $logs->filter(function (array $log) use ($level): bool {
+                return $log['level'] === $level;
+            });
         }
 
-        VarDumper::dump($logs);
+        VarDumper::dump($logs->all());
 
         return $this;
     }
