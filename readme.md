@@ -146,15 +146,15 @@ Log::stack(['bugsnag', 'sentry'])->assertLoggedTimes('critical', 5);
 
 // with a callback
 
-Log::assertLogged('info', 5, function ($message, $context) {
+Log::assertLoggedTimes('info', 5, function ($message, $context) {
     return Str::contains($message, 'Donuts');
 });
 
-Log::channel('slack')->assertLogged('alert', 5, function ($message, $context) {
+Log::channel('slack')->assertLoggedTimes('alert', 5, function ($message, $context) {
     return Str::contains($message, '5pm');
 });
 
-Log::stack(['bugsnag', 'sentry'])->assertLogged('critical', 5, function ($message, $context) {
+Log::stack(['bugsnag', 'sentry'])->assertLoggedTimes('critical', 5, function ($message, $context) {
     return Str::contains($message, 'evasive maneuvers');
 });
 ```
