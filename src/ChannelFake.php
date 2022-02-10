@@ -41,7 +41,7 @@ class ChannelFake implements LoggerInterface
      *
      * @return void
      */
-    public function log($level, $message, array $context = [])
+    public function log($level, $message, array $context = []): void
     {
         $this->proxy(function () use ($level, $message, $context): void {
             $this->log->log($level, $message, $context);
