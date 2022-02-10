@@ -164,7 +164,7 @@ class LogFake implements LoggerInterface
      *
      * @return void
      */
-    public function log($level, $message, array $context = [])
+    public function log($level, $message, array $context = []): void
     {
         $this->logs[] = [
             'level' => $level,
@@ -180,7 +180,7 @@ class LogFake implements LoggerInterface
      *
      * @return void
      */
-    public function write($level, $message, array $context = [])
+    public function write($level, $message, array $context = []): void
     {
         $this->log($level, $message, $context);
     }
