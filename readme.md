@@ -9,7 +9,7 @@ A bunch of Laravel facades / services are able to be faked, such as the Dispatch
 ## Version support
 
 - **PHP**: 7.1, 7.2, 7.3, 7.4, 8.0
-- **Laravel**: 5.6, 5.7, 5.8, 6.0, 7.0, 8.0
+- **Laravel**: 5.6, 5.7, 5.8, 6.0, 7.0, 8.0, 9.0
 - **PHPUnit**: 7.0, 8.0, 9.0
 
 ## Installation
