@@ -4,18 +4,20 @@ declare(strict_types=1);
 
 namespace Tests;
 
+use function assert;
+
 use function config;
 use Illuminate\Config\Repository as Config;
-
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Config\Repository;
+use function is_array;
 use PHPUnit\Framework\Constraint\ExceptionMessage;
 use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
-use TiMacDonald\Log\LogFake;
-use Illuminate\Support\Collection;
+use RuntimeException;
 use Symfony\Component\VarDumper\VarDumper;
+use TiMacDonald\Log\LogFake;
 
 /**
  * @small
@@ -594,106 +596,262 @@ class LogFakeTest extends TestCase
         $this->assertSame($logFake->getLogger(), $logFake);
     }
 
-    public function testDumpAll(): void
+    public function testItCanDumpDefaultChannel(): void
     {
         $log = new LogFake();
-        $log->channel('foo')->log('info', 'foo info log');
-        $log->channel('bar')->log('debug', 'bar debug log');
+        $dumps = [];
+        VarDumper::setHandler(static function (array $logs) use (&$dumps) {
+            assert(is_array($dumps));
 
-        // spy on the call to VarDumper
-        $spy = new Collection();
-        VarDumper::setHandler(function ($value) use ($spy) {
-            $spy->add($value);
+            $dumps[] = $logs;
         });
-        $log->dump();
+
+        $log->info('expected log 1');
+        $log->debug('expected log 2');
+        $log->channel('channel')->info('missing channel log');
+        $log = $log->dump();
+
+        $this->assertInstanceOf(LogFake::class, $log);
+        $this->assertIsArray($dumps);
+        $this->assertCount(1, $dumps);
+        $logs = $dumps[0];
+
+        $this->assertIsArray($logs);
+        $this->assertCount(2, $logs);
+
+        $this->assertSame([
+            [
+                'level' => 'info',
+                'message' => 'expected log 1',
+                'context' => [],
+                'channel' => 'stack',
+            ],
+            [
+                'level' => 'debug',
+                'message' => 'expected log 2',
+                'context' => [],
+                'channel' => 'stack',
+            ],
+        ], $logs);
+
         VarDumper::setHandler(null);
-
-        $this->assertCount(1, $spy, "Expected a single call to dump");
-
-        $this->assertIsArray($spy[0], "Expected an array of args to have been dumped");
-        [$first, $second] = $spy[0];
-
-        $this->assertEquals('info', $first['level'], "Expected foo level to match");
-        $this->assertEquals('foo info log', $first['message'], "Expected foo message to match");
-        $this->assertEquals('foo', $first['channel'], "Expected foo channel to match");
-
-        $this->assertEquals('debug', $second['level'], "Expected bar level to match");
-        $this->assertEquals('bar debug log', $second['message'], "Expected bar message to match");
-        $this->assertEquals('bar', $second['channel'], "Expected bar channel to match");
     }
 
-    public function testDumpInChannel(): void
+    public function testItCanDumpALevelForTheDefaultChannel(): void
     {
         $log = new LogFake();
-        $log->channel('foo')->log('info', 'foo info log');
-        $log->channel('bar')->log('debug', 'bar debug log');
+        $dumps = [];
+        VarDumper::setHandler(static function (array $logs) use (&$dumps) {
+            assert(is_array($dumps));
 
-        // spy on the call to VarDumper
-        $spy = new Collection();
-        VarDumper::setHandler(function ($value) use ($spy) {
-            $spy->add($value);
+            $dumps[] = $logs;
         });
-        $log->channel('foo')->dump();
+        $log->info('expected log');
+        $log->debug('missing log');
+        $log->channel('channel')->info('missing channel log');
+        $log = $log->dump('info');
+
+        $this->assertInstanceOf(LogFake::class, $log);
+        $this->assertIsArray($dumps);
+        $this->assertCount(1, $dumps);
+        $logs = $dumps[0];
+        $this->assertIsArray($logs);
+        $this->assertCount(1, $logs);
+        $this->assertSame([
+            'level' => 'info',
+            'message' => 'expected log',
+            'context' => [],
+            'channel' => 'stack',
+        ], $logs[0]);
+
         VarDumper::setHandler(null);
-
-        $this->assertCount(1, $spy, "Expected a single call to dump");
-
-        [$first] = $spy[0];
-        $this->assertEquals('info', $first['level'], "Expected foo level to match");
-        $this->assertEquals('foo info log', $first['message'], "Expected foo message to match");
-        $this->assertEquals('foo', $first['channel'], "Expected foo channel to match");
     }
 
-    public function testDumpALevel(): void
+    public function testItCanDumpAChannel(): void
     {
         $log = new LogFake();
-        $log->channel('foo')->log('info', 'foo info log');
-        $log->channel('bar')->log('info', 'bar info log');
-        $log->channel('bar')->log('debug', 'bar debug log');
+        $dumps = [];
+        VarDumper::setHandler(static function (array $logs) use (&$dumps) {
+            assert(is_array($dumps));
 
-        // spy on the call to VarDumper
-        $spy = new Collection();
-        VarDumper::setHandler(function ($value) use ($spy) {
-            $spy->add($value);
+            $dumps[] = $logs;
         });
-        $log->dump('info');
+        $log->info('missing log');
+        $log->channel('unknown')->info('missing log');
+        $log->channel('known')->info('expected log 1');
+        $log->channel('known')->debug('expected log 2');
+        $log = $log->channel('known')->dump();
+
+        $this->assertInstanceOf(LogFake::class, $log);
+        $this->assertIsArray($dumps);
+        $this->assertCount(1, $dumps);
+        $logs = $dumps[0];
+        $this->assertIsArray($logs);
+        $this->assertCount(2, $logs);
+        $this->assertSame([
+            [
+                'level' => 'info',
+                'message' => 'expected log 1',
+                'context' => [],
+                'channel' => 'known',
+            ], 
+            [
+                'level' => 'debug',
+                'message' => 'expected log 2',
+                'context' => [],
+                'channel' => 'known',
+            ],
+        ], $logs);
+
         VarDumper::setHandler(null);
-
-        $this->assertCount(1, $spy, "Expected a single call to dump");
-        $this->assertCount(2, $spy[0], "Expected two log entries to be dumped");
-
-        [$first, $second] = collect($spy[0])->toArray();
-
-        $this->assertEquals('info', $first['level'], "Expected foo info level to match");
-        $this->assertEquals('foo info log', $first['message'], "Expected foo info message to match");
-        $this->assertEquals('foo', $first['channel'], "Expected foo info channel to match");
-
-        $this->assertEquals('info', $second['level'], "Expected bar info level to match");
-        $this->assertEquals('bar info log', $second['message'], "Expected bar info message to match");
-        $this->assertEquals('bar', $second['channel'], "Expected bar info channel to match");
     }
 
-    public function testDumpALevelInsideChannel(): void
+    public function testItCanDumpALevelForAChannel(): void
     {
         $log = new LogFake();
-        $log->channel('foo')->log('info', 'foo info log');
-        $log->channel('bar')->log('info', 'bar info log');
-        $log->channel('bar')->log('debug', 'bar debug log');
+        $dumps = [];
+        VarDumper::setHandler(static function (array $logs) use (&$dumps) {
+            assert(is_array($dumps));
 
-        // spy on the call to VarDumper
-        $spy = new Collection();
-        VarDumper::setHandler(function ($value) use ($spy) {
-            $spy->add($value);
+            $dumps[] = $logs;
         });
-        $log->channel('bar')->dump('debug');
+        $log->info('missing log');
+        $log->channel('unknown')->info('missing log');
+        $log->channel('known')->info('expected log');
+        $log->channel('known')->debug('missing log');
+        $log = $log->channel('known')->dump('info');
+
+        $this->assertInstanceOf(LogFake::class, $log);
+        $this->assertIsArray($dumps);
+        $this->assertCount(1, $dumps);
+        $logs = $dumps[0];
+        $this->assertIsArray($logs);
+        $this->assertCount(1, $logs);
+        $this->assertSame([
+            [
+                'level' => 'info',
+                'message' => 'expected log',
+                'context' => [],
+                'channel' => 'known',
+            ],
+        ], $logs);
+
         VarDumper::setHandler(null);
+    }
 
-        $this->assertCount(1, $spy, "Expected a single call to dump");
-        $this->assertCount(1, $spy[0], "Expected a single log entry");
+    public function testItCanDumpAllLogsForAllChannels(): void
+    {
+        $log = new LogFake();
+        $dumps = [];
+        VarDumper::setHandler(static function (array $logs) use (&$dumps) {
+            assert(is_array($dumps));
 
-        $first = collect($spy[0])->shift();
-        $this->assertEquals('debug', $first['level'], "Expected bar level to match");
-        $this->assertEquals('bar debug log', $first['message'], "Expected bar message to match");
-        $this->assertEquals('bar', $first['channel'], "Expected bar channel to match");
+            $dumps[] = $logs;
+        });
+
+        $log->info('expected log 1');
+        $log->debug('expected log 2');
+        $log->channel('channel')->info('expected log 3');
+        $log->channel('channel')->debug('expected log 4');
+        $log = $log->dumpAll();
+
+        $this->assertInstanceOf(LogFake::class, $log);
+        $this->assertIsArray($dumps);
+        $this->assertCount(1, $dumps);
+        $logs = $dumps[0];
+
+        $this->assertIsArray($logs);
+        $this->assertCount(4, $logs);
+
+        $this->assertSame([
+            [
+                'level' => 'info',
+                'message' => 'expected log 1',
+                'context' => [],
+                'channel' => 'stack',
+            ],
+            [
+                'level' => 'debug',
+                'message' => 'expected log 2',
+                'context' => [],
+                'channel' => 'stack',
+            ],
+            [
+                'level' => 'info',
+                'message' => 'expected log 3',
+                'context' => [],
+                'channel' => 'channel',
+            ],
+            [
+                'level' => 'debug',
+                'message' => 'expected log 4',
+                'context' => [],
+                'channel' => 'channel',
+            ]
+        ], $logs);
+
+        VarDumper::setHandler(null);
+    }
+
+    public function testItCanDumpAllLogsForAllChannelsButFilterByLevel()
+    {
+        $log = new LogFake();
+        $dumps = [];
+        VarDumper::setHandler(static function (array $logs) use (&$dumps) {
+            assert(is_array($dumps));
+
+            $dumps[] = $logs;
+        });
+
+        $log->info('expected log 1');
+        $log->debug('missing log');
+        $log->channel('channel')->info('expected log 2');
+        $log->channel('channel')->debug('missing log');
+        $log = $log->dumpAll('info');
+
+        $this->assertInstanceOf(LogFake::class, $log);
+        $this->assertIsArray($dumps);
+        $this->assertCount(1, $dumps);
+        $logs = $dumps[0];
+
+        $this->assertIsArray($logs);
+        $this->assertCount(2, $logs);
+
+        $this->assertSame([
+            [
+                'level' => 'info',
+                'message' => 'expected log 1',
+                'context' => [],
+                'channel' => 'stack',
+            ],
+            [
+                'level' => 'info',
+                'message' => 'expected log 2',
+                'context' => [],
+                'channel' => 'channel',
+            ]
+        ], $logs);
+
+        VarDumper::setHandler(null);
+    }
+
+    public function testItCannotCallDumpAllFromChannel()
+    {
+        $log = new LogFake();
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('LogFake::dumpAll() should not be called from a channel.');
+
+        $log->channel('channel')->dumpAll();
+    }
+
+    public function testItCannotCallDdAllFromAChannel()
+    {
+        $log = new LogFake();
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('LogFake::ddAll() should not be called from a channel.');
+
+        $log->channel('channel')->ddAll();
     }
 }

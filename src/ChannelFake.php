@@ -6,6 +6,7 @@ namespace TiMacDonald\Log;
 
 use Closure;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
 
 /**
  * @mixin \TiMacDonald\Log\LogFake
@@ -46,6 +47,26 @@ class ChannelFake implements LoggerInterface
         $this->proxy(function () use ($level, $message, $context): void {
             $this->log->log($level, $message, $context);
         });
+    }
+
+    /**
+     * @param mixed $level optional level to filter to
+     *
+     * @return never
+     */
+    public function dumpAll($level = null)
+    {
+        throw new RuntimeException('LogFake::dumpAll() should not be called from a channel.');
+    }
+
+    /**
+     * @param mixed $level optional level to filter to
+     *
+     * @return never
+     */
+    public function ddAll($level = null)
+    {
+        throw new RuntimeException('LogFake::ddAll() should not be called from a channel.');
     }
 
     /**

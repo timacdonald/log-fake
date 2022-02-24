@@ -201,82 +201,86 @@ Log::stack(['bugsnag', 'sentry'])->assertNothingLogged();
 
 ## Inspection
 
-Sometimes when debugging tests it's useful to be able to take a peek at the stack of messages that have been logged. There are a couple of helpers to assist with this.
+Sometimes when debugging tests it's useful to be able to take a peek at the messages that have been logged. There are a couple of helpers to assist with this.
 
 ### dump($level = null)
-
-Dump all logs in the current channel. If not in a specific channel, all logs are dumped.
-
-You can optionally specify a specific level to filter to.
-
-For each logged message an associative array containing the following keys will be output:
-- `level`
-- `message`
-- `context`
-- `channel`
 
 ```php
 <?php
 
-Log::channel('slack')->info('foo message');
-Log::channel('single')->debug('bar message');
+use TiMacDonald\Log\LogFake;
+use Illuminate\Support\Facades\Log;
+
+// ...
+
+Log::swap(new LogFake);
+
+Log::info('Donuts have arrived');
+
+Log::channel('slack')->alert('It is 5pm, go home');
+
 Log::dump();
 
-// array:2 [
+// array:1 [
 //   0 => array:4 [
 //     "level" => "info"
-//     "message" => "foo message"
+//     "message" => "Donuts have arrived."
+//     "context" => []
+//     "channel" => "stack"
+//   ]
+// ]
+
+Log::channel('slack')->dump();
+
+// array:1 [
+//   0 => array:4 [
+//     "level" => "alert"
+//     "message" => "It is 5pm, go home"
 //     "context" => []
 //     "channel" => "slack"
 //   ]
-//   1 => array:4 [
-//     "level" => "debug"
-//     "message" => "bar message"
-//     "context" => []
-//     "channel" => "single"
-//   ]
 // ]
-
-Log::channel('single')->dump();
-
-// array:1 [
-//   1 => array:4 [
-//     "level" => "debug"
-//     "message" => "bar message"
-//     "context" => []
-//     "channel" => "single"
-//   ]
-// ]
-
-Log::channel('single')->dump('info');
-
-// []
-
 ```
 
 ### dd($level = null)
 
 Works the same as `dump`, but also ends the execution of the test.
 
+### dumpAll($level = null)
+
+Only available calling on the default channel. This will dump every log regardless of the channel it was captured in.
+
 ```php
 <?php
 
-Log::channel('slack')->info('foo message');
-Log::channel('single')->debug('bar message');
+use TiMacDonald\Log\LogFake;
+use Illuminate\Support\Facades\Log;
 
-Log::channel('slack')->dd();
+// ...
+
+Log::swap(new LogFake);
+
+Log::info('Donuts have arrived');
+
+Log::channel('slack')->alert('It is 5pm, go home');
+
+Log::dumpAll();
 
 // array:1 [
-//   1 => array:4 [
+//   0 => array:4 [
 //     "level" => "info"
-//     "message" => "foo message"
+//     "message" => "Donuts have arrived."
+//     "context" => []
+//     "channel" => "stack"
+//   ]
+//   1 => array:4 [
+//     "level" => "alert"
+//     "message" => "It is 5pm, go home"
 //     "context" => []
 //     "channel" => "slack"
 //   ]
 // ]
-
 ```
-
 
 ## Credits
 

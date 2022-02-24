@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace TiMacDonald\Log;
 
-use function collect;
-use function config;
-
 use Illuminate\Support\Collection;
-use function is_callable;
 use PHPUnit\Framework\Assert as PHPUnit;
+
 use Psr\Log\LoggerInterface;
 use Symfony\Component\VarDumper\VarDumper;
+use function collect;
+use function config;
+use function is_callable;
 
 class LogFake implements LoggerInterface
 {
@@ -108,12 +108,12 @@ class LogFake implements LoggerInterface
         if ($callback === null) {
             return $this->logsOfLevel($level)->filter(static function (): bool {
                 return true;
-            });
+            })->values();
         }
 
         return $this->logsOfLevel($level)->filter(static function (array $log) use ($callback): bool {
             return (bool) $callback($log['message'], $log['context']);
-        });
+        })->values();
     }
 
     /**
@@ -145,7 +145,7 @@ class LogFake implements LoggerInterface
     {
         return $this->logsInCurrentChannel()->filter(static function (array $log) use ($level): bool {
             return $log['level'] === $level;
-        });
+        })->values();
     }
 
     /**
@@ -155,7 +155,7 @@ class LogFake implements LoggerInterface
     {
         return Collection::make($this->logs)->filter(function (array $log): bool {
             return $this->currentChannelIs($log['channel']);
-        });
+        })->values();
     }
 
     /**
@@ -281,7 +281,50 @@ class LogFake implements LoggerInterface
     }
 
     /**
-     * Dump all logs in the current channel and end the script
+     * Dump all logs in the current channel.
+     *
+     * @param mixed $level optional level to filter to
+     *
+     * @return self
+     */
+    public function dump($level = null)
+    {
+        if ($level === null) {
+            VarDumper::dump($this->logsInCurrentChannel()->all());
+        } else {
+            VarDumper::dump($this->logsOfLevel($level)->all());
+        }
+
+        return $this;
+    }
+
+    /**
+     * Dump all logs for all channels.
+     *
+     * @param mixed $level optional level to filter to
+     *
+     * @return self
+     */
+    public function dumpAll($level = null)
+    {
+        if ($level === null) {
+            VarDumper::dump($this->logs);
+        } else {
+            Collection::make($this->logs)
+                ->filter(static function (array $log) use ($level): bool {
+                    return $log['level'] === $level;
+                })
+                ->values()
+                ->pipe(function (Collection $logs): void {
+                    VarDumper::dump($logs->all());
+                });
+        }
+
+        return $this;
+    }
+
+    /**
+     * Dump all logs in the current channel and end the script.
      *
      * @param mixed $level optional level to filter to
      *
@@ -295,26 +338,17 @@ class LogFake implements LoggerInterface
     }
 
     /**
-     * Dump all logs in the current channel
+     * Dump all logs in the current channel and end the script.
      *
      * @param mixed $level optional level to filter to
      *
-     * @return self
+     * @return void
      */
-    public function dump($level = null)
+    public function ddAll($level = null)
     {
-        $logs = $this->currentChannel ? $this->logsInCurrentChannel()
-            : collect($this->logs);
+        $this->dumpAll($level);
 
-        if ($level) {
-            $logs = $logs->filter(function (array $log) use ($level): bool {
-                return $log['level'] === $level;
-            });
-        }
-
-        VarDumper::dump($logs->all());
-
-        return $this;
+        exit(1);
     }
 
     /**
