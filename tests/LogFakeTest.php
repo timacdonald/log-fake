@@ -612,11 +612,11 @@ class LogFakeTest extends TestCase
         $log = $log->dump();
 
         $this->assertInstanceOf(LogFake::class, $log);
-        $this->assertIsArray($dumps);
+        $this->assertTrue(is_array($dumps));
         $this->assertCount(1, $dumps);
         $logs = $dumps[0];
 
-        $this->assertIsArray($logs);
+        $this->assertTrue(is_array($logs));
         $this->assertCount(2, $logs);
 
         $this->assertSame([
@@ -652,10 +652,10 @@ class LogFakeTest extends TestCase
         $log = $log->dump('info');
 
         $this->assertInstanceOf(LogFake::class, $log);
-        $this->assertIsArray($dumps);
+        $this->assertTrue(is_array($dumps));
         $this->assertCount(1, $dumps);
         $logs = $dumps[0];
-        $this->assertIsArray($logs);
+        $this->assertTrue(is_array($logs));
         $this->assertCount(1, $logs);
         $this->assertSame([
             'level' => 'info',
@@ -683,10 +683,10 @@ class LogFakeTest extends TestCase
         $log = $log->channel('known')->dump();
 
         $this->assertInstanceOf(LogFake::class, $log);
-        $this->assertIsArray($dumps);
+        $this->assertTrue(is_array($dumps));
         $this->assertCount(1, $dumps);
         $logs = $dumps[0];
-        $this->assertIsArray($logs);
+        $this->assertTrue(is_array($logs));
         $this->assertCount(2, $logs);
         $this->assertSame([
             [
@@ -722,10 +722,10 @@ class LogFakeTest extends TestCase
         $log = $log->channel('known')->dump('info');
 
         $this->assertInstanceOf(LogFake::class, $log);
-        $this->assertIsArray($dumps);
+        $this->assertTrue(is_array($dumps));
         $this->assertCount(1, $dumps);
         $logs = $dumps[0];
-        $this->assertIsArray($logs);
+        $this->assertTrue(is_array($logs));
         $this->assertCount(1, $logs);
         $this->assertSame([
             [
@@ -756,11 +756,11 @@ class LogFakeTest extends TestCase
         $log = $log->dumpAll();
 
         $this->assertInstanceOf(LogFake::class, $log);
-        $this->assertIsArray($dumps);
+        $this->assertTrue(is_array($dumps));
         $this->assertCount(1, $dumps);
         $logs = $dumps[0];
 
-        $this->assertIsArray($logs);
+        $this->assertTrue(is_array($logs));
         $this->assertCount(4, $logs);
 
         $this->assertSame([
@@ -810,11 +810,11 @@ class LogFakeTest extends TestCase
         $log = $log->dumpAll('info');
 
         $this->assertInstanceOf(LogFake::class, $log);
-        $this->assertIsArray($dumps);
+        $this->assertTrue(is_array($dumps));
         $this->assertCount(1, $dumps);
         $logs = $dumps[0];
 
-        $this->assertIsArray($logs);
+        $this->assertTrue(is_array($logs));
         $this->assertCount(2, $logs);
 
         $this->assertSame([
