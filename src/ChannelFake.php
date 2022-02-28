@@ -34,16 +34,6 @@ class ChannelFake implements LoggerInterface
         });
     }
 
-    public function dumpAll(string $level = null): never
-    {
-        throw new RuntimeException('LogFake::dumpAll() should not be called from a channel.');
-    }
-
-    public function ddAll(string $level = null): never
-    {
-        throw new RuntimeException('LogFake::ddAll() should not be called from a channel.');
-    }
-
     public function __call(string $method, array $arguments): mixed
     {
         return $this->proxy(function () use ($method, $arguments): mixed {
@@ -60,5 +50,15 @@ class ChannelFake implements LoggerInterface
         $this->log->setCurrentChannel(null);
 
         return $result;
+    }
+
+    public function dumpAll(string $level = null): never
+    {
+        throw new RuntimeException('LogFake::dumpAll() should not be called from a channel.');
+    }
+
+    public function ddAll(string $level = null): never
+    {
+        throw new RuntimeException('LogFake::ddAll() should not be called from a channel.');
     }
 }

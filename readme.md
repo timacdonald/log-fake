@@ -31,7 +31,7 @@ use Illuminate\Support\Facades\Log;
 
 //...
 
-Log::swap(new LogFake);
+LogFake::bind();
 
 Log::info('Donuts have arrived');
 
@@ -52,7 +52,7 @@ use Illuminate\Support\Facades\Log;
 
 //...
 
-Log::swap(new LogFake);
+LogFake::bind();
 
 Log::channel('slack')->alert('It is 5pm, go home');
 
@@ -75,7 +75,7 @@ use Illuminate\Support\Facades\Log;
 
 //...
 
-Log::swap(new LogFake);
+LogFake::bind();
 
 Log::stack(['bugsnag', 'sentry'])->critical('Perform evasive maneuvers');
 
@@ -213,7 +213,7 @@ use Illuminate\Support\Facades\Log;
 
 // ...
 
-Log::swap(new LogFake);
+LogFake::bind();
 
 Log::info('Donuts have arrived');
 
@@ -258,7 +258,7 @@ use Illuminate\Support\Facades\Log;
 
 // ...
 
-Log::swap(new LogFake);
+LogFake::bind();
 
 Log::info('Donuts have arrived');
 

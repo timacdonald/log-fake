@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace TiMacDonald\Log;
 
 use Closure;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use PHPUnit\Framework\Assert as PHPUnit;
@@ -31,13 +32,13 @@ class LogFake implements LoggerInterface
      */
     protected array $context = [];
 
+    protected Dispatcher $dispatcher;
+
     public static function bind(): LogFake
     {
-        $instance = new LogFake();
-
-        Log::swap($instance);
-
-        return $instance;
+        return tap(new LogFake(), function (LogFake $instance): void {
+            Log::swap($instance);
+        });
     }
 
     public function assertLogged(string $level, callable|int|null $callback = null): void
@@ -80,6 +81,49 @@ class LogFake implements LoggerInterface
         $this->assertLogged($level, static function (string $loggedMessage) use ($message): bool {
             return $loggedMessage === $message;
         });
+    }
+
+    public function dump(string $level = null): self
+    {
+        if ($level === null) {
+            VarDumper::dump($this->logsInCurrentChannel()->all());
+        } else {
+            VarDumper::dump($this->logsOfLevel($level)->all());
+        }
+
+        return $this;
+    }
+
+    public function dumpAll(string $level = null): self
+    {
+        if ($level === null) {
+            VarDumper::dump($this->logs);
+        } else {
+            Collection::make($this->logs)
+                ->filter(static function (array $log) use ($level): bool {
+                    return $log['level'] === $level;
+                })
+                ->values()
+                ->pipe(function (Collection $logs): void {
+                    VarDumper::dump($logs->all());
+                });
+        }
+
+        return $this;
+    }
+
+    public function dd(string $level = null): never
+    {
+        $this->dump($level);
+
+        exit(1);
+    }
+
+    public function ddAll(string $level = null): never
+    {
+        $this->dumpAll($level);
+
+        exit(1);
     }
 
     public function logged(string $level, ?callable $callback = null): Collection
@@ -146,7 +190,7 @@ class LogFake implements LoggerInterface
 
     protected function createStackChannelName(array $channels, ?string $channel): string
     {
-        return collect($channels)->sort()->prepend($channel ?? 'default_testing_stack_channel')->implode('.');
+        return Collection::make($channels)->sort()->prepend($channel ?? 'default_testing_stack_channel')->implode('.');
     }
 
     public function setCurrentChannel(?string $name): void
@@ -179,61 +223,6 @@ class LogFake implements LoggerInterface
         return $this;
     }
 
-    /**
-     * Dump all logs in the current channel.
-     */
-    public function dump(string $level = null): self
-    {
-        if ($level === null) {
-            VarDumper::dump($this->logsInCurrentChannel()->all());
-        } else {
-            VarDumper::dump($this->logsOfLevel($level)->all());
-        }
-
-        return $this;
-    }
-
-    /**
-     * Dump all logs for all channels.
-     */
-    public function dumpAll(string $level = null): self
-    {
-        if ($level === null) {
-            VarDumper::dump($this->logs);
-        } else {
-            Collection::make($this->logs)
-                ->filter(static function (array $log) use ($level): bool {
-                    return $log['level'] === $level;
-                })
-                ->values()
-                ->pipe(function (Collection $logs): void {
-                    VarDumper::dump($logs->all());
-                });
-        }
-
-        return $this;
-    }
-
-    /**
-     * Dump all logs in the current channel and end the script.
-     */
-    public function dd(string $level = null): never
-    {
-        $this->dump($level);
-
-        exit(1);
-    }
-
-    /**
-     * Dump all logs in the current channel and end the script.
-     */
-    public function ddAll(string $level = null): never
-    {
-        $this->dumpAll($level);
-
-        exit(1);
-    }
-
     public function listen(Closure $callback): void
     {
         //
@@ -244,18 +233,18 @@ class LogFake implements LoggerInterface
         //
     }
 
-    public function getEventDispatcher(): void
+    public function getEventDispatcher(): Dispatcher
     {
-        // TODO: return captured
+        return $this->dispatcher;
     }
 
-    public function setEventDispatcher(): void
+    public function setEventDispatcher(Dispatcher $dispatcher): void
     {
-        // TODO: set captured
+        $this->dispatcher = $dispatcher;
     }
 
     /**
-     * @param array<string, mixed> $config
+     * @param array<string, mixed> $context
      */
     public function withContext(array $context = []): LogFake
     {
@@ -272,29 +261,29 @@ class LogFake implements LoggerInterface
     }
 
     /**
-     * Build an on-demand log channel.
-     *
-     * @param  array  $config
-     * @return \Psr\Log\LoggerInterface
+     * @param array<string, mixed> $config
      */
-    public function build(array $config)
+    public function build(array $config): ChannelFake
     {
-        // TODO
-        unset($this->channels['ondemand']);
-
-        return $this->get('ondemand', $config);
+        return $this->driver('ondemand');
     }
 
     /**
-     * @return array
+     * @return array<string, ChannelFake>
      */
     public function getChannels()
     {
-        return $this->channels;
+        return Collection::make($this->logs)
+            ->pluck('channel')
+            ->mapWithKeys(function (string $channel): array {
+                return [$channel => $this->driver($channel)];
+            })
+            ->all();
     }
 
     public function forgetChannel($driver = null)
     {
+        // TODO: just mark the channel as forgotten and don't return in it the get Channels method
         $driver = $this->parseDriver($driver);
 
         if (isset($this->channels[$driver])) {
