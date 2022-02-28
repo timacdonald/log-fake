@@ -4,13 +4,10 @@ declare(strict_types=1);
 
 namespace Tests;
 
-use function assert;
-
-use function config;
 use Illuminate\Config\Repository as Config;
+
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Config\Repository;
-use function is_array;
 use PHPUnit\Framework\Constraint\ExceptionMessage;
 use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Framework\TestCase;
@@ -18,13 +15,16 @@ use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Symfony\Component\VarDumper\VarDumper;
 use TiMacDonald\Log\LogFake;
+use function assert;
+use function config;
+use function is_array;
 
 /**
  * @small
  */
 class LogFakeTest extends TestCase
 {
-    const MESSAGE = 'Expected logged message';
+    public const MESSAGE = 'Expected logged message';
 
     protected function setUp(): void
     {
@@ -589,8 +589,12 @@ class LogFakeTest extends TestCase
     {
         $logFake = new LogFake();
 
-        $logFake->listen();
-        $logFake->extend();
+        $logFake->listen(function () {
+            //
+        });
+        $logFake->extend('misc', function () {
+            //
+        });
         $logFake->getEventDispatcher();
         $logFake->setEventDispatcher();
         $this->assertSame($logFake->getLogger(), $logFake);
@@ -694,7 +698,7 @@ class LogFakeTest extends TestCase
                 'message' => 'expected log 1',
                 'context' => [],
                 'channel' => 'known',
-            ], 
+            ],
             [
                 'level' => 'debug',
                 'message' => 'expected log 2',
@@ -787,13 +791,13 @@ class LogFakeTest extends TestCase
                 'message' => 'expected log 4',
                 'context' => [],
                 'channel' => 'channel',
-            ]
+            ],
         ], $logs);
 
         VarDumper::setHandler(null);
     }
 
-    public function testItCanDumpAllLogsForAllChannelsButFilterByLevel()
+    public function testItCanDumpAllLogsForAllChannelsButFilterByLevel(): void
     {
         $log = new LogFake();
         $dumps = [];
@@ -829,13 +833,13 @@ class LogFakeTest extends TestCase
                 'message' => 'expected log 2',
                 'context' => [],
                 'channel' => 'channel',
-            ]
+            ],
         ], $logs);
 
         VarDumper::setHandler(null);
     }
 
-    public function testItCannotCallDumpAllFromChannel()
+    public function testItCannotCallDumpAllFromChannel(): void
     {
         $log = new LogFake();
 
@@ -845,7 +849,7 @@ class LogFakeTest extends TestCase
         $log->channel('channel')->dumpAll();
     }
 
-    public function testItCannotCallDdAllFromAChannel()
+    public function testItCannotCallDdAllFromAChannel(): void
     {
         $log = new LogFake();
 

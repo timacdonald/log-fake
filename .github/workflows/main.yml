@@ -38,9 +38,6 @@ jobs:
       - name: PHP-CS-Fixer
         run: ./vendor/bin/php-cs-fixer fix --dry-run --no-interaction --verbose
 
-      - name: composer normalize
-        run: composer normalize --dry-run --no-interaction --verbose
-
       - name: test coverage
         run: |
           ./vendor/bin/phpunit --coverage-clover=coverage.xml --debug --verbose
@@ -52,9 +49,6 @@ jobs:
         run: ./vendor/bin/infection --show-mutations --min-msi=100 --no-progress --no-interaction --verbose
         env:
           INFECTION_BADGE_API_KEY: ${{ secrets.INFECTION_BADGE_API_KEY }}
-
-      - name: Psalm
-        run: ./vendor/bin/psalm --shepherd --no-progress
 
       - name: PHPStan
         run: ./vendor/bin/phpstan --no-interaction --verbose
@@ -110,7 +104,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-          composer remove 'infection/infection' 'ergebnis/composer-normalize' 'vimeo/psalm' 'phpstan/phpstan' --dev --no-update --no-interaction --verbose
+          composer remove 'infection/infection' 'phpstan/phpstan' --dev --no-update --no-interaction --verbose
           composer require 'illuminate/config:${{ matrix.laravel }}' 'illuminate/container:${{ matrix.laravel }}' 'illuminate/support:${{ matrix.laravel }}' 'phpunit/phpunit:${{ matrix.phpunit }}' --no-update --no-interaction --verbose
           composer update --${{ matrix.dependency-version }} --no-suggest --no-interaction --verbose
 

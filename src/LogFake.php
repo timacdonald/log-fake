@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace TiMacDonald\Log;
 
+use Closure;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use PHPUnit\Framework\Assert as PHPUnit;
-
+use Stringable;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\VarDumper\VarDumper;
 use function collect;
@@ -18,22 +20,27 @@ class LogFake implements LoggerInterface
     use LogHelpers;
 
     /**
-     * @var array
+     * @var array<array{level: mixed, message: string|Stringable, context: array<string, mixed>, channel: string}>
      */
-    protected $logs = [];
+    protected array $logs = [];
+
+    protected ?string $currentChannel = null;
 
     /**
-     * @var mixed
+     * @var array<string, mixed>
      */
-    protected $currentChannel;
+    protected array $context = [];
 
-    /**
-     * @param mixed $level
-     * @param callable|int|null $callback
-     *
-     * @return void
-     */
-    public function assertLogged($level, $callback = null)
+    public static function bind(): LogFake
+    {
+        $instance = new LogFake();
+
+        Log::swap($instance);
+
+        return $instance;
+    }
+
+    public function assertLogged(string $level, callable|int|null $callback = null): void
     {
         if ($callback === null || is_callable($callback)) {
             PHPUnit::assertTrue(
@@ -47,14 +54,7 @@ class LogFake implements LoggerInterface
         $this->assertLoggedTimes($level, $callback);
     }
 
-    /**
-     * @param mixed $level
-     * @param int $times
-     * @param callable|null $callback
-     *
-     * @return void
-     */
-    public function assertLoggedTimes($level, $times = 1, $callback = null)
+    public function assertLoggedTimes(string $level, int $times = 1, ?callable $callback = null): void
     {
         PHPUnit::assertTrue(
             ($count = $this->logged($level, $callback)->count()) === $times,
@@ -62,13 +62,7 @@ class LogFake implements LoggerInterface
         );
     }
 
-    /**
-     * @param mixed $level
-     * @param callable|null $callback
-     *
-     * @return void
-     */
-    public function assertNotLogged($level, $callback = null)
+    public function assertNotLogged(string $level, ?callable $callback = null): void
     {
         PHPUnit::assertTrue(
             $this->logged($level, $callback)->count() === 0,
@@ -76,34 +70,19 @@ class LogFake implements LoggerInterface
         );
     }
 
-    /**
-     * @return void
-     */
-    public function assertNothingLogged()
+    public function assertNothingLogged(): void
     {
         PHPUnit::assertTrue($this->logsInCurrentChannel()->isEmpty(), "Logs were created in {$this->currentChannel()}.");
     }
 
-    /**
-     * @param mixed $level
-     * @param string $message
-     *
-     * @return void
-     */
-    public function assertLoggedMessage($level, $message)
+    public function assertLoggedMessage(string $level, string $message): void
     {
         $this->assertLogged($level, static function (string $loggedMessage) use ($message): bool {
             return $loggedMessage === $message;
         });
     }
 
-    /**
-     * @param mixed $level
-     * @param callable|null $callback
-     *
-     * @return \Illuminate\Support\Collection
-     */
-    public function logged($level, $callback = null)
+    public function logged(string $level, ?callable $callback = null): Collection
     {
         if ($callback === null) {
             return $this->logsOfLevel($level)->filter(static function (): bool {
@@ -116,178 +95,94 @@ class LogFake implements LoggerInterface
         })->values();
     }
 
-    /**
-     * @param mixed $level
-     *
-     * @return bool
-     */
-    public function hasLogged($level)
+    public function hasLogged(string $level): bool
     {
         return $this->logsOfLevel($level)->isNotEmpty();
     }
 
-    /**
-     * @param mixed $level
-     *
-     * @return bool
-     */
-    public function hasNotLogged($level)
+    public function hasNotLogged(string $level): bool
     {
         return ! $this->hasLogged($level);
     }
 
-    /**
-     * @param mixed $level
-     *
-     * @return \Illuminate\Support\Collection
-     */
-    protected function logsOfLevel($level)
+    protected function logsOfLevel(string $level): Collection
     {
         return $this->logsInCurrentChannel()->filter(static function (array $log) use ($level): bool {
             return $log['level'] === $level;
         })->values();
     }
 
-    /**
-     * @return \Illuminate\Support\Collection
-     */
-    protected function logsInCurrentChannel()
+    protected function logsInCurrentChannel(): Collection
     {
         return Collection::make($this->logs)->filter(function (array $log): bool {
             return $this->currentChannelIs($log['channel']);
         })->values();
     }
 
-    /**
-     * @param mixed $level
-     * @param string $message
-     *
-     * @return void
-     */
-    public function log($level, $message, array $context = [])
+    public function log($level, string|Stringable $message, array $context = []): void
     {
         $this->logs[] = [
             'level' => $level,
             'message' => $message,
-            'context' => $context,
+            'context' => array_merge($this->context, $context),
             'channel' => $this->currentChannel(),
         ];
     }
 
-    /**
-     * @param mixed $level
-     * @param string $message
-     *
-     * @return void
-     */
-    public function write($level, $message, array $context = [])
-    {
-        $this->log($level, $message, $context);
-    }
-
-    /**
-     * @param mixed $channel
-     *
-     * @return \TiMacDonald\Log\ChannelFake
-     */
-    public function channel($channel = null)
+    public function channel(?string $channel = null): ChannelFake
     {
         return $this->driver($channel);
     }
 
-    /**
-     * @param mixed $driver
-     *
-     * @return \TiMacDonald\Log\ChannelFake
-     */
-    public function driver($driver = null)
+    public function driver(?string $driver = null): ChannelFake
     {
         return new ChannelFake($this, $driver);
     }
 
-    /**
-     * @param mixed $channel
-     *
-     * @return \TiMacDonald\Log\ChannelFake
-     */
-    public function stack(array $channels, $channel = null)
+    public function stack(array $channels, ?string $channel = null): ChannelFake
     {
         return $this->driver('Stack:'.$this->createStackChannelName($channels, $channel));
     }
 
-    /**
-     * @param array $channels
-     * @param mixed $channel
-     *
-     * @return string
-     */
-    protected function createStackChannelName($channels, $channel)
+    protected function createStackChannelName(array $channels, ?string $channel): string
     {
         return collect($channels)->sort()->prepend($channel ?? 'default_testing_stack_channel')->implode('.');
     }
 
-    /**
-     * @param mixed $name
-     *
-     * @return void
-     */
-    public function setCurrentChannel($name)
+    public function setCurrentChannel(?string $name): void
     {
         $this->currentChannel = $name;
     }
 
-    /**
-     * @return mixed
-     */
-    public function currentChannel()
+    public function currentChannel(): string
     {
         return $this->currentChannel ?? $this->getDefaultDriver();
     }
 
-    /**
-     * @param mixed $channel
-     *
-     * @return bool
-     */
-    protected function currentChannelIs($channel)
+    protected function currentChannelIs(string $channel): bool
     {
         return $this->currentChannel() === $channel;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getDefaultDriver()
+    public function getDefaultDriver(): string
     {
         return config()->get('logging.default');
     }
 
-    /**
-     * @param string $name
-     *
-     * @return void
-     */
-    public function setDefaultDriver($name)
+    public function setDefaultDriver(string $name): void
     {
         config()->set('logging.default', $name);
     }
 
-    /**
-     * @return self
-     */
-    public function getLogger()
+    public function getLogger(): self
     {
         return $this;
     }
 
     /**
      * Dump all logs in the current channel.
-     *
-     * @param mixed $level optional level to filter to
-     *
-     * @return self
      */
-    public function dump($level = null)
+    public function dump(string $level = null): self
     {
         if ($level === null) {
             VarDumper::dump($this->logsInCurrentChannel()->all());
@@ -300,12 +195,8 @@ class LogFake implements LoggerInterface
 
     /**
      * Dump all logs for all channels.
-     *
-     * @param mixed $level optional level to filter to
-     *
-     * @return self
      */
-    public function dumpAll($level = null)
+    public function dumpAll(string $level = null): self
     {
         if ($level === null) {
             VarDumper::dump($this->logs);
@@ -325,12 +216,8 @@ class LogFake implements LoggerInterface
 
     /**
      * Dump all logs in the current channel and end the script.
-     *
-     * @param mixed $level optional level to filter to
-     *
-     * @return void
      */
-    public function dd($level = null)
+    public function dd(string $level = null): never
     {
         $this->dump($level);
 
@@ -339,47 +226,79 @@ class LogFake implements LoggerInterface
 
     /**
      * Dump all logs in the current channel and end the script.
-     *
-     * @param mixed $level optional level to filter to
-     *
-     * @return void
      */
-    public function ddAll($level = null)
+    public function ddAll(string $level = null): never
     {
         $this->dumpAll($level);
 
         exit(1);
     }
 
-    /**
-     * @return void
-     */
-    public function listen()
+    public function listen(Closure $callback): void
     {
         //
     }
 
-    /**
-     * @return void
-     */
-    public function extend()
+    public function extend(string $driver, Closure $callback): void
     {
         //
     }
 
-    /**
-     * @return void
-     */
-    public function getEventDispatcher()
+    public function getEventDispatcher(): void
     {
-        //
+        // TODO: return captured
+    }
+
+    public function setEventDispatcher(): void
+    {
+        // TODO: set captured
     }
 
     /**
-     * @return void
+     * @param array<string, mixed> $config
      */
-    public function setEventDispatcher()
+    public function withContext(array $context = []): LogFake
     {
-        //
+        $this->context = array_merge($this->context, $context);
+
+        return $this;
+    }
+
+    public function withoutContext(): LogFake
+    {
+        $this->context = [];
+
+        return $this;
+    }
+
+    /**
+     * Build an on-demand log channel.
+     *
+     * @param  array  $config
+     * @return \Psr\Log\LoggerInterface
+     */
+    public function build(array $config)
+    {
+        // TODO
+        unset($this->channels['ondemand']);
+
+        return $this->get('ondemand', $config);
+    }
+
+    /**
+     * @return array
+     */
+    public function getChannels()
+    {
+        return $this->channels;
+    }
+
+    public function forgetChannel($driver = null)
+    {
+        $driver = $this->parseDriver($driver);
+
+        if (isset($this->channels[$driver])) {
+            unset($this->channels[$driver]);
+        }
     }
 }
