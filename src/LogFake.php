@@ -32,13 +32,20 @@ class LogFake implements LoggerInterface
      */
     protected array $context = [];
 
+    /**
+     * @var array<string>
+     */
+    protected array $channels = [];
+
     protected Dispatcher $dispatcher;
 
     public static function bind(): LogFake
     {
-        return tap(new LogFake(), function (LogFake $instance): void {
-            Log::swap($instance);
-        });
+        $instance = new LogFake();
+
+        Log::swap($instance);
+
+        return $instance;
     }
 
     public function assertLogged(string $level, callable|int|null $callback = null): void
@@ -83,7 +90,7 @@ class LogFake implements LoggerInterface
         });
     }
 
-    public function dump(string $level = null): self
+    public function dump(?string $level = null): LogFake
     {
         if ($level === null) {
             VarDumper::dump($this->logsInCurrentChannel()->all());
@@ -94,7 +101,7 @@ class LogFake implements LoggerInterface
         return $this;
     }
 
-    public function dumpAll(string $level = null): self
+    public function dumpAll(?string $level = null): LogFake
     {
         if ($level === null) {
             VarDumper::dump($this->logs);
@@ -112,14 +119,14 @@ class LogFake implements LoggerInterface
         return $this;
     }
 
-    public function dd(string $level = null): never
+    public function dd(?string $level = null): never
     {
         $this->dump($level);
 
         exit(1);
     }
 
-    public function ddAll(string $level = null): never
+    public function ddAll(?string $level = null): never
     {
         $this->dumpAll($level);
 
@@ -180,6 +187,10 @@ class LogFake implements LoggerInterface
 
     public function driver(?string $driver = null): ChannelFake
     {
+        if (! in_array($driver, $this->channels, true)) {
+            $this->channels[] = $driver ?? $this->getDefaultDriver();
+        }
+
         return new ChannelFake($this, $driver);
     }
 
@@ -193,12 +204,15 @@ class LogFake implements LoggerInterface
         return Collection::make($channels)->sort()->prepend($channel ?? 'default_testing_stack_channel')->implode('.');
     }
 
+    /**
+     * @internal
+     */
     public function setCurrentChannel(?string $name): void
     {
         $this->currentChannel = $name;
     }
 
-    public function currentChannel(): string
+    protected function currentChannel(): string
     {
         return $this->currentChannel ?? $this->getDefaultDriver();
     }
@@ -210,7 +224,11 @@ class LogFake implements LoggerInterface
 
     public function getDefaultDriver(): string
     {
-        return config()->get('logging.default');
+        $default = config()->get('logging.default') ?? '';
+
+        assert(is_string($default));
+
+        return $default;
     }
 
     public function setDefaultDriver(string $name): void
@@ -218,7 +236,7 @@ class LogFake implements LoggerInterface
         config()->set('logging.default', $name);
     }
 
-    public function getLogger(): self
+    public function getLogger(): LogFake
     {
         return $this;
     }
@@ -273,21 +291,22 @@ class LogFake implements LoggerInterface
      */
     public function getChannels()
     {
-        return Collection::make($this->logs)
-            ->pluck('channel')
+        return Collection::make($this->channels)
             ->mapWithKeys(function (string $channel): array {
                 return [$channel => $this->driver($channel)];
             })
             ->all();
     }
 
-    public function forgetChannel($driver = null)
+    public function forgetChannel(?string $driver = null): LogFake
     {
-        // TODO: just mark the channel as forgotten and don't return in it the get Channels method
-        $driver = $this->parseDriver($driver);
+        unset($this->channels[$driver ?? $this->getDefaultDriver()]);
 
-        if (isset($this->channels[$driver])) {
-            unset($this->channels[$driver]);
-        }
+        return $this;
+    }
+
+    public function allLogs(): array
+    {
+        return $this->logs;
     }
 }

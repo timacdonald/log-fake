@@ -8,6 +8,7 @@ use Illuminate\Config\Repository as Config;
 
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Config\Repository;
+use Illuminate\Contracts\Events\Dispatcher;
 use PHPUnit\Framework\Constraint\ExceptionMessage;
 use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Framework\TestCase;
@@ -536,7 +537,11 @@ class LogFakeTest extends TestCase
 
     public function testAssertLoggedInStackDotNotatesSortedChannels(): void
     {
-        $this->assertSame('Stack:name.a.b.c', (new LogFake())->stack(['c', 'b', 'a'], 'name')->currentChannel());
+        $logFake = new LogFake();
+
+        $logFake->stack(['c', 'b', 'a'], 'name')->info('expected message');
+
+        $this->assertSame('Stack:name.a.b.c', $logFake->allLogs()[0]['channel']);
     }
 
     public function testClosuresProvideMessageAndContext(): void
@@ -595,8 +600,53 @@ class LogFakeTest extends TestCase
         $logFake->extend('misc', function () {
             //
         });
+        $logFake->setEventDispatcher(new class () implements Dispatcher {
+            public function listen($events, $listener = null)
+            {
+                //
+            }
+
+            public function hasListeners($eventName)
+            {
+                return false;
+            }
+
+            public function subscribe($subscriber)
+            {
+                //
+            }
+
+            public function until($event, $payload = [])
+            {
+                return null;
+            }
+
+            public function dispatch($event, $payload = [], $halt = false)
+            {
+                return null;
+            }
+
+            public function push($event, $payload = [])
+            {
+                //
+            }
+
+            public function flush($event)
+            {
+                //
+            }
+
+            public function forget($event)
+            {
+                //
+            }
+
+            public function forgetPushed()
+            {
+                //
+            }
+        });
         $logFake->getEventDispatcher();
-        $logFake->setEventDispatcher();
         $this->assertSame($logFake->getLogger(), $logFake);
     }
 
