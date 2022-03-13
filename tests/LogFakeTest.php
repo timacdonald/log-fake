@@ -15,6 +15,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Symfony\Component\VarDumper\VarDumper;
+use TiMacDonald\Log\ChannelFake;
 use TiMacDonald\Log\LogFake;
 use function assert;
 use function config;
@@ -44,48 +45,28 @@ class LogFakeTest extends TestCase
             $log->assertLogged('info');
             $this->fail();
         } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('The expected log with level [info] was not logged in stack.'));
+            $this->assertThat($e, new ExceptionMessage('An expected log with level [info] was not logged in the [stack] channel.'));
         }
+        $log->info('xxxx');
+        $log->assertLogged('info');
 
         try {
             $log->channel('channel')->assertLogged('info');
             $this->fail();
         } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('The expected log with level [info] was not logged in channel.'));
+            $this->assertThat($e, new ExceptionMessage('An expected log with level [info] was not logged in the [channel] channel.'));
         }
+        $log->channel('channel')->info('xxxx');
+        $log->channel('channel')->assertLogged('info');
 
         try {
             $log->stack(['channel'], 'name')->assertLogged('info');
             $this->fail();
         } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('The expected log with level [info] was not logged in Stack:name.channel.'));
+            $this->assertThat($e, new ExceptionMessage('An expected log with level [info] was not logged in the [Stack:name.channel] channel.'));
         }
-    }
-
-    public function testAssertLoggedWithCount(): void
-    {
-        $log = new LogFake();
-
-        try {
-            $log->assertLogged('info', 1);
-            $this->fail();
-        } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('The expected log with level [info] was logged 0 times instead of 1 times in stack.'));
-        }
-
-        try {
-            $log->channel('channel')->assertLogged('info', 1);
-            $this->fail();
-        } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('The expected log with level [info] was logged 0 times instead of 1 times in channel.'));
-        }
-
-        try {
-            $log->stack(['channel'], 'name')->assertLogged('info', 1);
-            $this->fail();
-        } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('The expected log with level [info] was logged 0 times instead of 1 times in Stack:name.channel.'));
-        }
+        $log->stack(['channel'], 'name')->info('xxxx');
+        $log->stack(['channel'], 'name')->assertLogged('info');
     }
 
     public function testAssertLoggedWithCallback(): void
@@ -98,8 +79,12 @@ class LogFakeTest extends TestCase
             });
             $this->fail();
         } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('The expected log with level [info] was not logged in stack.'));
+            $this->assertThat($e, new ExceptionMessage('An expected log with level [info] was not logged in the [stack] channel.'));
         }
+        $log->info('xxxx');
+        $log->assertLogged('info', static function () {
+            return true;
+        });
 
         try {
             $log->channel('channel')->assertLogged('info', static function () {
@@ -107,8 +92,12 @@ class LogFakeTest extends TestCase
             });
             $this->fail();
         } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('The expected log with level [info] was not logged in channel.'));
+            $this->assertThat($e, new ExceptionMessage('An expected log with level [info] was not logged in the [channel] channel.'));
         }
+        $log->channel('channel')->info('xxxx');
+        $log->channel('channel')->assertLogged('info', static function () {
+            return true;
+        });
 
         try {
             $log->stack(['channel'], 'name')->assertLogged('info', static function () {
@@ -116,49 +105,56 @@ class LogFakeTest extends TestCase
             });
             $this->fail();
         } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('The expected log with level [info] was not logged in Stack:name.channel.'));
+            $this->assertThat($e, new ExceptionMessage('An expected log with level [info] was not logged in the [Stack:name.channel] channel.'));
         }
+        $log->stack(['channel'], 'name')->info('xxxx');
+        $log->stack(['channel'], 'name')->assertLogged('info', static function () {
+            return true;
+        });
     }
 
     public function testAssertLoggedTimesWithCallback(): void
     {
         $log = new LogFake();
 
+        $log->info('xxxx');
         try {
-            $log->assertLoggedTimes('info', 42, static function () {
+            $log->assertLoggedTimes('info', 2, static function () {
                 return true;
             });
             $this->fail();
         } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('The expected log with level [info] was logged 0 times instead of 42 times in stack.'));
+            $this->assertThat($e, new ExceptionMessage('A log with level [info] was logged [1] times instead of an expected [2] times in the [stack] channel.'));
         }
+        $log->assertLoggedTimes('info', 1, static function () {
+            return true;
+        });
 
+        $log->channel('channel')->info('xxxx');
         try {
-            $log->channel('channel')->assertLoggedTimes('info', 42, static function () {
+            $log->channel('channel')->assertLoggedTimes('info', 2, static function () {
                 return true;
             });
             $this->fail();
         } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('The expected log with level [info] was logged 0 times instead of 42 times in channel.'));
+            $this->assertThat($e, new ExceptionMessage('A log with level [info] was logged [1] times instead of an expected [2] times in the [channel] channel.'));
         }
+        $log->channel('channel')->assertLoggedTimes('info', 1, static function () {
+            return true;
+        });
 
+        $log->stack(['channel'], 'name')->info('xxxx');
         try {
-            $log->stack(['channel'], 'name')->assertLoggedTimes('info', 42, static function () {
+            $log->stack(['channel'], 'name')->assertLoggedTimes('info', 2, static function () {
                 return true;
             });
             $this->fail();
         } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('The expected log with level [info] was logged 0 times instead of 42 times in Stack:name.channel.'));
+            $this->assertThat($e, new ExceptionMessage('A log with level [info] was logged [1] times instead of an expected [2] times in the [Stack:name.channel] channel.'));
         }
-
-        try {
-            $log->stack(['channel'], 'name')->assertLoggedTimes('info', 42, static function () {
-                return true;
-            });
-            $this->fail();
-        } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('The expected log with level [info] was logged 0 times instead of 42 times in Stack:name.channel.'));
-        }
+        $log->stack(['channel'], 'name')->assertLoggedTimes('info', 1, static function () {
+            return true;
+        });
     }
 
     public function testAssertLoggedMessage(): void
@@ -169,185 +165,168 @@ class LogFakeTest extends TestCase
             $log->assertLoggedMessage('info', 'expected message');
             $this->fail();
         } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('The expected log with level [info] was not logged in stack'));
+            $this->assertThat($e, new ExceptionMessage('An expected log with level [info] was not logged in the [stack] channel.'));
         }
-
         $log->info('expected message');
         $log->assertLoggedMessage('info', 'expected message');
+
+        try {
+            $log->channel('channel')->assertLoggedMessage('info', 'expected message');
+            $this->fail();
+        } catch (ExpectationFailedException $e) {
+            $this->assertThat($e, new ExceptionMessage('An expected log with level [info] was not logged in the [channel] channel.'));
+        }
+        $log->channel('channel')->info('expected message');
+        $log->channel('channel')->assertLoggedMessage('info', 'expected message');
+
+        try {
+            $log->stack(['channel'], 'name')->assertLoggedMessage('info', 'expected message');
+            $this->fail();
+        } catch (ExpectationFailedException $e) {
+            $this->assertThat($e, new ExceptionMessage('An expected log with level [info] was not logged in the [Stack:name.channel] channel.'));
+        }
+        $log->stack(['channel'], 'name')->info('expected message');
+        $log->stack(['channel'], 'name')->assertLoggedMessage('info', 'expected message');
     }
 
     public function testAssertLoggedTimes(): void
     {
         $log = new LogFake();
 
-        try {
-            $log->assertLoggedTimes('info');
-            $this->fail();
-        } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('The expected log with level [info] was logged 0 times instead of 1 times in stack.'));
-        }
-
-        $log->info('expected info log');
-        $log->assertLoggedTimes('info');
-
+        $log->info('xxxx');
         try {
             $log->assertLoggedTimes('info', 2);
             $this->fail();
         } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('The expected log with level [info] was logged 1 times instead of 2 times in stack.'));
+            $this->assertThat($e, new ExceptionMessage('A log with level [info] was logged [1] times instead of an expected [2] times in the [stack] channel.'));
         }
+        $log->assertLoggedTimes('info', 1);
 
-        $log->info('expected info log');
-        $log->assertLoggedTimes('info', 2);
-    }
-
-    public function testAssertLoggedTimesInChannel(): void
-    {
-        $log = new LogFake();
-
-        try {
-            $log->channel('channel')->assertLoggedTimes('info');
-            $this->fail();
-        } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('The expected log with level [info] was logged 0 times instead of 1 times in channel.'));
-        }
-
-        $log->channel('channel')->log('info', 'expected info log');
-        $log->channel('channel')->assertLoggedTimes('info');
-
+        $log->channel('channel')->info('xxxx');
         try {
             $log->channel('channel')->assertLoggedTimes('info', 2);
             $this->fail();
         } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('The expected log with level [info] was logged 1 times instead of 2 times in channel.'));
+            $this->assertThat($e, new ExceptionMessage('A log with level [info] was logged [1] times instead of an expected [2] times in the [channel] channel.'));
         }
+        $log->channel('channel')->assertLoggedTimes('info', 1);
 
-        $log->channel('channel')->info('expected info log');
-        $log->channel('channel')->assertLoggedTimes('info', 2);
-    }
-
-    public function testAssertLoggedTimesInStack(): void
-    {
-        $log = new LogFake();
-
-        try {
-            $log->stack(['channel'], 'name')->assertLoggedTimes('info');
-            $this->fail();
-        } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('The expected log with level [info] was logged 0 times instead of 1 times in Stack:name.'));
-        }
-
-        $log->stack(['channel'], 'name')->log('info', 'expected info log');
-        $log->stack(['channel'], 'name')->assertLoggedTimes('info');
-
+        $log->stack(['channel'], 'name')->info('xxxx');
         try {
             $log->stack(['channel'], 'name')->assertLoggedTimes('info', 2);
             $this->fail();
         } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('The expected log with level [info] was logged 1 times instead of 2 times in Stack:name.channel.'));
+            $this->assertThat($e, new ExceptionMessage('A log with level [info] was logged [1] times instead of an expected [2] times in the [Stack:name.channel] channel.'));
         }
-
-        $log->stack(['channel'], 'name')->info('expected info log');
-        $log->stack(['channel'], 'name')->assertLoggedTimes('info', 2);
+        $log->stack(['channel'], 'name')->assertLoggedTimes('info', 1);
     }
 
     public function testAssertNotLogged(): void
     {
         $log = new LogFake();
-        $log->info(self::MESSAGE);
-        $log->channel('channel')->info(self::MESSAGE);
-        $log->stack(['channel'], 'name')->info(self::MESSAGE);
 
+        $log->assertNotLogged('xxxx');
+        $log->info('xxxx');
         try {
             $log->assertNotLogged('info');
             $this->fail();
         } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('The unexpected log with level [info] was logged in stack.'));
+            $this->assertThat($e, new ExceptionMessage('An unexpected log with level [info] was logged [1] times in the [stack] channel.'));
         }
 
+        $log->channel('channel')->assertNotLogged('info');
+        $log->channel('channel')->info('xxxx');
         try {
             $log->channel('channel')->assertNotLogged('info');
             $this->fail();
         } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('The unexpected log with level [info] was logged in channel.'));
+            $this->assertThat($e, new ExceptionMessage('An unexpected log with level [info] was logged [1] times in the [channel] channel.'));
         }
 
+        $log->stack(['channel'], 'name')->assertNotLogged('info');
+        $log->stack(['channel'], 'name')->info('xxxx');
         try {
             $log->stack(['channel'], 'name')->assertNotLogged('info');
             $this->fail();
         } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('The unexpected log with level [info] was logged in Stack:name.channel.'));
+            $this->assertThat($e, new ExceptionMessage('An unexpected log with level [info] was logged [1] times in the [Stack:name.channel] channel.'));
         }
     }
 
     public function testAssertNotLoggedWithCallback(): void
     {
         $log = new LogFake();
-        $log->info(self::MESSAGE);
-        $log->channel('channel')->info(self::MESSAGE);
-        $log->stack(['channel'], 'name')->info(self::MESSAGE);
 
+        $log->assertNotLogged('info', static function () {
+            return true;
+        });
+        $log->info('xxxx');
         try {
             $log->assertNotLogged('info', static function () {
                 return true;
             });
             $this->fail();
         } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('The unexpected log with level [info] was logged in stack.'));
+            $this->assertThat($e, new ExceptionMessage('An unexpected log with level [info] was logged [1] times in the [stack] channel.'));
         }
 
+        $log->channel('channel')->assertNotLogged('info', static function () {
+            return true;
+        });
+        $log->channel('channel')->info('expected message');
         try {
             $log->channel('channel')->assertNotLogged('info', static function () {
                 return true;
             });
             $this->fail();
         } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('The unexpected log with level [info] was logged in channel.'));
+            $this->assertThat($e, new ExceptionMessage('An unexpected log with level [info] was logged [1] times in the [channel] channel.'));
         }
 
+        $log->stack(['channel'], 'name')->assertNotLogged('info', static function () {
+            return true;
+        });
+        $log->stack(['channel'], 'name')->info('expected message');
         try {
             $log->stack(['channel'], 'name')->assertNotLogged('info', static function () {
                 return true;
             });
             $this->fail();
         } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('The unexpected log with level [info] was logged in Stack:name.channel.'));
+            $this->assertThat($e, new ExceptionMessage('An unexpected log with level [info] was logged [1] times in the [Stack:name.channel] channel.'));
         }
     }
 
     public function testAssertNothingLogged(): void
     {
         $log = new LogFake();
-        $log->info(self::MESSAGE);
-        $log->channel('channel')->info(self::MESSAGE);
-        $log->stack(['channel'], 'name')->info(self::MESSAGE);
 
+        $log->assertNothingLogged();
+        $log->info('xxxx');
         try {
             $log->assertNothingLogged();
             $this->fail();
         } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('Logs were created in stack.'));
+            $this->assertThat($e, new ExceptionMessage('Found [1] logs in the [stack] channel. Expected to find [0].'));
         }
 
+        $log->channel('channel')->assertNothingLogged();
+        $log->channel('channel')->info('expected message');
         try {
             $log->channel('channel')->assertNothingLogged();
             $this->fail();
         } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('Logs were created in channel.'));
+            $this->assertThat($e, new ExceptionMessage('Found [1] logs in the [channel] channel. Expected to find [0].'));
         }
 
+        $log->stack(['channel'], 'name')->assertNothingLogged();
+        $log->stack(['channel'], 'name')->info('xxxx');
         try {
             $log->stack(['channel'], 'name')->assertNothingLogged();
             $this->fail();
         } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('Logs were created in Stack:name.channel.'));
+            $this->assertThat($e, new ExceptionMessage('Found [1] logs in the [Stack:name.channel] channel. Expected to find [0].'));
         }
-    }
-
-    public function testChannelLoggerInstanceOfLoggerInterface(): void
-    {
-        $log = new LogFake();
-        $this->assertInstanceOf(LoggerInterface::class, $log->channel('channel'));
     }
 
     public function testLogged(): void
@@ -355,15 +334,15 @@ class LogFakeTest extends TestCase
         $log = new LogFake();
 
         $this->assertTrue($log->logged('info')->isEmpty());
-        $log->info(self::MESSAGE);
+        $log->info('xxxx');
         $this->assertFalse($log->logged('info')->isEmpty());
 
         $this->assertTrue($log->channel('channel')->logged('info')->isEmpty());
-        $log->channel('channel')->info(self::MESSAGE);
+        $log->channel('channel')->info('xxxx');
         $this->assertFalse($log->channel('channel')->logged('info')->isEmpty());
 
         $this->assertTrue($log->stack(['channel'], 'name')->logged('info')->isEmpty());
-        $log->stack(['channel'], 'name')->info(self::MESSAGE);
+        $log->stack(['channel'], 'name')->info('xxxx');
         $this->assertFalse($log->stack(['channel'], 'name')->logged('info')->isEmpty());
     }
 
@@ -374,7 +353,7 @@ class LogFakeTest extends TestCase
         $this->assertTrue($log->logged('info', static function () {
             return true;
         })->isEmpty());
-        $log->info(self::MESSAGE);
+        $log->info('expected message');
         $this->assertFalse($log->logged('info', static function () {
             return true;
         })->isEmpty());
@@ -382,7 +361,7 @@ class LogFakeTest extends TestCase
         $this->assertTrue($log->channel('channel')->logged('info', static function () {
             return true;
         })->isEmpty());
-        $log->channel('channel')->info(self::MESSAGE);
+        $log->channel('channel')->info('expected message');
         $this->assertFalse($log->channel('channel')->logged('info', static function () {
             return true;
         })->isEmpty());
@@ -390,44 +369,10 @@ class LogFakeTest extends TestCase
         $this->assertTrue($log->stack(['channel'], 'name')->logged('info', static function () {
             return true;
         })->isEmpty());
-        $log->stack(['channel'], 'name')->info(self::MESSAGE);
+        $log->stack(['channel'], 'name')->info('expected message');
         $this->assertFalse($log->stack(['channel'], 'name')->logged('info', static function () {
             return true;
         })->isEmpty());
-    }
-
-    public function testHasLogged(): void
-    {
-        $log = new LogFake();
-
-        $this->assertFalse($log->hasLogged('info'));
-        $log->info(self::MESSAGE);
-        $this->assertTrue($log->hasLogged('info'));
-
-        $this->assertFalse($log->channel('channel')->hasLogged('info'));
-        $log->channel('channel')->info(self::MESSAGE);
-        $this->assertTrue($log->channel('channel')->hasLogged('info'));
-
-        $this->assertFalse($log->stack(['channel'], 'name')->hasLogged('info'));
-        $log->stack(['channel'], 'name')->info(self::MESSAGE);
-        $this->assertTrue($log->stack(['channel'], 'name')->hasLogged('info'));
-    }
-
-    public function testHasNotLogged(): void
-    {
-        $log = new LogFake();
-
-        $this->assertTrue($log->hasNotLogged('info'));
-        $log->info(self::MESSAGE);
-        $this->assertFalse($log->hasNotLogged('info'));
-
-        $this->assertTrue($log->channel('channel')->hasNotLogged('info'));
-        $log->channel('channel')->info(self::MESSAGE);
-        $this->assertFalse($log->channel('channel')->hasNotLogged('info'));
-
-        $this->assertTrue($log->stack(['channel'], 'name')->hasNotLogged('info'));
-        $log->stack(['channel'], 'name')->info(self::MESSAGE);
-        $this->assertFalse($log->stack(['channel'], 'name')->hasNotLogged('info'));
     }
 
     public function testLoggingLevelMethods(): void
@@ -481,7 +426,7 @@ class LogFakeTest extends TestCase
     {
         $log = new LogFake();
 
-        $log->driver('channel')->info(self::MESSAGE);
+        $log->driver('channel')->info('expected message');
         $log->channel('channel')->assertLogged('info', static function () {
             return true;
         });
@@ -491,7 +436,7 @@ class LogFakeTest extends TestCase
     {
         $log = new LogFake();
 
-        $log->stack(['bugsnag', 'sentry'], 'dev_team')->info(self::MESSAGE);
+        $log->stack(['bugsnag', 'sentry'], 'dev_team')->info('expected message');
 
         $log->assertNotLogged('info');
         $log->stack(['bugsnag', 'sentry'], 'dev_team')->assertLogged('info');
@@ -501,7 +446,7 @@ class LogFakeTest extends TestCase
     {
         $log = new LogFake();
 
-        $log->stack(['bugsnag', 'sentry'], 'dev_team')->info(self::MESSAGE);
+        $log->stack(['bugsnag', 'sentry'], 'dev_team')->info('expected message');
 
         $log->assertNotLogged('info');
         $log->stack(['sentry', 'bugsnag'], 'dev_team')->assertLogged('info');
@@ -511,8 +456,8 @@ class LogFakeTest extends TestCase
     {
         $log = new LogFake();
 
-        $log->stack(['bugsnag', 'sentry'], 'dev_team')->info(self::MESSAGE);
-        $log->stack(['bugsnag', 'sentry'])->alert(self::MESSAGE);
+        $log->stack(['bugsnag', 'sentry'], 'dev_team')->info('expected message');
+        $log->stack(['bugsnag', 'sentry'])->alert('expected message');
 
         $log->stack(['sentry', 'bugsnag'], 'dev_team')->assertNotLogged('alert');
         $log->stack(['sentry', 'bugsnag'])->assertNotLogged('info');
@@ -522,14 +467,14 @@ class LogFakeTest extends TestCase
     {
         $log = new LogFake();
 
-        $log->stack(['bugsnag', 'sentry'])->info(self::MESSAGE);
-        $log->channel('bugsnag.sentry')->alert(self::MESSAGE);
+        $log->stack(['bugsnag', 'sentry'])->info('expected message');
+        $log->channel('bugsnag.sentry')->alert('expected message');
 
         $log->stack(['bugsnag', 'sentry'])->assertNotLogged('alert');
         $log->channel('bugsnag.sentry')->assertNotLogged('info');
 
-        $log->stack(['bugsnag', 'sentry'], 'name')->info(self::MESSAGE);
-        $log->channel('name.bugsnag.sentry')->alert(self::MESSAGE);
+        $log->stack(['bugsnag', 'sentry'], 'name')->info('expected message');
+        $log->channel('name.bugsnag.sentry')->alert('expected message');
 
         $log->stack(['name', 'bugsnag', 'sentry'])->assertNotLogged('alert');
         $log->channel('name.bugsnag.sentry')->assertNotLogged('info');
@@ -541,29 +486,29 @@ class LogFakeTest extends TestCase
 
         $logFake->stack(['c', 'b', 'a'], 'name')->info('expected message');
 
-        $this->assertSame('Stack:name.a.b.c', $logFake->allLogs()[0]['channel']);
+        $this->assertSame('Stack:name.a.b.c', $logFake->allLogs()->first()['channel']);
     }
 
     public function testClosuresProvideMessageAndContext(): void
     {
         $log = new LogFake();
-        $log->info(self::MESSAGE, ['key' => 'expected']);
+        $log->info('expected message', ['key' => 'expected']);
 
         $items = $log->logged('info', function (string $message, array $context) {
-            $this->assertSame(self::MESSAGE, $message);
+            $this->assertSame('expected message', $message);
             $this->assertSame(['key' => 'expected'], $context);
 
             return true;
         });
         $this->assertTrue($items->isNotEmpty());
         $log->assertLogged('info', function (string $message, array $context) {
-            $this->assertSame(self::MESSAGE, $message);
+            $this->assertSame('expected message', $message);
             $this->assertSame(['key' => 'expected'], $context);
 
             return true;
         });
         $log->assertNotLogged('info', function (string $message, array $context) {
-            $this->assertSame(self::MESSAGE, $message);
+            $this->assertSame('expected message', $message);
             $this->assertSame(['key' => 'expected'], $context);
 
             return false;
@@ -647,7 +592,7 @@ class LogFakeTest extends TestCase
             }
         });
         $logFake->getEventDispatcher();
-        $this->assertSame($logFake->getLogger(), $logFake);
+        $this->assertSame($logFake->getLogger(), $logFake->channel());
     }
 
     public function testItCanDumpDefaultChannel(): void
@@ -665,7 +610,7 @@ class LogFakeTest extends TestCase
         $log->channel('channel')->info('missing channel log');
         $log = $log->dump();
 
-        $this->assertInstanceOf(LogFake::class, $log);
+        $this->assertInstanceOf(ChannelFake::class, $log);
         $this->assertTrue(is_array($dumps));
         $this->assertCount(1, $dumps);
         $logs = $dumps[0];
@@ -678,12 +623,14 @@ class LogFakeTest extends TestCase
                 'level' => 'info',
                 'message' => 'expected log 1',
                 'context' => [],
+                'times_channel_has_been_forgotten_at_time_of_writing_log' => 0,
                 'channel' => 'stack',
             ],
             [
                 'level' => 'debug',
                 'message' => 'expected log 2',
                 'context' => [],
+                'times_channel_has_been_forgotten_at_time_of_writing_log' => 0,
                 'channel' => 'stack',
             ],
         ], $logs);
@@ -705,7 +652,7 @@ class LogFakeTest extends TestCase
         $log->channel('channel')->info('missing channel log');
         $log = $log->dump('info');
 
-        $this->assertInstanceOf(LogFake::class, $log);
+        $this->assertInstanceOf(ChannelFake::class, $log);
         $this->assertTrue(is_array($dumps));
         $this->assertCount(1, $dumps);
         $logs = $dumps[0];
@@ -715,6 +662,7 @@ class LogFakeTest extends TestCase
             'level' => 'info',
             'message' => 'expected log',
             'context' => [],
+            'times_channel_has_been_forgotten_at_time_of_writing_log' => 0,
             'channel' => 'stack',
         ], $logs[0]);
 
@@ -736,7 +684,7 @@ class LogFakeTest extends TestCase
         $log->channel('known')->debug('expected log 2');
         $log = $log->channel('known')->dump();
 
-        $this->assertInstanceOf(LogFake::class, $log);
+        $this->assertInstanceOf(ChannelFake::class, $log);
         $this->assertTrue(is_array($dumps));
         $this->assertCount(1, $dumps);
         $logs = $dumps[0];
@@ -747,12 +695,14 @@ class LogFakeTest extends TestCase
                 'level' => 'info',
                 'message' => 'expected log 1',
                 'context' => [],
+                'times_channel_has_been_forgotten_at_time_of_writing_log' => 0,
                 'channel' => 'known',
             ],
             [
                 'level' => 'debug',
                 'message' => 'expected log 2',
                 'context' => [],
+                'times_channel_has_been_forgotten_at_time_of_writing_log' => 0,
                 'channel' => 'known',
             ],
         ], $logs);
@@ -775,7 +725,7 @@ class LogFakeTest extends TestCase
         $log->channel('known')->debug('missing log');
         $log = $log->channel('known')->dump('info');
 
-        $this->assertInstanceOf(LogFake::class, $log);
+        $this->assertInstanceOf(ChannelFake::class, $log);
         $this->assertTrue(is_array($dumps));
         $this->assertCount(1, $dumps);
         $logs = $dumps[0];
@@ -786,6 +736,7 @@ class LogFakeTest extends TestCase
                 'level' => 'info',
                 'message' => 'expected log',
                 'context' => [],
+                'times_channel_has_been_forgotten_at_time_of_writing_log' => 0,
                 'channel' => 'known',
             ],
         ], $logs);
@@ -822,24 +773,28 @@ class LogFakeTest extends TestCase
                 'level' => 'info',
                 'message' => 'expected log 1',
                 'context' => [],
+                'times_channel_has_been_forgotten_at_time_of_writing_log' => 0,
                 'channel' => 'stack',
             ],
             [
                 'level' => 'debug',
                 'message' => 'expected log 2',
                 'context' => [],
+                'times_channel_has_been_forgotten_at_time_of_writing_log' => 0,
                 'channel' => 'stack',
             ],
             [
                 'level' => 'info',
                 'message' => 'expected log 3',
                 'context' => [],
+                'times_channel_has_been_forgotten_at_time_of_writing_log' => 0,
                 'channel' => 'channel',
             ],
             [
                 'level' => 'debug',
                 'message' => 'expected log 4',
                 'context' => [],
+                'times_channel_has_been_forgotten_at_time_of_writing_log' => 0,
                 'channel' => 'channel',
             ],
         ], $logs);
@@ -876,12 +831,14 @@ class LogFakeTest extends TestCase
                 'level' => 'info',
                 'message' => 'expected log 1',
                 'context' => [],
+                'times_channel_has_been_forgotten_at_time_of_writing_log' => 0,
                 'channel' => 'stack',
             ],
             [
                 'level' => 'info',
                 'message' => 'expected log 2',
                 'context' => [],
+                'times_channel_has_been_forgotten_at_time_of_writing_log' => 0,
                 'channel' => 'channel',
             ],
         ], $logs);
@@ -904,7 +861,7 @@ class LogFakeTest extends TestCase
         $log = new LogFake();
 
         $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('LogFake::ddAll() should not be called from a channel.');
+        $this->expectExceptionMessage('`ddAll()` should not be called from a channel.');
 
         $log->channel('channel')->ddAll();
     }

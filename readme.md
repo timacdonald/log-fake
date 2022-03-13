@@ -292,3 +292,14 @@ And a special (vegi) thanks to [Caneco](https://twitter.com/caneco) for the logo
 ## Thanksware
 
 You are free to use this package, but I ask that you reach out to someone (not me) who has previously, or is currently, maintaining or contributing to an open source library you are using in your project and thank them for their work. Consider your entire tech stack: packages, frameworks, languages, databases, operating systems, frontend, backend, etc.
+
+## Upgrading
+
+- Failure messages have been updated.
+- assertLoggedTimes no longer has a default $times value.
+- assertLogged no longer accepts an integer as the second parameter. Use `assertLoggedTimes` directly instead
+- the `hasLogged` function has been removed. use assertions or the Log::logged(...)->isEmpty()" instead
+- the `hasNotLogged` function has been removed. use assertions or the Log::logged(...)->isNotEmpty()" instead
+- the `getLogger` method now returns a `ChannelFake`
+- raw log arrays now contain the 'times_channel_has_been_forgotten_at_time_of_writing_log' key, indicating how many times the channel has been forgotten at the time of creation
+`
