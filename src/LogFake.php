@@ -10,7 +10,9 @@ use Illuminate\Support\Facades\Log;
 use Psr\Log\LoggerInterface;
 use Stringable;
 
+use function assert;
 use function config;
+use function is_string;
 
 /**
  * @mixin ChannelFake
@@ -36,10 +38,17 @@ class LogFake implements LoggerInterface
 
     public function dumpAll(?string $level = null): LogFake
     {
+        $callback = $level === null
+        ? function () {
+            return true;
+        }
+        : function (array $log) use ($level) {
+            return $log['level'] === $level;
+        };
+
         $this->allLogs()
-            ->when($level !== null, function (Collection $logs) use ($level): Collection {
-                return $logs->where('level', $level)->values();
-            })
+            ->filter($callback)
+            ->values()
             ->dump();
 
         return $this;
@@ -104,7 +113,7 @@ class LogFake implements LoggerInterface
 
     public function forgetChannel(?string $driver = null): LogFake
     {
-        $this->channels[$this->parseDriver($driver)]?->forget();
+        $this->channel($this->parseDriver($driver))->forget();
 
         return $this;
     }

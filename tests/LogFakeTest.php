@@ -14,6 +14,7 @@ use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
+use Stringable;
 use Symfony\Component\VarDumper\VarDumper;
 use TiMacDonald\Log\ChannelFake;
 use TiMacDonald\Log\LogFake;
@@ -535,6 +536,44 @@ class LogFakeTest extends TestCase
         });
     }
 
+    public function testAssertionCallbacksRecieveTimesForgottenAsAParameter(): void
+    {
+        $log = new LogFake();
+        $forgotten = [];
+
+        $log->info('foo');
+        $log->assertLogged('info', function (string $message, array $context, int $timesForgotten) use (&$forgotten) {
+            if ($message === 'foo') {
+                $forgotten[] = $timesForgotten;
+            }
+
+            return true;
+        });
+        $log->forgetChannel('stack');
+
+        $log->info('bar');
+        $log->assertLogged('info', function ($message, $context, $timesForgotten) use (&$forgotten) {
+            if ($message === 'bar') {
+                $forgotten[] = $timesForgotten;
+            }
+
+            return true;
+        });
+        $log->forgetChannel('stack');
+
+        $log->info('baz');
+        $log->assertLogged('info', function ($message, $context, $timesForgotten) use (&$forgotten) {
+            if ($message === 'baz') {
+                $forgotten[] = $timesForgotten;
+            }
+
+            return true;
+        });
+        $log->forgetChannel('stack');
+
+        $this->assertSame([0, 1, 2], $forgotten);
+    }
+
     public function testDummyMethods(): void
     {
         $logFake = new LogFake();
@@ -864,5 +903,93 @@ class LogFakeTest extends TestCase
         $this->expectExceptionMessage('`ddAll()` should not be called from a channel.');
 
         $log->channel('channel')->ddAll();
+    }
+
+    public function testItHandlesNullDriverConfig(): void
+    {
+        $log = new LogFake();
+        config()->set('logging.default', null);
+
+        $log->info('xxxx');
+        $log->channel('null')->assertLogged('info');
+    }
+
+    public function testItCanLogStringableObjects(): void
+    {
+        $log = new LogFake();
+        $stringable = new class () implements Stringable {
+            public function __toString(): string
+            {
+                return 'expected message';
+            }
+        };
+
+        $log->info($stringable);
+
+        $this->assertSame($log->logged('info')->first()['message'], 'expected message');
+    }
+
+    public function testItAddsContextToLogs(): void
+    {
+        $log = new LogFake();
+
+        $log->withContext(['foo' => 'xxxx'])
+            ->withContext(['bar' => 'xxxx'])
+            ->info('expected message', [
+                'baz' => 'xxxx',
+            ]);
+
+        $this->assertSame($log->logged('info')->first()['context'], [
+            'foo' => 'xxxx',
+            'bar' => 'xxxx',
+            'baz' => 'xxxx',
+        ]);
+    }
+
+    public function testItCanClearContext(): void
+    {
+        $log = new LogFake();
+
+        $log->withContext(['foo' => 'xxxx'])
+            ->withoutContext()
+            ->info('expected message', [
+                'baz' => 'xxxx',
+            ]);
+
+        $this->assertSame($log->logged('info')->first()['context'], [
+            'baz' => 'xxxx',
+        ]);
+    }
+
+    public function testItCanAssertAChannelHasBeenForgotten(): void
+    {
+        $log = new LogFake();
+
+        try {
+            $log->assertForgotten();
+            $this->fail();
+        } catch (ExpectationFailedException $e) {
+            $this->assertThat($e, new ExceptionMessage('Expected the [stack] channel to be forgotten [1] times. It was forgotten [0] times.'));
+        }
+        $log->forgetChannel('stack');
+        $log->assertForgotten();
+
+        try {
+            $log->channel('channel')->assertForgotten();
+            $this->fail();
+        } catch (ExpectationFailedException $e) {
+            $this->assertThat($e, new ExceptionMessage('Expected the [channel] channel to be forgotten [1] times. It was forgotten [0] times.'));
+        }
+        $log->forgetChannel('channel');
+        $log->channel('channel')->assertForgotten();
+
+        try {
+            $log->stack(['channel'], 'name')->assertForgotten();
+            $this->fail();
+        } catch (ExpectationFailedException $e) {
+            $this->assertThat($e, new ExceptionMessage('Expected the [Stack:name.channel] channel to be forgotten [1] times. It was forgotten [0] times.'));
+        }
+        $log->forgetChannel('Stack:name.channel');
+        $log->stack(['channel'], 'name')->assertForgotten();
     }
 }

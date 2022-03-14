@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace TiMacDonald\Log;
 
 use Closure;
-use Stringable;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Collection;
 use PHPUnit\Framework\Assert as PHPUnit;
 use Psr\Log\LoggerInterface;
-use Illuminate\Contracts\Events\Dispatcher;
 use RuntimeException;
+use Stringable;
 
 class ChannelFake implements LoggerInterface
 {
@@ -57,7 +57,7 @@ class ChannelFake implements LoggerInterface
     {
         PHPUnit::assertTrue(
             ($count = $this->logged($level, $callback)->count()) === 0,
-            "An unexpected log with level [{$level}] was logged [$count] times in the [{$this->name}] channel."
+            "An unexpected log with level [{$level}] was logged [${count}] times in the [{$this->name}] channel."
         );
     }
 
@@ -73,22 +73,34 @@ class ChannelFake implements LoggerInterface
         });
     }
 
-    public function assertForgotten()
+    public function assertForgotten(): void
     {
-        PHPUnit::assertGreaterThan(0, $this->timesForgotten, "Expected the [{$this->name}] channel to be forgotten. It was not forgotten.");
+        $this->assertForgottenTimes(1);
     }
 
-    public function assertNotForgotten()
+    public function assertForgottenTimes(int $count): void
     {
-        PHPUnit::assertSame(0, $this->timesForgotten, "Expected the [{$this->name}] channel to not be forgotten. It was forgotten [{$this->timesForgotten}] times.");
+        PHPUnit::assertSame($count, $this->timesForgotten, "Expected the [{$this->name}] channel to be forgotten [{$count}] times. It was forgotten [{$this->timesForgotten}] times.");
+    }
+
+    public function assertNotForgotten(): void
+    {
+        $this->assertForgottenTimes(0);
     }
 
     public function dump(?string $level = null): ChannelFake
     {
+        $callback = $level === null
+            ? function () {
+                return true;
+            }
+        : function ($log) use ($level) {
+            return $log['level'] === $level;
+        };
+
         $this->logs()
-            ->when($level !== null, function (Collection $logs) use ($level): Collection {
-                return $logs->where('level', $level)->values();
-            })
+            ->filter($callback)
+            ->values()
             ->dump();
 
         return $this;
@@ -156,14 +168,16 @@ class ChannelFake implements LoggerInterface
 
     public function logged(string $level, ?callable $callback = null): Collection
     {
+        $callback = $callback ?? function () {
+            return true;
+        };
+
         return $this->logs()
             ->where('level', $level)
-            ->when(
-                $callback !== null,
-                fn ($collection) => $collection->filter(
-                    fn ($log) => $callback($log['message'], $log['context'])
-                )->values()
-            );
+            ->filter(function (array $log) use ($callback): bool {
+                return (bool) $callback($log['message'], $log['context'], $log['times_channel_has_been_forgotten_at_time_of_writing_log']);
+            })
+            ->values();
     }
 
     public function logs(): Collection
@@ -174,17 +188,9 @@ class ChannelFake implements LoggerInterface
     /**
      * @internal
      */
-    public function forget()
+    public function forget(): void
     {
-        $this->forgotten = true;
-    }
-
-    /**
-     * @internal
-     */
-    public function hasBeenForgotten(): bool
-    {
-        return $this->forgotten;
+        $this->timesForgotten += 1;
     }
 
     public function dumpAll(?string $level = null): never

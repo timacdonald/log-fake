@@ -303,3 +303,5 @@ You are free to use this package, but I ask that you reach out to someone (not m
 - the `getLogger` method now returns a `ChannelFake`
 - raw log arrays now contain the 'times_channel_has_been_forgotten_at_time_of_writing_log' key, indicating how many times the channel has been forgotten at the time of creation
 `
+- assertion callbacks now recieve an addition 3rd parameter int: times_forgotten
+- Don't support named parameters
