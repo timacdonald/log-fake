@@ -1,9 +1,6 @@
 name: CI
 
 on:
-  schedule:
-    # once a month
-    - cron: '0 0 1 * *'
   push:
     branches: [ master ]
   pull_request:
@@ -20,17 +17,17 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.0'
+          php-version: '8.1'
           coverage: pcov
 
       - name: Cache dependencies
         uses: actions/cache@v1
         with:
           path: ~/.composer/cache/files
-          key: dependencies-composer-${{ hashFiles('composer.json') }}-v2
+          key: dependencies-composer-${{ hashFiles('composer.json') }}-v3
 
       - name: Install dependencies
-        run: composer install --no-suggest --no-interaction --verbose
+        run: composer update --no-suggest --no-interaction --verbose
 
       - name: Check platform requirements
         run: composer check-platform-reqs --verbose
@@ -58,33 +55,10 @@ jobs:
     name: 'PHP: ${{ matrix.php }}; Laravel: ${{ matrix.laravel }}; PHPUnit: ${{ matrix.phpunit }}; Dependecies: ${{ matrix.dependency-version }}'
     strategy:
       matrix:
-        php: ['7.1', '7.2', '7.3', '7.4', '8.0']
-        laravel: ['~5.6.0', '~5.7.0', '~5.8.0', '^6.0', '^7.0', '^8.0']
-        phpunit: ['^7.0', '^8.0', '^9.0']
+        php: ['8.0', '8.1']
+        laravel: ['^9.0']
+        phpunit: ['^9.0']
         dependency-version: ['prefer-lowest', 'prefer-stable']
-        exclude:
-            - laravel: '^6.0'
-              php: '7.1'
-            - laravel: '^7.0'
-              php: '7.1'
-            - phpunit: '^8.0'
-              php: '7.1'
-            - phpunit: '^9.0'
-              php: '7.1'
-            - phpunit: '^9.0'
-              php: '7.2'
-            - laravel: '^8.0'
-              php: '7.1'
-            - laravel: '^8.0'
-              php: '7.2'
-            - phpunit: '^7.0'
-              php: '8.0'
-            - laravel: '~5.6.0'
-              php: '8.0'
-            - laravel: '~5.7.0'
-              php: '8.0'
-            - laravel: '~5.8.0'
-              php: '8.0'
 
     steps:
     - name: checkout code
@@ -100,13 +74,12 @@ jobs:
       uses: actions/cache@v1
       with:
           path: ~/.composer/cache/files
-          key: dependencies-${{ matrix.dependency-version }}-laravel-${{ matrix.laravel }}-phpunit-${{ matrix.phpunit }}-php-${{ matrix.php }}-composer-${{ hashFiles('composer.json') }}-v3
+          key: dependencies-${{ matrix.dependency-version }}-laravel-${{ matrix.laravel }}-phpunit-${{ matrix.phpunit }}-php-${{ matrix.php }}-composer-${{ hashFiles('composer.json') }}-v4
 
     - name: Install dependencies
       run: |
-          composer remove 'infection/infection' 'phpstan/phpstan' --dev --no-update --no-interaction --verbose
-          composer require 'illuminate/config:${{ matrix.laravel }}' 'illuminate/container:${{ matrix.laravel }}' 'illuminate/support:${{ matrix.laravel }}' 'phpunit/phpunit:${{ matrix.phpunit }}' --no-update --no-interaction --verbose
-          composer update --${{ matrix.dependency-version }} --no-suggest --no-interaction --verbose
+        composer require 'illuminate/config:${{ matrix.laravel }}' 'illuminate/container:${{ matrix.laravel }}' 'illuminate/support:${{ matrix.laravel }}' 'phpunit/phpunit:${{ matrix.phpunit }}' --no-update --no-interaction --verbose --no-scripts
+        composer update --${{ matrix.dependency-version }} --no-suggest --no-interaction --verbose --no-no-scripts
 
     - name: Check platform requirements
       run: composer check-platform-reqs --verbose

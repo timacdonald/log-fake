@@ -63,14 +63,15 @@ class ChannelFake implements LoggerInterface
 
     public function assertNothingLogged(): void
     {
-        PHPUnit::assertTrue($this->logs()->isEmpty(), "Found [{$this->logs()->count()}] logs in the [{$this->name}] channel. Expected to find [0].");
+        PHPUnit::assertTrue(
+            $this->logs()->isEmpty(),
+            "Found [{$this->logs()->count()}] logs in the [{$this->name}] channel. Expected to find [0]."
+        );
     }
 
     public function assertLoggedMessage(string $level, string $message): void
     {
-        $this->assertLogged($level, static function (string $loggedMessage) use ($message): bool {
-            return $loggedMessage === $message;
-        });
+        $this->assertLogged($level, fn (string $loggedMessage): bool => $loggedMessage === $message);
     }
 
     public function assertForgotten(): void
@@ -80,7 +81,11 @@ class ChannelFake implements LoggerInterface
 
     public function assertForgottenTimes(int $count): void
     {
-        PHPUnit::assertSame($count, $this->timesForgotten, "Expected the [{$this->name}] channel to be forgotten [{$count}] times. It was forgotten [{$this->timesForgotten}] times.");
+        PHPUnit::assertSame(
+            $count,
+            $this->timesForgotten,
+            "Expected the [{$this->name}] channel to be forgotten [{$count}] times. It was forgotten [{$this->timesForgotten}] times."
+        );
     }
 
     public function assertNotForgotten(): void
@@ -91,12 +96,8 @@ class ChannelFake implements LoggerInterface
     public function dump(?string $level = null): ChannelFake
     {
         $callback = $level === null
-            ? function () {
-                return true;
-            }
-        : function ($log) use ($level) {
-            return $log['level'] === $level;
-        };
+            ? fn (): bool => true
+            : fn (array $log) => $log['level'] === $level;
 
         $this->logs()
             ->filter($callback)
@@ -116,6 +117,9 @@ class ChannelFake implements LoggerInterface
         exit(1);
     }
 
+    /**
+     * @param array<string, mixed> $context
+     */
     public function write(string $level, string $message, array $context = []): void
     {
         $this->log($level, $message, $context);
@@ -171,15 +175,15 @@ class ChannelFake implements LoggerInterface
 
     public function logged(string $level, ?callable $callback = null): Collection
     {
-        $callback = $callback ?? function () {
-            return true;
-        };
+        $callback = $callback ?? fn (): bool => true;
 
         return $this->logs()
             ->where('level', $level)
-            ->filter(function (array $log) use ($callback): bool {
-                return (bool) $callback($log['message'], $log['context'], $log['times_channel_has_been_forgotten_at_time_of_writing_log']);
-            })
+            ->filter(fn (array $log): bool => (bool) $callback(
+                $log['message'],
+                $log['context'],
+                $log['times_channel_has_been_forgotten_at_time_of_writing_log']
+            ))
             ->values();
     }
 

@@ -38,12 +38,8 @@ class LogFake implements LoggerInterface
     public function dumpAll(?string $level = null): LogFake
     {
         $callback = $level === null
-        ? function () {
-            return true;
-        }
-        : function (array $log) use ($level) {
-            return $log['level'] === $level;
-        };
+            ? fn (): bool => true
+            : fn (array $log): bool => $log['level'] === $level;
 
         $this->allLogs()
             ->filter($callback)
@@ -68,6 +64,9 @@ class LogFake implements LoggerInterface
         return $this->driver($channel);
     }
 
+    /**
+     * @param array<string> $channels
+     */
     public function stack(array $channels, ?string $channel = null): ChannelFake
     {
         return $this->driver('Stack:'.$this->createStackChannelName($channels, $channel));
@@ -120,9 +119,15 @@ class LogFake implements LoggerInterface
         return $this;
     }
 
+    /**
+     * @param array<string> $channels
+     */
     private function createStackChannelName(array $channels, ?string $channel): string
     {
-        return Collection::make($channels)->sort()->prepend($channel ?? 'default_testing_stack_channel')->implode('.');
+        return Collection::make($channels)
+            ->sort()
+            ->prepend($channel ?? 'default_testing_stack_channel')
+            ->implode('.');
     }
 
     private function parseDriver(?string $driver): string
@@ -137,9 +142,7 @@ class LogFake implements LoggerInterface
 
     public function allLogs(): Collection
     {
-        return $this->channels()->flatMap(function (ChannelFake $channel): Collection {
-            return $channel->logs();
-        });
+        return $this->channels()->flatMap(fn (ChannelFake $channel): Collection => $channel->logs());
     }
 
     /**
@@ -150,6 +153,9 @@ class LogFake implements LoggerInterface
         $this->driver()->log($level, $message, $context);
     }
 
+    /**
+     * @param array<mixed> $parameters
+     */
     public function __call(string $method, array $parameters): mixed
     {
         return $this->driver()->$method(...$parameters);
