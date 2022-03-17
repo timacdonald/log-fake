@@ -79,7 +79,7 @@ jobs:
     - name: Install dependencies
       run: |
         composer require 'illuminate/config:${{ matrix.laravel }}' 'illuminate/container:${{ matrix.laravel }}' 'illuminate/support:${{ matrix.laravel }}' 'phpunit/phpunit:${{ matrix.phpunit }}' --no-update --no-interaction --verbose --no-scripts
-        composer update --${{ matrix.dependency-version }} --no-suggest --no-interaction --verbose --no-no-scripts
+        composer update --${{ matrix.dependency-version }} --no-suggest --no-interaction --verbose --no-scripts
 
     - name: Check platform requirements
       run: composer check-platform-reqs --verbose
