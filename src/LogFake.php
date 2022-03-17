@@ -51,6 +51,7 @@ class LogFake implements LoggerInterface
 
     /**
      * @codeCoverageIgnore
+     * @infection-ignore-all
      */
     public function ddAll(?string $level = null): never
     {

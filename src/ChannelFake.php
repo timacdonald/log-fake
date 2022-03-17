@@ -109,6 +109,7 @@ class ChannelFake implements LoggerInterface
 
     /**
      * @codeCoverageIgnore
+     * @infection-ignore-all
      */
     public function dd(?string $level = null): never
     {

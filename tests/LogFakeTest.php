@@ -987,4 +987,14 @@ class LogFakeTest extends TestCase
 
         $this->assertSame($logFake, app('log'));
     }
+
+    public function testItHandlesNullLogger(): void
+    {
+        config()->set('logging.default', null);
+        $logFake = new LogFake();
+
+        $logFake->info('expected message');
+
+        $logFake->channel('null')->assertLoggedMessage('info', 'expected message');
+    }
 }
