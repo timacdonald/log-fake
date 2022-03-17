@@ -64,7 +64,7 @@ class LogFake implements LoggerInterface
     }
 
     /**
-     * @param array<string> $channels
+     * @param array<int, string> $channels
      */
     public function stack(array $channels, ?string $channel = null): ChannelFake
     {
@@ -118,7 +118,7 @@ class LogFake implements LoggerInterface
     }
 
     /**
-     * @param array<string> $channels
+     * @param array<int, string> $channels
      */
     private function createStackChannelName(array $channels, ?string $channel): string
     {
@@ -133,11 +133,17 @@ class LogFake implements LoggerInterface
         return $driver ?? $this->getDefaultDriver() ?? 'null';
     }
 
+    /**
+     * @return Collection<string, ChannelFake>
+     */
     private function channels(): Collection
     {
         return Collection::make($this->channels);
     }
 
+    /**
+     * @return Collection<int, array{level: mixed, message: string, context: array<string, mixed>, channel: string, times_channel_has_been_forgotten_at_time_of_writing_log: int}>
+     */
     public function allLogs(): Collection
     {
         return $this->channels()->flatMap(fn (ChannelFake $channel): Collection => $channel->logs());
@@ -152,7 +158,7 @@ class LogFake implements LoggerInterface
     }
 
     /**
-     * @param array<mixed> $parameters
+     * @param array<string, mixed> $parameters
      */
     public function __call(string $method, array $parameters): mixed
     {

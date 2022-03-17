@@ -21,12 +21,12 @@ class ChannelFake implements LoggerInterface
     private Dispatcher $dispatcher;
 
     /**
-     * @var array<array{level: mixed, message: string, context: array<string, mixed>, channel: string}>
+     * @var array<int, array{level: mixed, message: string, context: array<string, mixed>, channel: string, times_channel_has_been_forgotten_at_time_of_writing_log: int}>
      */
     private array $logs = [];
 
     /**
-     * @var array<mixed>
+     * @var array<string, mixed>
      */
     private array $context = [];
 
@@ -174,6 +174,9 @@ class ChannelFake implements LoggerInterface
         return $this;
     }
 
+    /**
+     * @return Collection<int, array{level: mixed, message: string, context: array<string, mixed>, channel: string, times_channel_has_been_forgotten_at_time_of_writing_log: int}>
+     */
     public function logged(string $level, ?callable $callback = null): Collection
     {
         $callback = $callback ?? fn (): bool => true;
@@ -188,6 +191,9 @@ class ChannelFake implements LoggerInterface
             ->values();
     }
 
+    /**
+     * @return Collection<int, array{level: mixed, message: string, context: array<string, mixed>, channel: string, times_channel_has_been_forgotten_at_time_of_writing_log: int}>
+     */
     public function logs(): Collection
     {
         return Collection::make($this->logs);
