@@ -351,14 +351,14 @@ class LogFakeTest extends TestCase
 
         $log->assertLogged('emergency', fn (string $message): bool => $message === 'emergency log');
         $log->assertLogged('alert', fn (string $message): bool => $message === 'alert log');
-        $log->assertLogged('critical', fn (string $message):bool => $message === 'critical log');
-        $log->assertLogged('error', fn (string $message):bool => $message === 'error log');
-        $log->assertLogged('warning', fn (string $message):bool => $message === 'warning log');
-        $log->assertLogged('info', fn (string $message):bool => $message === 'info log');
-        $log->assertLogged('notice', fn (string $message):bool => $message === 'notice log');
-        $log->assertLogged('debug', fn (string $message):bool => $message === 'debug log');
-        $log->assertLogged('custom', fn (string $message):bool => $message === 'custom log');
-        $log->assertLogged('custom_2', fn (string $message):bool => $message === 'custom log 2');
+        $log->assertLogged('critical', fn (string $message): bool => $message === 'critical log');
+        $log->assertLogged('error', fn (string $message): bool => $message === 'error log');
+        $log->assertLogged('warning', fn (string $message): bool => $message === 'warning log');
+        $log->assertLogged('info', fn (string $message): bool => $message === 'info log');
+        $log->assertLogged('notice', fn (string $message): bool => $message === 'notice log');
+        $log->assertLogged('debug', fn (string $message): bool => $message === 'debug log');
+        $log->assertLogged('custom', fn (string $message): bool => $message === 'custom log');
+        $log->assertLogged('custom_2', fn (string $message): bool => $message === 'custom log 2');
     }
 
     public function assertChannelAndDriverMethodsCanBeUsedInterchangably(): void
