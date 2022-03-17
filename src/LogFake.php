@@ -10,9 +10,7 @@ use Illuminate\Support\Facades\Log;
 use Psr\Log\LoggerInterface;
 use Stringable;
 
-use function assert;
 use function config;
-use function is_string;
 
 /**
  * @mixin ChannelFake
@@ -88,9 +86,8 @@ class LogFake implements LoggerInterface
 
     public function getDefaultDriver(): ?string
     {
+        /** @var ?string */
         $driver = config()->get('logging.default');
-
-        assert(is_string($driver) || $driver === null);
 
         return $driver;
     }
