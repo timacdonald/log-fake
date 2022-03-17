@@ -106,6 +106,9 @@ class ChannelFake implements LoggerInterface
         return $this;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function dd(?string $level = null): never
     {
         $this->dump($level);

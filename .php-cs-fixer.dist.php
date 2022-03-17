@@ -21,7 +21,7 @@ return (new PhpCsFixer\Config())
         'array_indentation' => true,
         'ordered_imports' => ['imports_order' => ['class', 'function', 'const'], 'sort_algorithm' => 'alpha'],
         'no_unreachable_default_argument_value' => false,
+        'no_unused_imports' => true,
     ])
     ->setRiskyAllowed(true)
     ->setFinder($finder);
-

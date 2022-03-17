@@ -9,6 +9,8 @@ use Illuminate\Config\Repository as Config;
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Log\LogManager;
+use Illuminate\Support\Facades\Facade;
 use PHPUnit\Framework\Constraint\ExceptionMessage;
 use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Framework\TestCase;
@@ -33,9 +35,17 @@ class LogFakeTest extends TestCase
     {
         parent::setUp();
 
-        Container::setInstance(new Container())->singleton('config', static function (): Repository {
+        $container = Container::setInstance(new Container());
+
+        $container->singleton('config', static function (): Repository {
             return new Config(['logging' => ['default' => 'stack']]);
         });
+
+        $container->singleton('log', static function (Container $app): LoggerInterface {
+            return new LogManager($app);
+        });
+
+        Facade::setFacadeApplication($container);
     }
 
     public function testAssertLogged(): void
@@ -991,5 +1001,64 @@ class LogFakeTest extends TestCase
         }
         $log->forgetChannel('Stack:name.channel');
         $log->stack(['channel'], 'name')->assertForgotten();
+    }
+
+    public function testItCanAssertAChannelHasNotBeenForgotten(): void
+    {
+        $log = new LogFake();
+
+        $log->assertNotForgotten();
+        $log->forgetChannel('stack');
+        try {
+            $log->assertNotForgotten();
+            $this->fail();
+        } catch (ExpectationFailedException $e) {
+            $this->assertThat($e, new ExceptionMessage('Expected the [stack] channel to be forgotten [0] times. It was forgotten [1] times.'));
+        }
+
+        $log->channel('channel')->assertNotForgotten();
+        $log->forgetChannel('channel');
+        try {
+            $log->channel('channel')->assertNotForgotten();
+            $this->fail();
+        } catch (ExpectationFailedException $e) {
+            $this->assertThat($e, new ExceptionMessage('Expected the [channel] channel to be forgotten [0] times. It was forgotten [1] times.'));
+        }
+
+        $log->stack(['channel'], 'name')->assertNotForgotten();
+        $log->forgetChannel('Stack:name.channel');
+        try {
+            $log->stack(['channel'], 'name')->assertNotForgotten();
+            $this->fail();
+        } catch (ExpectationFailedException $e) {
+            $this->assertThat($e, new ExceptionMessage('Expected the [Stack:name.channel] channel to be forgotten [0] times. It was forgotten [1] times.'));
+        }
+    }
+
+    public function testItCanFakeOnDemandChannels(): void
+    {
+        $logFake = new LogFake();
+
+        $logFake->build([])->info('expected message');
+
+        $logFake->channel('ondemand')->assertLoggedMessage('info', 'expected message');
+    }
+
+    public function testItCanRetrieveChannels(): void
+    {
+        $logFake = new LogFake();
+
+        $channel = $logFake->channel('expected-channel');
+
+        $this->assertSame(['expected-channel' => $channel], $logFake->getChannels());
+    }
+
+    public function testItCanBindItselfToTheContainer(): void
+    {
+        $this->assertNotInstanceOf(LogFake::class, app('log'));
+
+        $logFake = LogFake::bind();
+
+        $this->assertSame($logFake, app('log'));
     }
 }

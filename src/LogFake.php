@@ -28,7 +28,6 @@ class LogFake implements LoggerInterface
 
     public static function bind(): LogFake
     {
-        // TODO should this bind an event listener?
         $instance = new LogFake();
 
         Log::swap($instance);
@@ -54,6 +53,9 @@ class LogFake implements LoggerInterface
         return $this;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function ddAll(?string $level = null): never
     {
         $this->dumpAll($level);
