@@ -23,7 +23,7 @@
         "illuminate/support": "^9.0",
         "illuminate/log": "^9.0",
         "phpunit/phpunit": "^9.0",
-        "psr/log": "^2.0",
+        "psr/log": "^3.0",
         "symfony/var-dumper": "^6.0"
     },
     "require-dev": {
