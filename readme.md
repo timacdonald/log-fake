@@ -305,3 +305,5 @@ You are free to use this package, but I ask that you reach out to someone (not m
 `
 - assertion callbacks now recieve an addition 3rd parameter int: times_forgotten
 - Don't support named parameters
+- The "stack:" prefix has been removed and now uses the channel name or the default value. channels are now comma seperated
+

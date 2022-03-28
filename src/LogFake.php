@@ -10,8 +10,6 @@ use Illuminate\Support\Facades\Log;
 use Psr\Log\LoggerInterface;
 use Stringable;
 
-use function config;
-
 /**
  * @mixin ChannelFake
  */
@@ -23,6 +21,11 @@ class LogFake implements LoggerInterface
      * @var array<string, ChannelFake>
      */
     private array $channels = [];
+
+    /**
+     * @var array<string, ChannelFake>
+     */
+    private array $stacks = [];
 
     public static function bind(): LogFake
     {
@@ -58,6 +61,14 @@ class LogFake implements LoggerInterface
         exit(1);
     }
 
+    /**
+     * @param mixed $level
+     */
+    public function log($level, string|Stringable $message, array $context = []): void
+    {
+        $this->driver()->log($level, $message, $context);
+    }
+
     public function channel(?string $channel = null): ChannelFake
     {
         return $this->driver($channel);
@@ -68,7 +79,18 @@ class LogFake implements LoggerInterface
      */
     public function stack(array $channels, ?string $channel = null): ChannelFake
     {
-        return $this->driver('Stack:'.$this->createStackChannelName($channels, $channel));
+        $name = $this->parseStackDriver($channels, $channel);
+
+        $stack = new ChannelFake($name);
+
+        $stack = $this->stacks[$name] ??= new ChannelFake($name);
+
+        return $stack->withoutContext();
+    }
+
+    private function parseStackDriver(array $channels, ?string $channel): string
+    {
+        return 'stack::' . ($channel ?? 'unnamed') . ':' . Collection::make($channels)->sort()->implode(',');
     }
 
     /**
@@ -79,9 +101,13 @@ class LogFake implements LoggerInterface
         return $this->driver('ondemand');
     }
 
+    /**
+
     public function driver(?string $driver = null): ChannelFake
     {
-        return $this->channels[$this->parseDriver($driver)] ??= new ChannelFake($this->parseDriver($driver));
+        $name = $this->parseChannelDriver($driver);
+
+        return $this->channels[$name] ??= new ChannelFake($name);
     }
 
     public function getDefaultDriver(): ?string
@@ -107,54 +133,34 @@ class LogFake implements LoggerInterface
      */
     public function getChannels()
     {
+        // TODO: document that this will return all channels, even forgotten ones
+        // or alternatively introduce another function to do that.
         return $this->channels;
     }
 
     public function forgetChannel(?string $driver = null): LogFake
     {
-        $this->channel($this->parseDriver($driver))->forget();
+        $this->channel($this->parseChannelDriver($driver))->forget();
 
         return $this;
     }
 
-    /**
-     * @param array<int, string> $channels
-     */
-    private function createStackChannelName(array $channels, ?string $channel): string
-    {
-        return Collection::make($channels)
-            ->sort()
-            ->prepend($channel ?? 'default_testing_stack_channel')
-            ->implode('.');
-    }
-
-    private function parseDriver(?string $driver): string
+    private function parseChannelDriver(?string $driver): string
     {
         return $driver ?? $this->getDefaultDriver() ?? 'null';
     }
 
     /**
-     * @return Collection<string, ChannelFake>
-     */
-    private function channels(): Collection
-    {
-        return Collection::make($this->channels);
-    }
-
-    /**
      * @return Collection<int, array{level: mixed, message: string, context: array<string, mixed>, channel: string, times_channel_has_been_forgotten_at_time_of_writing_log: int}>
      */
-    public function allLogs(): Collection
+    private function allLogs(): Collection
     {
-        return $this->channels()->flatMap(fn (ChannelFake $channel): Collection => $channel->logs());
+        return $this->channelsAndStacks()->flatMap(fn (ChannelFake $channel): Collection => $channel->logs());
     }
 
-    /**
-     * @param mixed $level
-     */
-    public function log($level, string|Stringable $message, array $context = []): void
+    private function channelsAndStacks(): Collection
     {
-        $this->driver()->log($level, $message, $context);
+        return Collection::make($this->channels)->merge($this->stacks);
     }
 
     /**
@@ -162,6 +168,6 @@ class LogFake implements LoggerInterface
      */
     public function __call(string $method, array $parameters): mixed
     {
-        return $this->driver()->$method(...$parameters);
+        return $this->driver()->{$method}(...$parameters);
     }
 }

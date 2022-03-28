@@ -9,14 +9,11 @@ use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Collection;
 use PHPUnit\Framework\Assert as PHPUnit;
 use Psr\Log\LoggerInterface;
-use RuntimeException;
 use Stringable;
 
 class ChannelFake implements LoggerInterface
 {
     use LogHelpers;
-
-    private string $name;
 
     private Dispatcher $dispatcher;
 
@@ -32,9 +29,9 @@ class ChannelFake implements LoggerInterface
 
     private int $timesForgotten = 0;
 
-    public function __construct(string $name)
+    public function __construct(private string $name)
     {
-        $this->name = $name;
+        //
     }
 
     public function assertLogged(string $level, ?callable $callback = null): void
@@ -79,12 +76,12 @@ class ChannelFake implements LoggerInterface
         $this->assertForgottenTimes(1);
     }
 
-    public function assertForgottenTimes(int $count): void
+    public function assertForgottenTimes(int $times): void
     {
         PHPUnit::assertSame(
-            $count,
+            $times,
             $this->timesForgotten,
-            "Expected the [{$this->name}] channel to be forgotten [{$count}] times. It was forgotten [{$this->timesForgotten}] times."
+            "Expected the [{$this->name}] channel to be forgotten [{$times}] times. It was forgotten [{$this->timesForgotten}] times."
         );
     }
 
@@ -113,6 +110,8 @@ class ChannelFake implements LoggerInterface
      */
     public function dd(?string $level = null): never
     {
+        // TODO: add symfony var dumper as a recommended composer dependecy like
+        // laravel does.
         $this->dump($level);
 
         exit(1);
@@ -162,6 +161,7 @@ class ChannelFake implements LoggerInterface
      */
     public function withContext(array $context = []): ChannelFake
     {
+        // TODO: ensure this is scoped to a channel.
         $this->context = array_merge($this->context, $context);
 
         return $this;
@@ -175,6 +175,7 @@ class ChannelFake implements LoggerInterface
     }
 
     /**
+     * @internal
      * @return Collection<int, array{level: mixed, message: string, context: array<string, mixed>, channel: string, times_channel_has_been_forgotten_at_time_of_writing_log: int}>
      */
     public function logged(string $level, ?callable $callback = null): Collection
@@ -192,6 +193,7 @@ class ChannelFake implements LoggerInterface
     }
 
     /**
+     * @internal
      * @return Collection<int, array{level: mixed, message: string, context: array<string, mixed>, channel: string, times_channel_has_been_forgotten_at_time_of_writing_log: int}>
      */
     public function logs(): Collection
@@ -204,16 +206,8 @@ class ChannelFake implements LoggerInterface
      */
     public function forget(): void
     {
+        // TODO: should this forgotten logic be extracted out to the parent?
+        // TODO should this clear the context?
         $this->timesForgotten += 1;
-    }
-
-    public function dumpAll(?string $level = null): never
-    {
-        throw new RuntimeException('LogFake::dumpAll() should not be called from a channel.');
-    }
-
-    public function ddAll(string $level = null): never
-    {
-        throw new RuntimeException('`ddAll()` should not be called from a channel. Call it directly on `LogFake::ddAll()`.');
     }
 }
