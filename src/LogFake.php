@@ -23,7 +23,7 @@ class LogFake implements LoggerInterface
     private array $channels = [];
 
     /**
-     * @var array<string, ChannelFake>
+     * @var array<string, StackFake>
      */
     private array $stacks = [];
 
@@ -81,13 +81,14 @@ class LogFake implements LoggerInterface
     {
         $name = $this->parseStackDriver($channels, $channel);
 
-        $stack = new ChannelFake($name);
+        $this->stacks[$name] ??= new StackFake($name);
 
-        $stack = $this->stacks[$name] ??= new ChannelFake($name);
-
-        return $stack->withoutContext();
+        return $this->stacks[$name]->clearContext();
     }
 
+    /**
+     * @param array<int, string> $channels
+     */
     private function parseStackDriver(array $channels, ?string $channel): string
     {
         return 'stack::' . ($channel ?? 'unnamed') . ':' . Collection::make($channels)->sort()->implode(',');
@@ -100,8 +101,6 @@ class LogFake implements LoggerInterface
     {
         return $this->driver('ondemand');
     }
-
-    /**
 
     public function driver(?string $driver = null): ChannelFake
     {
@@ -155,9 +154,15 @@ class LogFake implements LoggerInterface
      */
     private function allLogs(): Collection
     {
-        return $this->channelsAndStacks()->flatMap(fn (ChannelFake $channel): Collection => $channel->logs());
+        /** @var Collection<int, array{level: mixed, message: string, context: array<string, mixed>, channel: string, times_channel_has_been_forgotten_at_time_of_writing_log: int}> */
+        $logs = $this->channelsAndStacks()->flatMap(fn (ChannelFake $channel): Collection => $channel->logs());
+
+        return $logs;
     }
 
+    /**
+     * @return Collection<string, ChannelFake>
+     */
     private function channelsAndStacks(): Collection
     {
         return Collection::make($this->channels)->merge($this->stacks);

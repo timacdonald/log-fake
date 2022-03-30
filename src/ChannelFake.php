@@ -6,6 +6,7 @@ namespace TiMacDonald\Log;
 
 use Closure;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use PHPUnit\Framework\Assert as PHPUnit;
 use Psr\Log\LoggerInterface;
@@ -23,9 +24,9 @@ class ChannelFake implements LoggerInterface
     private array $logs = [];
 
     /**
-     * @var array<string, mixed>
+     * @var array<array<string, mixed>>
      */
-    private array $context = [];
+    protected array $context = [];
 
     private int $timesForgotten = 0;
 
@@ -68,7 +69,10 @@ class ChannelFake implements LoggerInterface
 
     public function assertLoggedMessage(string $level, string $message): void
     {
-        $this->assertLogged($level, fn (string $loggedMessage): bool => $loggedMessage === $message);
+        $this->assertLogged(
+            $level,
+            fn (string $loggedMessage): bool => $loggedMessage === $message
+        );
     }
 
     public function assertForgotten(): void
@@ -85,9 +89,61 @@ class ChannelFake implements LoggerInterface
         );
     }
 
+    // TODO should assertions return self for chaining?
     public function assertNotForgotten(): void
     {
         $this->assertForgottenTimes(0);
+    }
+
+    /**
+     * @param array<string, mixed> $context
+     */
+    public function assertCurrentContext(array $context): void
+    {
+        PHPUnit::assertSame(
+            $context,
+            $this->currentContext(),
+            'Expected to find the context [' . json_encode($context, JSON_THROW_ON_ERROR) . '] in the [' . $this->name . '] channel. Found [' . json_encode((object) $this->currentContext()) . '] instead.'
+        );
+    }
+
+    /**
+     * @param array<string, mixed> $context
+     */
+    public function assertHadContext(array $context): void
+    {
+        PHPUnit::assertTrue(
+            $this->allContextInstances()->containsStrict($context),
+            // TODO: improve these error messages so they show what they _did_ find.
+            'Expected to find the context [' . json_encode($context, JSON_THROW_ON_ERROR) . '] in the [' . $this->name . '] channel but did not.'
+        );
+    }
+
+    /**
+     * @param array<string, mixed> $context
+     */
+    public function assertHadContextAtSetCall(array $context, int $time): void
+    {
+        PHPUnit::assertGreaterThanOrEqual(
+            $time,
+            $this->allContextInstances()->count(),
+            'Expected to find the context set at least [' . $time . '] times in the [' . $this->name . '] channel, but instead found it was set [' . $this->allContextInstances()->count() .'] times.'
+        );
+
+        PHPUnit::assertSame(
+            $this->allContextInstances()->get($time - 1),
+            $context,
+            'Expected to find the context [' . json_encode($context, JSON_THROW_ON_ERROR) . '] at set call ['. $time .'] in the [' . $this->name . '] channel but did not.'
+        );
+    }
+
+    public function assertContextSetTimes(int $times): void
+    {
+        PHPUnit::assertSame(
+            $this->allContextInstances()->count(),
+            $times,
+            'Expected to find the context set [' . $times . '] times in the [' . $this->name . '] channel, but instead found it set [' . $this->allContextInstances()->count() .'] times.'
+        );
     }
 
     public function dump(?string $level = null): ChannelFake
@@ -130,7 +186,7 @@ class ChannelFake implements LoggerInterface
         $this->logs[] = [
             'level' => $level,
             'message' => (string) $message,
-            'context' => array_merge($this->context, $context),
+            'context' => array_merge($this->currentContext(), $context),
             'times_channel_has_been_forgotten_at_time_of_writing_log' => $this->timesForgotten,
             'channel' => $this->name,
         ];
@@ -162,14 +218,14 @@ class ChannelFake implements LoggerInterface
     public function withContext(array $context = []): ChannelFake
     {
         // TODO: ensure this is scoped to a channel.
-        $this->context = array_merge($this->context, $context);
+        $this->context[] = array_merge($this->currentContext(), $context);
 
         return $this;
     }
 
     public function withoutContext(): ChannelFake
     {
-        $this->context = [];
+        $this->context[] = [];
 
         return $this;
     }
@@ -209,5 +265,24 @@ class ChannelFake implements LoggerInterface
         // TODO: should this forgotten logic be extracted out to the parent?
         // TODO should this clear the context?
         $this->timesForgotten += 1;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function currentContext(): array
+    {
+        /** @var null|array<string, mixed> */
+        $context = Arr::last($this->context);
+
+        return $context ?? [];
+    }
+
+    /**
+     * @return Collection<int, array<string, mixed>>
+     */
+    protected function allContextInstances(): Collection
+    {
+        return Collection::make($this->context);
     }
 }

@@ -6,6 +6,9 @@ namespace TiMacDonald\Log;
 
 use Stringable;
 
+/**
+ * @internal
+ */
 trait LogHelpers
 {
     public function emergency(string|Stringable $message, array $context = []): void
