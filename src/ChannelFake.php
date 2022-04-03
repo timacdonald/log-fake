@@ -193,8 +193,6 @@ class ChannelFake implements LoggerInterface
      */
     public function dd(?string $level = null): never
     {
-        // TODO: add symfony var dumper as a recommended composer dependecy like
-        // laravel does.
         $this->dump($level);
 
         exit(1);
@@ -208,7 +206,7 @@ class ChannelFake implements LoggerInterface
         $this->log($level, $message, $context);
     }
 
-    public function log($level, string|Stringable $message, array $context = []): void
+    public function log($level, $message, array $context = []): void
     {
         $this->logs[] = [
             'level' => $level,

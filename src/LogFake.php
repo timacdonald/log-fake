@@ -83,7 +83,7 @@ class LogFake implements LoggerInterface
     /**
      * @param mixed $level
      */
-    public function log($level, string|Stringable $message, array $context = []): void
+    public function log($level, $message, array $context = []): void
     {
         $this->driver()->log($level, $message, $context);
     }
