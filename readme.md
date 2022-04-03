@@ -8,9 +8,9 @@ A bunch of Laravel facades / services are able to be faked, such as the Dispatch
 
 ## Version support
 
-- **PHP**: 7.1, 7.2, 7.3, 7.4, 8.0
-- **Laravel**: 5.6, 5.7, 5.8, 6.0, 7.0, 8.0
-- **PHPUnit**: 7.0, 8.0, 9.0
+- **PHP**: 8.0, 8.1
+- **Laravel**: 9.0
+- **PHPUnit**: 9.0
 
 ## Installation
 
@@ -23,19 +23,17 @@ $ composer require timacdonald/log-fake --dev
 ## Basic usage
 
 ```php
-<?php
-
-use Illuminate\Support\Str;
-use TiMacDonald\Log\LogFake;
-use Illuminate\Support\Facades\Log;
-
-//...
+// test set up...
 
 LogFake::bind();
 
+// implementation...
+
 Log::info('Donuts have arrived');
 
-Log::assertLogged('info', function ($message, $context) {
+// test assertions...
+
+Log::assertLogged('info', function (string $message, array $context): bool {
     return Str::contains($message, 'Donuts');
 });
 ```
@@ -45,20 +43,19 @@ Log::assertLogged('info', function ($message, $context) {
 If you are logging to a specific channel in your app, such as Slack with `Log::channel('slack')->critical('It is 5pm, go home')`, you need to also prefix your assertions in the same manner.
 
 ```php
-<?php
-
-use TiMacDonald\Log\LogFake;
-use Illuminate\Support\Facades\Log;
-
-//...
+// test set up...
 
 LogFake::bind();
 
+// implementation...
+
 Log::channel('slack')->alert('It is 5pm, go home');
+
+// test assertions...
 
 Log::channel('slack')->assertLogged('alert'); // ✅ passes
 
-// without the channel prefix...
+// but without the channel prefix...
 
 Log::assertLogged('alert');  // ❌ fails
 ```
@@ -68,21 +65,17 @@ Log::assertLogged('alert');  // ❌ fails
 If you are logging to a stack in your app, like with channels, you will need to prefix your assertions. Note that the order of the stack does not matter.
 
 ```php
-<?php
-
-use TiMacDonald\Log\LogFake;
-use Illuminate\Support\Facades\Log;
-
-//...
+// test set up...
 
 LogFake::bind();
 
 Log::stack(['bugsnag', 'sentry'])->critical('Perform evasive maneuvers');
 
+// test implementation...
 
 Log::stack(['bugsnag', 'sentry'])->assertLogged('critical');  // ✅ passes
 
-// without the stack prefix...
+// but without the stack prefix...
 
 Log::assertLogged('critical'); // ❌ fails
 ```
