@@ -308,3 +308,4 @@ You are free to use this package, but I ask that you reach out to someone (not m
 - The "stack:" prefix has been removed and now uses the channel name or the default value. channels are now comma seperated
 
 - a stack never has "currentContext" as it is reset each time it is resolved from the manager.
+- `getChannels` returns all channels - forgotten or not

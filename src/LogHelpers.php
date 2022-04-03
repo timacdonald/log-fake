@@ -8,6 +8,7 @@ use Stringable;
 
 /**
  * @internal
+ * @no-named-arguments
  */
 trait LogHelpers
 {

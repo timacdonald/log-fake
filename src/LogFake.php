@@ -7,11 +7,13 @@ namespace TiMacDonald\Log;
 use Closure;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
+use PHPUnit\Framework\Assert as PHPUnit;
 use Psr\Log\LoggerInterface;
 use Stringable;
 
 /**
  * @mixin ChannelFake
+ * @no-named-arguments
  */
 class LogFake implements LoggerInterface
 {
@@ -61,6 +63,23 @@ class LogFake implements LoggerInterface
         exit(1);
     }
 
+    public function assertChannelIsCurrentlyForgotten(string $name): LogFake
+    {
+        $channel = $this->channels[$name] ?? null;
+
+        PHPUnit::assertNotNull(
+            $channel,
+            "Unable to assert that the [{$name}] channel has been forgotten. The channel was never built."
+        );
+
+        PHPUnit::assertTrue(
+            $channel->isCurrentlyForgotten(),
+            "Expected to find the [{$name}] channel to be forgotten. It was not."
+        );
+
+        return $this;
+    }
+
     /**
      * @param mixed $level
      */
@@ -106,7 +125,9 @@ class LogFake implements LoggerInterface
     {
         $name = $this->parseChannelDriver($driver);
 
-        return $this->channels[$name] ??= new ChannelFake($name);
+        $channel = $this->channels[$name] ??= new ChannelFake($name);
+
+        return $channel->initialize();
     }
 
     public function getDefaultDriver(): ?string
@@ -130,10 +151,8 @@ class LogFake implements LoggerInterface
     /**
      * @return array<string, ChannelFake>
      */
-    public function getChannels()
+    public function getChannels(): array
     {
-        // TODO: document that this will return all channels, even forgotten ones
-        // or alternatively introduce another function to do that.
         return $this->channels;
     }
 
@@ -150,20 +169,18 @@ class LogFake implements LoggerInterface
     }
 
     /**
-     * @return Collection<int, array{level: mixed, message: string, context: array<string, mixed>, channel: string, times_channel_has_been_forgotten_at_time_of_writing_log: int}>
+     * @return Collection<int, array{ level: mixed, message: string, context: array<string, mixed>, channel: string, times_channel_has_been_forgotten_at_time_of_writing_log: int }>
      */
     private function allLogs(): Collection
     {
-        /** @var Collection<int, array{level: mixed, message: string, context: array<string, mixed>, channel: string, times_channel_has_been_forgotten_at_time_of_writing_log: int}> */
-        $logs = $this->channelsAndStacks()->flatMap(fn (ChannelFake $channel): Collection => $channel->logs());
-
-        return $logs;
+        /** @var Collection<int, array{ level: mixed, message: string, context: array<string, mixed>, channel: string, times_channel_has_been_forgotten_at_time_of_writing_log: int }> */
+        return $this->allChannelsAndStacks()->flatMap(fn (ChannelFake $channel): Collection => $channel->logs());
     }
 
     /**
      * @return Collection<string, ChannelFake>
      */
-    private function channelsAndStacks(): Collection
+    private function allChannelsAndStacks(): Collection
     {
         return Collection::make($this->channels)->merge($this->stacks);
     }

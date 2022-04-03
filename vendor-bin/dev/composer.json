@@ -1,8 +1,9 @@
 {
     "require": {
-        "infection/infection": "^0.26.5",
-        "phpstan/phpstan": "^1.4",
-        "friendsofphp/php-cs-fixer": "^3.6"
+        "infection/infection": "^0.26.0",
+        "phpstan/phpstan": "^1.0",
+        "phpstan/phpstan-phpunit": "^1.0",
+        "friendsofphp/php-cs-fixer": "^3.0"
     },
     "config": {
         "allow-plugins": {

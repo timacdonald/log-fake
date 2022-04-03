@@ -977,7 +977,7 @@ class LogFakeTest extends TestCase
 
         $stack2 = $log->stack(['c1'], 'name');
         $stack2->info('message 2', ['logged' => 'context']);
-        $stack1->assertLogged('info', function (string $message, array $context) {
+        $stack2->assertLogged('info', function (string $message, array $context) {
             return $message === 'message 2'
                 && $context === ['logged' => 'context'];
         });
@@ -1209,5 +1209,50 @@ class LogFakeTest extends TestCase
         }
         $stack =$log->stack(['c1', 'c2'], 'name')->withContext(['foo' => 'bar']);
         $stack->assertContextSetTimes(1);
+    }
+
+    public function testItCanAssertAChannelIsCurrentlyFogotten(): void
+    {
+        $log = new LogFake();
+
+        try {
+            $log->assertChannelIsCurrentlyForgotten('channel');
+            $this->fail();
+        } catch (ExpectationFailedException $e) {
+            $this->assertThat($e, new ExceptionMessage('Unable to assert that the [channel] channel has been forgotten. The channel was never built.'));
+        }
+
+        $log->channel('channel')->info('xxxx');
+
+        try {
+            $log->assertChannelIsCurrentlyForgotten('channel');
+            $this->fail();
+        } catch (ExpectationFailedException $e) {
+            $this->assertThat($e, new ExceptionMessage('Expected to find the [channel] channel to be forgotten. It was not.'));
+        }
+
+        $log->forgetChannel('channel');
+        $log->assertChannelIsCurrentlyForgotten('channel');
+
+        $log->channel('channel')->info('xxxx');
+
+        try {
+            $log->assertChannelIsCurrentlyForgotten('channel');
+            $this->fail();
+        } catch (ExpectationFailedException $e) {
+            $this->assertThat($e, new ExceptionMessage('Expected to find the [channel] channel to be forgotten. It was not.'));
+        }
+    }
+
+    public function testItClearsContextWhenAChannelIsForgotten(): void
+    {
+        $log = new LogFake();
+        $log->channel('channel')->withContext(['foo' => 'bar']);
+        $log->forgetChannel('channel');
+        $log->channel('channel')->info('expected message');
+
+        $log->channel('channel')->assertLogged('info', function (string $message, array $context) {
+            return $context === [];
+        });
     }
 }
