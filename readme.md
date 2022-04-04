@@ -60,21 +60,24 @@ Log::assertLogged('info', function (string $message, array $context): bool {
 If you are logging to a specific channel (i.e. not the default channel) in your app, such as "Slack" with `Log::channel('slack')->critical('It is 5pm, go home')`, you need to also prefix your assertions in the same manner.
 
 ```php
-// test setup...
+public function testItLogsAboutDonuts()
+{
+    // test setup...
 
-LogFake::bind();
+    LogFake::bind();
 
-// implementation...
+    // implementation...
 
-Log::channel('slack')->alert('It is 5pm, go home');
+    Log::channel('slack')->alert('It is 5pm, go home');
 
-// test assertions...
+    // test assertions...
 
-Log::channel('slack')->assertLogged('alert'); // ✅ passes
+    Log::channel('slack')->assertLogged('alert'); // ✅ passes
 
-// but without the channel prefix...
+    // but without the channel prefix...
 
-Log::assertLogged('alert');  // ❌ fails
+    Log::assertLogged('alert');  // ❌ fails
+}
 ```
 
 ## Stacks
