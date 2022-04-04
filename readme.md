@@ -4,7 +4,7 @@
 
 ![CI](https://github.com/timacdonald/log-fake/workflows/CI/badge.svg) [![codecov](https://codecov.io/gh/timacdonald/log-fake/branch/master/graph/badge.svg)](https://codecov.io/gh/timacdonald/log-fake) [![Mutation testing badge](https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2Ftimacdonald%2Flog-fake%2Fmaster)](https://dashboard.stryker-mutator.io/reports/github.com/timacdonald/log-fake/master) [![Total Downloads](https://poser.pugx.org/timacdonald/log-fake/downloads)](https://packagist.org/packages/timacdonald/log-fake)
 
-A bunch of Laravel facades / services are able to be faked, such as the Dispatcher with `Bus::fake()`, to help with testing and assertions. This package gives you the ability to fake the logger in your app, and includes the ability to make assertions against channels and stacks introduced in logging overhaul in Laravel `5.6`.
+A bunch of Laravel facades / services are able to be faked, such as the Dispatcher with `Bus::fake()`, to help with testing and assertions. This package gives you the ability to fake the logger in your app, and includes the ability to make assertions against channels, stacks, and a whole bunch more introduced in logging overhaul in Laravel `5.6`.
 
 ## Version support
 
@@ -12,26 +12,43 @@ A bunch of Laravel facades / services are able to be faked, such as the Dispatch
 - **Laravel**: 9.0
 - **PHPUnit**: 9.0
 
+You can find support for older versions in [previous releases](https://github.com/timacdonald/log-fake/releases).
+
 ## Installation
 
 You can install using [composer](https://getcomposer.org/) from [Packagist](https://packagist.org/packages/timacdonald/log-fake).
 
-```
-$ composer require timacdonald/log-fake --dev
+```sh
+composer require timacdonald/log-fake --dev
 ```
 
 ## Basic usage
 
 ```php
-// test set up...
+/**
+ * Test setup.
+ *
+ * In the setup of your tests, you can call the following `bind` helper,
+ * which will switch out the underlying log driver with the fake.
+ */
 
 LogFake::bind();
 
-// implementation...
+/**
+ * Application implementation.
+ *
+ * In your application's implementation, you then utilise the logger, as you
+ * normally would.
+ */
 
 Log::info('Donuts have arrived');
 
-// test assertions...
+/**
+ * Test assertions.
+ *
+ * Finally you can make assertions against the log channels, stacks, etc. to
+ * ensure the expected logging occurred in your implementation.
+ */
 
 Log::assertLogged('info', function (string $message, array $context): bool {
     return Str::contains($message, 'Donuts');
@@ -40,10 +57,10 @@ Log::assertLogged('info', function (string $message, array $context): bool {
 
 ## Channels
 
-If you are logging to a specific channel in your app, such as Slack with `Log::channel('slack')->critical('It is 5pm, go home')`, you need to also prefix your assertions in the same manner.
+If you are logging to a specific channel (i.e. not the default channel) in your app, such as "Slack" with `Log::channel('slack')->critical('It is 5pm, go home')`, you need to also prefix your assertions in the same manner.
 
 ```php
-// test set up...
+// test setup...
 
 LogFake::bind();
 
@@ -69,9 +86,11 @@ If you are logging to a stack in your app, like with channels, you will need to 
 
 LogFake::bind();
 
+// implementation...
+
 Log::stack(['bugsnag', 'sentry'])->critical('Perform evasive maneuvers');
 
-// test implementation...
+// test assertions...
 
 Log::stack(['bugsnag', 'sentry'])->assertLogged('critical');  // ✅ passes
 
