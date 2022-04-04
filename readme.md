@@ -25,34 +25,38 @@ composer require timacdonald/log-fake --dev
 ## Basic usage
 
 ```php
-/**
- * Test setup.
- *
- * In the setup of your tests, you can call the following `bind` helper,
- * which will switch out the underlying log driver with the fake.
- */
+public function testItLogsAboutDonuts()
+{
+    /**
+     * Test setup.
+     *
+     * In the setup of your tests, you can call the following `bind` helper,
+     * which will switch out the underlying log driver with the fake.
+     */
 
-LogFake::bind();
+    LogFake::bind();
 
-/**
- * Application implementation.
- *
- * In your application's implementation, you then utilise the logger, as you
- * normally would.
- */
+    /**
+     * Application implementation.
+     *
+     * In your application's implementation, you then utilise the logger, as you
+     * normally would.
+     */
 
-Log::info('Donuts have arrived');
+    Log::info('Donuts have arrived');
 
-/**
- * Test assertions.
- *
- * Finally you can make assertions against the log channels, stacks, etc. to
- * ensure the expected logging occurred in your implementation.
- */
+    /**
+     * Test assertions.
+     *
+     * Finally you can make assertions against the log channels, stacks, etc. to
+     * ensure the expected logging occurred in your implementation.
+     */
 
-Log::assertLogged('info', function (string $message, array $context): bool {
-    return Str::contains($message, 'Donuts');
-});
+    Log::assertLogged('info', function (string $message, array $context): bool {
+        return Str::contains($message, 'Donuts');
+    });
+
+}
 ```
 
 ## Channels
