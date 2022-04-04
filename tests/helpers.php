@@ -15,9 +15,9 @@ function config(): Repository
     return $config;
 }
 
-function app(): LoggerInterface
+function app(string $service): LoggerInterface
 {
-    $logger = Container::getInstance()->make('log');
+    $logger = Container::getInstance()->make($service);
 
     \assert($logger instanceof LoggerInterface);
 
