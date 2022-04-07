@@ -68,12 +68,12 @@ public function testItLogsWhenAUserAuthenticates()
     LogFake::bind();
 
     // implementation...
-    Log::channel('stderr')->info('User logged in.', [
+    Log::channel('slack')->info('User logged in.', [
         'user_id' => $user->id,
     ]);
 
     // assertions...
-    Log::channel('stderr')->assertLogged('info', function ($message, $context) {
+    Log::channel('slack')->assertLogged('info', function ($message, $context) {
         return $message === 'User logged in.' && $context === ['user_id' => 5];
     });
 }
@@ -109,15 +109,15 @@ Remember that all assertions are relative to the channel or stack as shown above
 
 - `assertLogged()`
 - `assertLoggedTimes()`
+- `assertNotLogged()`
 
-
-### Log::assertLogged()
+### assertLogged()
 
 Assert that a specific level was logged. It is also possible to provide a callback to pass a truth test for the expected log.
 
 ```php
 /*
- * Without a callback...
+ * Without a callback you can assert that a specific level was logged...
  */
 
  // default channel...
@@ -130,7 +130,7 @@ Log::channel('slack')->assertLogged('info');
 Log::stack(['stderr', 'single'])->assertLogged('info');
 
 /*
- * With a callback...
+ * With a callback you can assert that an expected message and/or context was logged...
  */
 
  // default channel...
@@ -139,7 +139,7 @@ Log::assertLogged('info', function ($message, $context) {
 });
 
  // specific channel...
-Log::channel('stderr')->assertLogged('info', function ($message, $context) {
+Log::channel('slack')->assertLogged('info', function ($message, $context) {
     return $message === 'User logged in.' && $context === ['user_id' => 5];
 });
 
@@ -149,85 +149,95 @@ Log::stack(['stderr', 'single'])->assertLogged('info', function ($message, $cont
 });
 ```
 
-### Log::assertLoggedTimes()
+### assertLoggedTimes()
 
 Assert that a specific level was logged an expected number of times. It is also possible to provide a callback to pass a truth test for the expected log.
 
 ```php
-// assert against the default channel...
-Log::assertLoggedTimes('info', 2);
-
-// assert against a specific channel...
-Log::channel('slack')->assertLoggedTimes('info', 2);
-
-// assert against a stack...
-Log::stack(['stderr', 'single'])->assertLoggedTimes('info', 2);
-
 /*
- * With a callback...
+ * Without a callback you can assert that a specific level was logged a specific number of times...
  */
 
-// assert against the default channel...
-Log::assertLoggedTimes('info', 2, fn (string $message, array $context): bool => $message === 'User logged in.');
+ // default channel...
+Log::assertLogged('info', 2);
 
-// assert against a specific channel...
-Log::channel('slack')->assertLoggedTimes('info', 2, fn (string $message, array $context): bool => $message === 'User logged in.');
+ // specific channel...
+Log::channel('slack')->assertLogged('info', 2);
 
-// assert against a stack...
-Log::stack(['stderr', 'single'])->assertLoggedTimes('info', 2, fn (string $message, array $context): bool => $message === 'User logged in.');
+// stack...
+Log::stack(['stderr', 'single'])->assertLogged('info', 2);
+
+/*
+ * With a callback you can assert that an expected message and/or context was logged a specific number of times...
+ */
+
+ // default channel...
+Log::assertLogged('info', 2, function ($message, $context) {
+    return $message === 'User logged in.' && $context === ['user_id' => 5];
+});
+
+ // specific channel...
+Log::channel('slack')->assertLogged('info', 2, function ($message, $context) {
+    return $message === 'User logged in.' && $context === ['user_id' => 5];
+});
+
+// stack...
+Log::stack(['stderr', 'single'])->assertLogged('info', 2, function ($message, $context) {
+    return $message === 'User logged in.' && $context === ['user_id' => 5];
+});
 ```
 
-### assertLoggedMessage($level, $message)
+### assertNotLogged()
+
+The inverse of `assertLogged()` where you can assert that a specific log was not created.
 
 ```php
-<?php
+/*
+ * Without a callback you can assert that a specific level was not logged...
+ */
 
-Log::assertLoggedMessage('info', 'User registered');
-
-Log::channel('slack')->assertLoggedMessage('alert', 'It is 5pm, go home');
-
-Log::stack(['bugsnag', 'sentry'])->assertLoggedMessage('critical', 'Perform evasive maneuvers');
-```
-
-
-### assertNotLogged($level, $callback = null)
-
-```php
-<?php
-
-use Illuminate\Support\Str;
-
+ // default channel...
 Log::assertNotLogged('info');
 
-Log::channel('slack')->assertNotLogged('alert');
+ // specific channel...
+Log::channel('slack')->assertNotLogged('info');
 
-Log::stack(['bugsnag', 'sentry'])->assertNotLogged('critical');
+// stack...
+Log::stack(['stderr', 'single'])->assertNotLogged('info');
 
-// with a callback
+/*
+ * With a callback you can assert that a specific message and/or context was not logged...
+ */
 
+ // default channel...
 Log::assertNotLogged('info', function ($message, $context) {
-    return Str::contains($message, 'Donuts');
+    return $message === 'User logged in.' && $context === ['user_id' => 5];
 });
 
-Log::channel('slack')->assertNotLogged('alert' , function ($message, $context) {
-    return Str::contains($message, '5pm');
+ // specific channel...
+Log::channel('slack')->assertNotLogged('info', function ($message, $context) {
+    return $message === 'User logged in.' && $context === ['user_id' => 5];
 });
 
-Log::stack(['bugsnag', 'sentry'])->assertNotLogged('critical', function ($message, $context) {
-    return Str::contains($message, 'evasive maneuvers');
+// stack...
+Log::stack(['stderr', 'single'])->assertNotLogged('info', function ($message, $context) {
+    return $message === 'User logged in.' && $context === ['user_id' => 5];
 });
 ```
 
 ### assertNothingLogged()
 
-```php
-<?php
+Assert that nothing was written to the log in at any level.
 
+```php
+ // default channel...
 Log::assertNothingLogged();
 
+ // specific channel...
 Log::channel('slack')->assertNothingLogged();
 
-Log::stack(['bugsnag', 'sentry'])->assertNothingLogged();
+// stack...
+Log::stack(['stderr', 'single'])->assertNothingLogged();
 ```
 
 ## Inspection

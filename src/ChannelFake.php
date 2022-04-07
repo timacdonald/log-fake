@@ -111,12 +111,8 @@ class ChannelFake implements LoggerInterface
      */
     public function assertNotLogged(string $level, ?Closure $callback = null): ChannelFake
     {
-        PHPUnit::assertTrue(
-            ($count = $this->logged($level, $callback)->count()) === 0,
-            "An unexpected log with level [{$level}] was logged [{$count}] times in the [{$this->name}] channel."
-        );
-
-        return $this;
+        // TODO: deprecate?
+        return $this->assertLoggedTimes($level, 0, $callback);
     }
 
     /**
@@ -130,17 +126,6 @@ class ChannelFake implements LoggerInterface
         );
 
         return $this;
-    }
-
-    /**
-     * @api
-     */
-    public function assertLoggedMessage(string $level, string $message): ChannelFake
-    {
-        return $this->assertLogged(
-            $level,
-            fn (string $loggedMessage): bool => $loggedMessage === $message
-        );
     }
 
     /**

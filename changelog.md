@@ -177,6 +177,7 @@ Log::channel('slack')->dump();
 - **BREAKING**: The `ChannelFake::hasNotLogged()` function has been removed.
 - **BREAKING**: Several helper functions have been made private, `@internal`, or removed completely. _This should only be breaking if you are extending any of the classes provided by this package._
 - **BREAKING**: Stacks can no longer be resolved via the `LogFake::channel($name)` function and should be resolved via the `LogFake::stack($channels, $channel)` function instead. _This should only be a breaking change if you are referencing a stack name directly._
+- Removed assertLoggedMessage. Utilise assertLogged with a closure instead
 
 ```diff
 Log::stack(['slack', 'stderr'], 'my-stack')->info('xxxx');
