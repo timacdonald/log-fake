@@ -160,32 +160,32 @@ Assert that a specific level was logged an expected number of times. It is also 
  */
 
  // default channel...
-Log::assertLogged('info', 2);
+Log::assertLoggedTimes('info', 2);
 
  // specific channel...
-Log::channel('slack')->assertLogged('info', 2);
+Log::channel('slack')->assertLoggedTimes('info', 2);
 
 // stack...
-Log::stack(['stderr', 'single'])->assertLogged('info', 2);
+Log::stack(['stderr', 'single'])->assertLoggedTimes('info', 2);
 
 /*
  * With a callback you can assert that an expected message and/or context was logged a specific number of times...
  */
 
  // default channel...
-Log::assertLogged('info', 2, function ($message, $context) {
+Log::assertLoggedTimes('info', 2, function ($message, $context) {
     return $message === 'User logged in.' 
         && $context === ['user_id' => 5];
 });
 
  // specific channel...
-Log::channel('slack')->assertLogged('info', 2, function ($message, $context) {
+Log::channel('slack')->assertLoggedTimes('info', 2, function ($message, $context) {
     return $message === 'User logged in.' 
         && $context === ['user_id' => 5];
 });
 
 // stack...
-Log::stack(['stderr', 'single'])->assertLogged('info', 2, function ($message, $context) {
+Log::stack(['stderr', 'single'])->assertLoggedTimes('info', 2, function ($message, $context) {
     return $message === 'User logged in.' 
         && $context === ['user_id' => 5];
 });
