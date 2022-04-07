@@ -25,7 +25,7 @@ composer require timacdonald/log-fake --dev
 ## Basic usage
 
 ```php
-public function testItLogsAboutDonuts(): void
+public function testItLogsWhenAUserAuthenticates(): void
 {
     /**
      * Test setup.
@@ -59,19 +59,22 @@ public function testItLogsAboutDonuts(): void
 
 ## Channels
 
-If you are logging to a specific channel (i.e. not the default channel) in your app, such as "Slack" with `Log::channel('slack')->critical('It is 5pm, go home')`, you need to also prefix your assertions in the same manner.
+If you are logging to a specific channel (i.e. not the default channel) in your app, you need to also prefix your assertions in the same manner.
 
 ```php
-public function testItLogsAboutDonuts()
+public function testItLogsWhenAUserAuthenticates(): void
 {
     // setup...
     LogFake::bind();
 
     // implementation...
-    Log::channel('slack')->alert('It is 5pm, go home');
+    Log::channel('stderr')->info('User logged in.', [
+        'user_id' => $user->id,
+    ]);
 
-    // assertions...
-    Log::channel('slack')->assertLogged('alert'); // ✅ passes
+    Log::channel('stderr')->assertLogged('info', function (string $message, array $context): bool {
+        return $message === 'User logged in.' && $context === ['user_id' => 5];
+    });
 }
 ```
 
@@ -80,14 +83,20 @@ public function testItLogsAboutDonuts()
 If you are logging to a stack in your app, like with channels, you will need to prefix your assertions. Note that the order of the stack does not matter.
 
 ```php
-// setup...
-LogFake::bind();
+public function testItLogsWhenAUserAuthenticates(): void
+{
+    // setup...
+    LogFake::bind();
 
-// implementation...
-Log::stack(['bugsnag', 'sentry'])->critical('Perform evasive maneuvers');
+    // implementation...
+    Log::stack(['stderr', 'single'])->info('User logged in.', [
+        'user_id' => $user->id,
+    ]);
 
-// assertions...
-Log::stack(['bugsnag', 'sentry'])->assertLogged('critical');  // ✅ passes
+    Log::stack(['stderr', 'single'])->assertLogged('info', function (string $message, array $context): bool {
+        return $message === 'User logged in.' && $context === ['user_id' => 5];
+    });
+}
 ```
 
 That's it really. Now let's dig into the available assertions to improve you experience testing your applications logging.
