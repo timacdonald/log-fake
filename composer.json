@@ -20,8 +20,9 @@
         "php": "^8.0",
         "illuminate/config": "^9.0",
         "illuminate/container": "^9.0",
-        "illuminate/support": "^9.0",
+        "illuminate/contracts": "^9.0",
         "illuminate/log": "^9.0",
+        "illuminate/support": "^9.0",
         "phpunit/phpunit": "^9.0",
         "psr/log": "^1.0 || ^2.0 || ^3.0",
         "symfony/var-dumper": "^6.0"

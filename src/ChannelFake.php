@@ -6,6 +6,7 @@ namespace TiMacDonald\Log;
 
 use Closure;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Log\Logger;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use PHPUnit\Framework\Assert as PHPUnit;
@@ -40,138 +41,17 @@ class ChannelFake implements LoggerInterface
      */
     private array $sentinalContext;
 
+    /**
+     * @internal
+     */
     public function __construct(private string $name)
     {
         $this->sentinalContext = ['_' => new stdClass()];
     }
 
-    public function assertLogged(string $level, ?callable $callback = null): ChannelFake
-    {
-        PHPUnit::assertTrue(
-            $this->logged($level, $callback)->count() > 0,
-            "An expected log with level [{$level}] was not logged in the [{$this->name}] channel."
-        );
-
-        return $this;
-    }
-
-    public function assertLoggedTimes(string $level, int $times, ?callable $callback = null): ChannelFake
-    {
-        PHPUnit::assertTrue(
-            ($count = $this->logged($level, $callback)->count()) === $times,
-            "A log with level [{$level}] was logged [{$count}] times instead of an expected [{$times}] times in the [{$this->name}] channel."
-        );
-
-        return $this;
-    }
-
-    public function assertNotLogged(string $level, ?callable $callback = null): ChannelFake
-    {
-        PHPUnit::assertTrue(
-            ($count = $this->logged($level, $callback)->count()) === 0,
-            "An unexpected log with level [{$level}] was logged [${count}] times in the [{$this->name}] channel."
-        );
-
-        return $this;
-    }
-
-    public function assertNothingLogged(): ChannelFake
-    {
-        PHPUnit::assertTrue(
-            $this->logs()->isEmpty(),
-            "Found [{$this->logs()->count()}] logs in the [{$this->name}] channel. Expected to find [0]."
-        );
-
-        return $this;
-    }
-
-    public function assertLoggedMessage(string $level, string $message): ChannelFake
-    {
-        return $this->assertLogged(
-            $level,
-            fn (string $loggedMessage): bool => $loggedMessage === $message
-        );
-    }
-
-    public function assertForgotten(): ChannelFake
-    {
-        return $this->assertForgottenTimes(1);
-    }
-
-    public function assertForgottenTimes(int $times): ChannelFake
-    {
-        PHPUnit::assertSame(
-            $times,
-            $this->timesForgotten,
-            "Expected the [{$this->name}] channel to be forgotten [{$times}] times. It was forgotten [{$this->timesForgotten}] times."
-        );
-
-        return $this;
-    }
-
-    public function assertNotForgotten(): ChannelFake
-    {
-        return $this->assertForgottenTimes(0);
-    }
-
     /**
-     * @param array<string, mixed> $context
+     * @api
      */
-    public function assertCurrentContext(array $context): ChannelFake
-    {
-        PHPUnit::assertSame(
-            $context,
-            $this->currentContext(),
-            'Expected to find the context [' . json_encode($context, JSON_THROW_ON_ERROR) . '] in the [' . $this->name . '] channel. Found [' . json_encode((object) $this->currentContext()) . '] instead.'
-        );
-
-        return $this;
-    }
-
-    /**
-     * @param array<string, mixed> $context
-     */
-    public function assertHadContext(array $context): ChannelFake
-    {
-        PHPUnit::assertTrue(
-            $this->allContextInstances()->containsStrict($context),
-            'Expected to find the context [' . json_encode($context, JSON_THROW_ON_ERROR) . '] in the [' . $this->name . '] channel but did not.'
-        );
-
-        return $this;
-    }
-
-    /**
-     * @param array<string, mixed> $context
-     */
-    public function assertHadContextAtSetCall(array $context, int $time): ChannelFake
-    {
-        PHPUnit::assertGreaterThanOrEqual(
-            $time,
-            $this->allContextInstances()->count(),
-            'Expected to find the context set at least [' . $time . '] times in the [' . $this->name . '] channel, but instead found it was set [' . $this->allContextInstances()->count() .'] times.'
-        );
-
-        PHPUnit::assertSame(
-            $this->allContextInstances()->get($time - 1),
-            $context,
-            'Expected to find the context [' . json_encode($context, JSON_THROW_ON_ERROR) . '] at set call ['. $time .'] in the [' . $this->name . '] channel but did not.'
-        );
-
-        return $this;
-    }
-
-    public function assertContextSetTimes(int $times): ChannelFake
-    {
-        PHPUnit::assertSame(
-            $this->allContextInstances()->count(),
-            $times,
-            'Expected to find the context set [' . $times . '] times in the [' . $this->name . '] channel, but instead found it set [' . $this->allContextInstances()->count() .'] times.'
-        );
-
-        return $this;
-    }
-
     public function dump(?string $level = null): ChannelFake
     {
         $callback = $level === null
@@ -187,6 +67,7 @@ class ChannelFake implements LoggerInterface
     }
 
     /**
+     * @api
      * @codeCoverageIgnore
      * @infection-ignore-all
      */
@@ -198,13 +79,175 @@ class ChannelFake implements LoggerInterface
     }
 
     /**
-     * @param array<string, mixed> $context
+     * @api
      */
-    public function write(string $level, string $message, array $context = []): void
+    public function assertLogged(string $level, ?Closure $callback = null): ChannelFake
     {
-        $this->log($level, $message, $context);
+        // TODO: document what the closure accepts. Does PHPStan have a rule for this?
+        PHPUnit::assertTrue(
+            $this->logged($level, $callback)->count() > 0,
+            "An expected log with level [{$level}] was not logged in the [{$this->name}] channel."
+        );
+
+        return $this;
     }
 
+    /**
+     * @api
+     */
+    public function assertLoggedTimes(string $level, int $times, ?Closure $callback = null): ChannelFake
+    {
+        // TODO: flip all exception messages to follow the format "expected x. found y."
+        PHPUnit::assertTrue(
+            ($count = $this->logged($level, $callback)->count()) === $times,
+            "A log with level [{$level}] was logged [{$count}] times instead of an expected [{$times}] times in the [{$this->name}] channel."
+        );
+
+        return $this;
+    }
+
+    /**
+     * @api
+     */
+    public function assertNotLogged(string $level, ?Closure $callback = null): ChannelFake
+    {
+        PHPUnit::assertTrue(
+            ($count = $this->logged($level, $callback)->count()) === 0,
+            "An unexpected log with level [{$level}] was logged [{$count}] times in the [{$this->name}] channel."
+        );
+
+        return $this;
+    }
+
+    /**
+     * @api
+     */
+    public function assertNothingLogged(): ChannelFake
+    {
+        PHPUnit::assertTrue(
+            $this->logs()->isEmpty(),
+            "Found [{$this->logs()->count()}] logs in the [{$this->name}] channel. Expected to find [0]."
+        );
+
+        return $this;
+    }
+
+    /**
+     * @api
+     */
+    public function assertLoggedMessage(string $level, string $message): ChannelFake
+    {
+        return $this->assertLogged(
+            $level,
+            fn (string $loggedMessage): bool => $loggedMessage === $message
+        );
+    }
+
+    /**
+     * @api
+     */
+    public function assertWasForgotten(): ChannelFake
+    {
+        PHPUnit::assertTrue(
+            $this->timesForgotten > 0,
+            "Expected the [{$this->name}] channel to be forgotten at least once. It was forgotten [0] times."
+        );
+
+        return $this;
+    }
+
+    /**
+     * @api
+     */
+    public function assertWasForgottenTimes(int $times): ChannelFake
+    {
+        PHPUnit::assertSame(
+            $times,
+            $this->timesForgotten,
+            "Expected the [{$this->name}] channel to be forgotten [{$times}] times. It was forgotten [{$this->timesForgotten}] times."
+        );
+
+        return $this;
+    }
+
+    /**
+     * @api
+     */
+    public function assertWasNotForgotten(): ChannelFake
+    {
+        return $this->assertWasForgottenTimes(0);
+    }
+
+    /**
+     * @api
+     * @param array<string, mixed> $context
+     */
+    public function assertCurrentContext(array $context): ChannelFake
+    {
+        // TODO: current context for the on-demand channel?
+        PHPUnit::assertSame(
+            $context,
+            $this->currentContext(),
+            'Expected to find the context [' . json_encode($context, JSON_THROW_ON_ERROR) . '] in the [' . $this->name . '] channel. Found [' . json_encode((object) $this->currentContext()) . '] instead.'
+        );
+
+        return $this;
+    }
+
+    /**
+     * @api
+     * @param array<string, mixed> $context
+     */
+    public function assertHadContext(array $context): ChannelFake
+    {
+        PHPUnit::assertTrue(
+            $this->allContextInstances()->containsStrict($context),
+            'Expected to find the context [' . json_encode($context, JSON_THROW_ON_ERROR) . '] in the [' . $this->name . '] channel but did not.'
+        );
+
+        return $this;
+    }
+
+    /**
+     * @api
+     * @param array<string, mixed> $context
+     */
+    public function assertHadContextAtSetCall(array $context, int $call): ChannelFake
+    {
+        PHPUnit::assertGreaterThanOrEqual(
+            $call,
+            $this->allContextInstances()->count(),
+            'Expected to find the context set at least [' . $call . '] times in the [' . $this->name . '] channel, but instead found it was set [' . $this->allContextInstances()->count() .'] times.'
+        );
+
+        PHPUnit::assertSame(
+            $this->allContextInstances()->get($call - 1),
+            $context,
+            'Expected to find the context [' . json_encode($context, JSON_THROW_ON_ERROR) . '] at set call ['. $call .'] in the [' . $this->name . '] channel but did not.'
+        );
+
+        return $this;
+    }
+
+    /**
+     * @api
+     */
+    public function assertContextSetTimes(int $times): ChannelFake
+    {
+        // TODO: allow a 2nd parameter for the specific context you'd like to check against.
+        PHPUnit::assertSame(
+            $this->allContextInstances()->count(),
+            $times,
+            'Expected to find the context set [' . $times . '] times in the [' . $this->name . '] channel, but instead found it set [' . $this->allContextInstances()->count() .'] times.'
+        );
+
+        return $this;
+    }
+
+    /**
+     * @api
+     * @see Logger::info()
+     */
     public function log($level, $message, array $context = []): void
     {
         $this->logs[] = [
@@ -216,27 +259,19 @@ class ChannelFake implements LoggerInterface
         ];
     }
 
-    public function getLogger(): ChannelFake
+    /**
+     * @api
+     * @see Logger::write()
+     * @param array<string, mixed> $context
+     */
+    public function write($level, $message, array $context = []): void
     {
-        return $this;
-    }
-
-    public function listen(Closure $callback): void
-    {
-        //
-    }
-
-    public function getEventDispatcher(): Dispatcher
-    {
-        return $this->dispatcher;
-    }
-
-    public function setEventDispatcher(Dispatcher $dispatcher): void
-    {
-        $this->dispatcher = $dispatcher;
+        $this->log($level, $message, $context);
     }
 
     /**
+     * @api
+     * @see Logger::withContext()
      * @param array<string, mixed> $context
      */
     public function withContext(array $context = []): ChannelFake
@@ -246,6 +281,10 @@ class ChannelFake implements LoggerInterface
         return $this;
     }
 
+    /**
+     * @api
+     * @see Logger::withoutContext()
+     */
     public function withoutContext(): ChannelFake
     {
         $this->context[] = [];
@@ -254,10 +293,46 @@ class ChannelFake implements LoggerInterface
     }
 
     /**
+     * @api
+     * @see Logger::listen()
+     */
+    public function listen(Closure $callback): void
+    {
+        //
+    }
+
+    /**
+     * @api
+     * @see Logger::getLogger()
+     */
+    public function getLogger(): ChannelFake
+    {
+        return $this;
+    }
+
+    /**
+     * @api
+     * @see Logger::getEventDispatcher()
+     */
+    public function getEventDispatcher(): Dispatcher
+    {
+        return $this->dispatcher;
+    }
+
+    /**
+     * @api
+     * @see Logger::setEventDispatcher()
+     */
+    public function setEventDispatcher(Dispatcher $dispatcher): void
+    {
+        $this->dispatcher = $dispatcher;
+    }
+
+    /**
      * @internal
      * @return Collection<int, array{ level: mixed, message: string, context: array<string, mixed>, channel: string, times_channel_has_been_forgotten_at_time_of_writing_log: int }>
      */
-    public function logged(string $level, ?callable $callback = null): Collection
+    public function logged(string $level, ?Closure $callback = null): Collection
     {
         $callback = $callback ?? fn (): bool => true;
 
@@ -292,7 +367,10 @@ class ChannelFake implements LoggerInterface
         return $this->clearContext();
     }
 
-    public function initialize(): ChannelFake
+    /**
+     * @internal
+     */
+    public function remember(): ChannelFake
     {
         $this->isCurrentlyForgotten = false;
 
@@ -305,6 +383,16 @@ class ChannelFake implements LoggerInterface
     public function isCurrentlyForgotten(): bool
     {
         return $this->isCurrentlyForgotten;
+    }
+
+    /**
+     * @internal
+     */
+    public function clearContext(): ChannelFake
+    {
+        $this->context[] = $this->sentinalContext;
+
+        return $this;
     }
 
     /**
@@ -336,15 +424,5 @@ class ChannelFake implements LoggerInterface
     private function isNotSentinalContext(array $context): bool
     {
         return $this->sentinalContext !== $context;
-    }
-
-    /**
-     * @internal
-     */
-    public function clearContext(): ChannelFake
-    {
-        $this->context[] = $this->sentinalContext;
-
-        return $this;
     }
 }

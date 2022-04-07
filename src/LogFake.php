@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace TiMacDonald\Log;
 
 use Closure;
+use Illuminate\Log\LogManager;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use PHPUnit\Framework\Assert as PHPUnit;
@@ -28,15 +29,21 @@ class LogFake implements LoggerInterface
      */
     private array $stacks = [];
 
-    public static function bind(): LogFake
+    /**
+     * @api
+     */
+    public static function bind(?LogFake $instance = null): LogFake
     {
-        $instance = new LogFake();
+        $instance = $instance ?? new LogFake();
 
         Log::swap($instance);
 
         return $instance;
     }
 
+    /**
+     * @api
+     */
     public function dumpAll(?string $level = null): LogFake
     {
         $callback = $level === null
@@ -52,6 +59,7 @@ class LogFake implements LoggerInterface
     }
 
     /**
+     * @api
      * @codeCoverageIgnore
      * @infection-ignore-all
      */
@@ -62,6 +70,9 @@ class LogFake implements LoggerInterface
         exit(1);
     }
 
+    /**
+     * @api
+     */
     public function assertChannelIsCurrentlyForgotten(string $name): LogFake
     {
         $channel = $this->channels[$name] ?? null;
@@ -80,19 +91,21 @@ class LogFake implements LoggerInterface
     }
 
     /**
-     * @param mixed $level
+     * @api
+     * @see LogManager::build()
+     * @param array<string, mixed> $config
      */
-    public function log($level, $message, array $context = []): void
+    public function build(array $config): ChannelFake
     {
-        $this->driver()->log($level, $message, $context);
-    }
-
-    public function channel(?string $channel = null): ChannelFake
-    {
-        return $this->driver($channel);
+        // should this take the config into account so you can assert against different configs?
+        // TODO: Should this reset the current context of the channel? as each time one is built
+        // it is unset and recreated.
+        return $this->driver('ondemand');
     }
 
     /**
+     * @api
+     * @see LogManager::stack()
      * @param array<int, string> $channels
      */
     public function stack(array $channels, ?string $channel = null): ChannelFake
@@ -104,62 +117,105 @@ class LogFake implements LoggerInterface
         return $this->stacks[$name]->clearContext();
     }
 
+
     /**
-     * @param array<int, string> $channels
+     * @api
+     * @see LogManager::channel()
      */
-    private function parseStackDriver(array $channels, ?string $channel): string
+    public function channel(?string $channel = null): ChannelFake
     {
-        return 'stack::' . ($channel ?? 'unnamed') . ':' . Collection::make($channels)->sort()->implode(',');
+        return $this->driver($channel);
     }
 
     /**
-     * @param array<string, mixed> $config
+     * @api
+     * @see LogManager::driver()
      */
-    public function build(array $config): ChannelFake
-    {
-        return $this->driver('ondemand');
-    }
-
     public function driver(?string $driver = null): ChannelFake
     {
         $name = $this->parseChannelDriver($driver);
 
         $channel = $this->channels[$name] ??= new ChannelFake($name);
 
-        return $channel->initialize();
+        return $channel->remember();
     }
 
+    /**
+     * @api
+     * @see LogManager::getDefaultDriver()
+     */
     public function getDefaultDriver(): ?string
     {
         /** @var ?string */
-        $driver = config()->get('logging.default');
-
-        return $driver;
+        return config()->get('logging.default');
     }
 
+    /**
+     * @api
+     * @see LogManager::setDefaultDriver()
+     */
     public function setDefaultDriver(string $name): void
     {
         config()->set('logging.default', $name);
     }
 
-    public function extend(string $driver, Closure $callback): void
+    /**
+     * @api
+     * @see LogManager::extend()
+     */
+    public function extend(string $driver, Closure $callback): LogFake
     {
-        //
+        return $this;
     }
 
     /**
-     * @return array<string, ChannelFake>
+     * @api
+     * @see LogManager::forgetChannel()
      */
-    public function getChannels(): array
-    {
-        return $this->channels;
-    }
-
     public function forgetChannel(?string $driver = null): LogFake
     {
         $this->channel($this->parseChannelDriver($driver))->forget();
 
         return $this;
+    }
+
+    /**
+     * @api
+     * @see LogManager::getChannels()
+     * @return array<string, ChannelFake>
+     */
+    public function getChannels(): array
+    {
+        // TODO this could just return non-forgotten channels now.
+        return $this->channels;
+    }
+
+    /**
+     * @api
+     * @see LogManager::log()
+     * @param mixed $level
+     */
+    public function log($level, $message, array $context = []): void
+    {
+        $this->driver()->log($level, $message, $context);
+    }
+
+    /**
+     * @api
+     * @see LogManager::__call()
+     * @param array<string, mixed> $parameters
+     */
+    public function __call(string $method, array $parameters): mixed
+    {
+        return $this->driver()->{$method}(...$parameters);
+    }
+
+    /**
+     * @param array<int, string> $channels
+     */
+    private function parseStackDriver(array $channels, ?string $channel): string
+    {
+        return 'stack::' . ($channel ?? 'unnamed') . ':' . Collection::make($channels)->sort()->implode(',');
     }
 
     private function parseChannelDriver(?string $driver): string
@@ -182,13 +238,5 @@ class LogFake implements LoggerInterface
     private function allChannelsAndStacks(): Collection
     {
         return Collection::make($this->channels)->merge($this->stacks);
-    }
-
-    /**
-     * @param array<string, mixed> $parameters
-     */
-    public function __call(string $method, array $parameters): mixed
-    {
-        return $this->driver()->{$method}(...$parameters);
     }
 }

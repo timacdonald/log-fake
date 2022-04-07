@@ -885,41 +885,41 @@ class LogFakeTest extends TestCase
         $log = new LogFake();
 
         try {
-            $log->assertForgotten();
+            $log->assertWasForgotten();
             $this->fail();
         } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('Expected the [stack] channel to be forgotten [1] times. It was forgotten [0] times.'));
+            $this->assertThat($e, new ExceptionMessage('Expected the [stack] channel to be forgotten at least once. It was forgotten [0] times.'));
         }
         $log->forgetChannel('stack');
-        $log->assertForgotten();
+        $log->assertWasForgotten();
 
         try {
-            $log->channel('channel')->assertForgotten();
+            $log->channel('channel')->assertWasForgotten();
             $this->fail();
         } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('Expected the [channel] channel to be forgotten [1] times. It was forgotten [0] times.'));
+            $this->assertThat($e, new ExceptionMessage('Expected the [channel] channel to be forgotten at least once. It was forgotten [0] times.'));
         }
         $log->forgetChannel('channel');
-        $log->channel('channel')->assertForgotten();
+        $log->channel('channel')->assertWasForgotten();
     }
 
     public function testItCanAssertAChannelHasNotBeenForgotten(): void
     {
         $log = new LogFake();
 
-        $log->assertNotForgotten();
+        $log->assertWasNotForgotten();
         $log->forgetChannel('stack');
         try {
-            $log->assertNotForgotten();
+            $log->assertWasNotForgotten();
             $this->fail();
         } catch (ExpectationFailedException $e) {
             $this->assertThat($e, new ExceptionMessage('Expected the [stack] channel to be forgotten [0] times. It was forgotten [1] times.'));
         }
 
-        $log->channel('channel')->assertNotForgotten();
+        $log->channel('channel')->assertWasNotForgotten();
         $log->forgetChannel('channel');
         try {
-            $log->channel('channel')->assertNotForgotten();
+            $log->channel('channel')->assertWasNotForgotten();
             $this->fail();
         } catch (ExpectationFailedException $e) {
             $this->assertThat($e, new ExceptionMessage('Expected the [channel] channel to be forgotten [0] times. It was forgotten [1] times.'));

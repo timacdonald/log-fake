@@ -25,7 +25,7 @@ composer require timacdonald/log-fake --dev
 ## Basic usage
 
 ```php
-public function testItLogsAboutDonuts()
+public function testItLogsAboutDonuts(): void
 {
     /**
      * Test setup.
@@ -33,7 +33,6 @@ public function testItLogsAboutDonuts()
      * In the setup of your tests, you can call the following `bind` helper,
      * which will switch out the underlying log driver with the fake.
      */
-
     LogFake::bind();
 
     /**
@@ -42,8 +41,9 @@ public function testItLogsAboutDonuts()
      * In your application's implementation, you then utilise the logger, as you
      * normally would.
      */
-
-    Log::info('Donuts have arrived');
+    Log::info('User logged in.', [
+        'user_id' => $user->id,
+    ]);
 
     /**
      * Test assertions.
@@ -51,11 +51,9 @@ public function testItLogsAboutDonuts()
      * Finally you can make assertions against the log channels, stacks, etc. to
      * ensure the expected logging occurred in your implementation.
      */
-
     Log::assertLogged('info', function (string $message, array $context): bool {
-        return Str::contains($message, 'Donuts');
+        return $message === 'User logged in.' && $context === ['user_id' => 5];
     });
-
 }
 ```
 
@@ -66,21 +64,14 @@ If you are logging to a specific channel (i.e. not the default channel) in your 
 ```php
 public function testItLogsAboutDonuts()
 {
-    // test setup...
-
+    // setup...
     LogFake::bind();
 
     // implementation...
-
     Log::channel('slack')->alert('It is 5pm, go home');
 
-    // test assertions...
-
+    // assertions...
     Log::channel('slack')->assertLogged('alert'); // ✅ passes
-
-    // but without the channel prefix...
-
-    Log::assertLogged('alert');  // ❌ fails
 }
 ```
 
@@ -89,53 +80,81 @@ public function testItLogsAboutDonuts()
 If you are logging to a stack in your app, like with channels, you will need to prefix your assertions. Note that the order of the stack does not matter.
 
 ```php
-// test set up...
-
+// setup...
 LogFake::bind();
 
 // implementation...
-
 Log::stack(['bugsnag', 'sentry'])->critical('Perform evasive maneuvers');
 
-// test assertions...
-
+// assertions...
 Log::stack(['bugsnag', 'sentry'])->assertLogged('critical');  // ✅ passes
-
-// but without the stack prefix...
-
-Log::assertLogged('critical'); // ❌ fails
 ```
+
+That's it really. Now let's dig into the available assertions to improve you experience testing your applications logging.
 
 ## Available assertions
 
-All assertions are relative to the channel or stack as shown in the previous examples.
+Remember that all assertions are relative to the channel or stack as shown above.
 
-### assertLogged($level, $callback = null)
+- `assertLogged()`
+- `assertLoggedTimes()`
+
+
+### Log::assertLogged()
+
+Assert that a specific level was logged. It is also possible to provide a callback to pass a truth test for the expected log.
 
 ```php
-<?php
-
-use Illuminate\Support\Str;
-
+// assert against the default channel...
 Log::assertLogged('info');
 
-Log::channel('slack')->assertLogged('alert');
+// assert against a specific channel...
+Log::channel('slack')->assertLogged('info');
 
-Log::stack(['bugsnag', 'sentry'])->assertLogged('critical');
+// assert against a stack...
+Log::stack(['stderr', 'single'])->assertLogged('info');
 
-// with a callback
+/*
+ * With a callback...
+ */
 
-Log::assertLogged('info', function ($message, $context) {
-    return Str::contains($message, 'Donuts');
-});
+// assert against the default channel...
+Log::assertLogged('info', fn (string $message, array $context): bool => $message === 'User logged in.');
 
-Log::channel('slack')->assertLogged('alert', function ($message, $context) {
-    return Str::contains($message, '5pm');
-});
+// assert against a specific channel...
+Log::channel('slack')->assertLogged('info', fn (string $message, array $context): bool => $message === 'User logged in.');
 
-Log::stack(['bugsnag', 'sentry'])->assertLogged('critical', function ($message, $context) {
-    return Str::contains($message, 'evasive maneuvers');
-});
+
+// assert against a stack...
+Log::stack(['stderr', 'single'])->assertLogged('info', fn (string $message, array $context): bool => $message === 'User logged in.');
+```
+
+### Log::assertLoggedTimes()
+
+Assert that a specific level was logged an expected number of times. It is also possible to provide a callback to pass a truth test for the expected log.
+
+```php
+// assert against the default channel...
+Log::assertLoggedTimes('info', 2);
+
+// assert against a specific channel...
+Log::channel('slack')->assertLoggedTimes('info', 2);
+
+// assert against a stack...
+Log::stack(['stderr', 'single'])->assertLoggedTimes('info', 2);
+
+/*
+ * With a callback...
+ */
+
+// assert against the default channel...
+Log::assertLoggedTimes('info', 2, fn (string $message, array $context): bool => $message === 'User logged in.');
+
+// assert against a specific channel...
+Log::channel('slack')->assertLoggedTimes('info', 2, fn (string $message, array $context): bool => $message === 'User logged in.');
+
+// assert against a stack...
+Log::stack(['stderr', 'single'])->assertLoggedTimes('info', 2, fn (string $message, array $context): bool => $message === 'User logged in.');
 ```
 
 ### assertLoggedMessage($level, $message)
@@ -150,33 +169,6 @@ Log::channel('slack')->assertLoggedMessage('alert', 'It is 5pm, go home');
 Log::stack(['bugsnag', 'sentry'])->assertLoggedMessage('critical', 'Perform evasive maneuvers');
 ```
 
-### assertLoggedTimes($level, $times = 1, $callback = null)
-
-```php
-<?php
-
-use Illuminate\Support\Str;
-
-Log::assertLoggedTimes('info', 5);
-
-Log::channel('slack')->assertLoggedTimes('alert', 5);
-
-Log::stack(['bugsnag', 'sentry'])->assertLoggedTimes('critical', 5);
-
-// with a callback
-
-Log::assertLogged('info', 5, function ($message, $context) {
-    return Str::contains($message, 'Donuts');
-});
-
-Log::channel('slack')->assertLogged('alert', 5, function ($message, $context) {
-    return Str::contains($message, '5pm');
-});
-
-Log::stack(['bugsnag', 'sentry'])->assertLogged('critical', 5, function ($message, $context) {
-    return Str::contains($message, 'evasive maneuvers');
-});
-```
 
 ### assertNotLogged($level, $callback = null)
 
@@ -328,3 +320,4 @@ You are free to use this package, but I ask that you reach out to someone (not m
 
 - a stack never has "currentContext" as it is reset each time it is resolved from the manager.
 - `getChannels` returns all channels - forgotten or not
+- Note that exception messages could change at any time and are not protected and are not considered breaking changes.
