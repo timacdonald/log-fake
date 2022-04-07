@@ -41,9 +41,7 @@ public function testItLogsWhenAUserAuthenticates()
      * In your application's implementation, you then utilise the logger, as you
      * normally would.
      */
-    Log::info('User logged in.', [
-        'user_id' => $user->id,
-    ]);
+    Log::info('User logged in.', ['user_id' => $user->id]);
 
     /**
      * Test assertions.
@@ -52,7 +50,8 @@ public function testItLogsWhenAUserAuthenticates()
      * ensure the expected logging occurred in your implementation.
      */
     Log::assertLogged('info', function ($message, $context) {
-        return $message === 'User logged in.' && $context === ['user_id' => 5];
+        return $message === 'User logged in.'
+            && $context === ['user_id' => 5];
     });
 }
 ```
@@ -68,13 +67,12 @@ public function testItLogsWhenAUserAuthenticates()
     LogFake::bind();
 
     // implementation...
-    Log::channel('slack')->info('User logged in.', [
-        'user_id' => $user->id,
-    ]);
+    Log::channel('slack')->info('User logged in.', ['user_id' => $user->id]);
 
     // assertions...
     Log::channel('slack')->assertLogged('info', function ($message, $context) {
-        return $message === 'User logged in.' && $context === ['user_id' => 5];
+        return $message === 'User logged in.' 
+            && $context === ['user_id' => 5];
     });
 }
 ```
@@ -90,13 +88,12 @@ public function testItLogsWhenAUserAuthenticates()
     LogFake::bind();
 
     // implementation...
-    Log::stack(['stderr', 'single'])->info('User logged in.', [
-        'user_id' => $user->id,
-    ]);
+    Log::stack(['stderr', 'single'])->info('User logged in.', ['user_id' => $user->id]);
 
     // assertions...
     Log::stack(['stderr', 'single'])->assertLogged('info', function ($message, $context) {
-        return $message === 'User logged in.' && $context === ['user_id' => 5];
+        return $message === 'User logged in.' 
+            && $context === ['user_id' => 5];
     });
 }
 ```
