@@ -116,10 +116,6 @@ Remember that all assertions are relative to the channel or stack as shown above
 Assert that a specific level was logged. It is also possible to provide a callback to pass a truth test for the expected log.
 
 ```php
- Log::info('User logged in.', [
-    'user_id' => $user->id,
- ]);
-
 /*
  * Without a callback...
  */
@@ -138,13 +134,19 @@ Log::stack(['stderr', 'single'])->assertLogged('info');
  */
 
  // default channel...
-Log::assertLogged('info', fn ($message, $context) => $message === 'User logged in.' && $context === ['user_id' => 5]);
+Log::assertLogged('info', function ($message, $context) {
+    return $message === 'User logged in.' && $context === ['user_id' => 5];
+});
 
  // specific channel...
-Log::channel('stderr')->assertLogged('info', fn ($message, $context) => $message === 'User logged in.' && $context === ['user_id' => 5]);
+Log::channel('stderr')->assertLogged('info', function ($message, $context) {
+    return $message === 'User logged in.' && $context === ['user_id' => 5];
+});
 
 // stack...
-Log::stack(['stderr', 'single'])->assertLogged('info', fn ($message, $context) => $message === 'User logged in.' && $context === ['user_id' => 5]);
+Log::stack(['stderr', 'single'])->assertLogged('info', function ($message, $context) {
+    return $message === 'User logged in.' && $context === ['user_id' => 5];
+});
 ```
 
 ### Log::assertLoggedTimes()
