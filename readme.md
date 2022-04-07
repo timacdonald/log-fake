@@ -108,6 +108,9 @@ Remember that all assertions are relative to the channel or stack as shown above
 - [`assertLoggedTimes()`](#assertloggedtimes)
 - [`assertNotLogged()`](#assertnotlogged)
 - [`assertNothingLogged()`](#assertnothinglogged)
+- [`assertWasForgotten`](#assertwasforgotten)
+- [`assertWasForgottenTimes`](#assertwasforgottentimes)
+- [`assertWasNotForgotten`](#assertwasnotforgotten)
 
 ### assertLogged()
 
@@ -245,6 +248,51 @@ Log::channel('slack')->assertNothingLogged();
 
 // stack...
 Log::stack(['stderr', 'single'])->assertNothingLogged();
+```
+
+### assertWasForgotten()
+
+Assert that the channel / stack was forgotten at least one time.
+
+```php
+ // default channel...
+Log::assertWasForgotten();
+
+ // specific channel...
+Log::channel('slack')->assertWasForgotten();
+
+// stack...
+Log::stack(['stderr', 'single'])->assertWasForgotten();
+```
+
+### assertWasForgottenTimes()
+
+Assert that the channel / stack was forgotten a specific number of times.
+
+```php
+ // default channel...
+Log::assertWasForgottenTimes(3);
+
+ // specific channel...
+Log::channel('slack')->assertWasForgottenTimes(3);
+
+// stack...
+Log::stack(['stderr', 'single'])->assertWasForgottenTimes(3);
+```
+
+### assertWasNotForgotten()
+
+Assert that the channel / stack was not forgotten.
+
+```php
+ // default channel...
+Log::assertWasNotForgotten();
+
+ // specific channel...
+Log::channel('slack')->assertWasNotForgotten();
+
+// stack...
+Log::stack(['stderr', 'single'])->assertWasNotForgotten();
 ```
 
 ## Inspection

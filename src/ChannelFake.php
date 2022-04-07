@@ -160,6 +160,7 @@ class ChannelFake implements LoggerInterface
      */
     public function assertWasNotForgotten(): ChannelFake
     {
+        // @deprecate?
         return $this->assertWasForgottenTimes(0);
     }
 
