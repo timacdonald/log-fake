@@ -25,7 +25,7 @@ composer require timacdonald/log-fake --dev
 ## Basic usage
 
 ```php
-public function testItLogsWhenAUserAuthenticates(): void
+public function testItLogsWhenAUserAuthenticates()
 {
     /**
      * Test setup.
@@ -51,7 +51,7 @@ public function testItLogsWhenAUserAuthenticates(): void
      * Finally you can make assertions against the log channels, stacks, etc. to
      * ensure the expected logging occurred in your implementation.
      */
-    Log::assertLogged('info', function (string $message, array $context): bool {
+    Log::assertLogged('info', function ($message, $context) {
         return $message === 'User logged in.' && $context === ['user_id' => 5];
     });
 }
@@ -62,7 +62,7 @@ public function testItLogsWhenAUserAuthenticates(): void
 If you are logging to a specific channel (i.e. not the default channel) in your app, you need to also prefix your assertions in the same manner.
 
 ```php
-public function testItLogsWhenAUserAuthenticates(): void
+public function testItLogsWhenAUserAuthenticates()
 {
     // setup...
     LogFake::bind();
@@ -72,7 +72,8 @@ public function testItLogsWhenAUserAuthenticates(): void
         'user_id' => $user->id,
     ]);
 
-    Log::channel('stderr')->assertLogged('info', function (string $message, array $context): bool {
+    // assertions...
+    Log::channel('stderr')->assertLogged('info', function ($message, $context) {
         return $message === 'User logged in.' && $context === ['user_id' => 5];
     });
 }
@@ -83,7 +84,7 @@ public function testItLogsWhenAUserAuthenticates(): void
 If you are logging to a stack in your app, like with channels, you will need to prefix your assertions. Note that the order of the stack does not matter.
 
 ```php
-public function testItLogsWhenAUserAuthenticates(): void
+public function testItLogsWhenAUserAuthenticates()
 {
     // setup...
     LogFake::bind();
@@ -93,7 +94,8 @@ public function testItLogsWhenAUserAuthenticates(): void
         'user_id' => $user->id,
     ]);
 
-    Log::stack(['stderr', 'single'])->assertLogged('info', function (string $message, array $context): bool {
+    // assertions...
+    Log::stack(['stderr', 'single'])->assertLogged('info', function ($message, $context) {
         return $message === 'User logged in.' && $context === ['user_id' => 5];
     });
 }
@@ -114,28 +116,35 @@ Remember that all assertions are relative to the channel or stack as shown above
 Assert that a specific level was logged. It is also possible to provide a callback to pass a truth test for the expected log.
 
 ```php
-// assert against the default channel...
+ Log::info('User logged in.', [
+    'user_id' => $user->id,
+ ]);
+
+/*
+ * Without a callback...
+ */
+
+ // default channel...
 Log::assertLogged('info');
 
-// assert against a specific channel...
+ // specific channel...
 Log::channel('slack')->assertLogged('info');
 
-// assert against a stack...
+// stack...
 Log::stack(['stderr', 'single'])->assertLogged('info');
 
 /*
  * With a callback...
  */
 
-// assert against the default channel...
-Log::assertLogged('info', fn (string $message, array $context): bool => $message === 'User logged in.');
+ // default channel...
+Log::assertLogged('info', fn ($message, $context) => $message === 'User logged in.' && $context === ['user_id' => 5]);
 
-// assert against a specific channel...
-Log::channel('slack')->assertLogged('info', fn (string $message, array $context): bool => $message === 'User logged in.');
+ // specific channel...
+Log::channel('stderr')->assertLogged('info', fn ($message, $context) => $message === 'User logged in.' && $context === ['user_id' => 5]);
 
-
-// assert against a stack...
-Log::stack(['stderr', 'single'])->assertLogged('info', fn (string $message, array $context): bool => $message === 'User logged in.');
+// stack...
+Log::stack(['stderr', 'single'])->assertLogged('info', fn ($message, $context) => $message === 'User logged in.' && $context === ['user_id' => 5]);
 ```
 
 ### Log::assertLoggedTimes()
