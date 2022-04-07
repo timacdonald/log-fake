@@ -104,9 +104,10 @@ That's it really. Now let's dig into the available assertions to improve you exp
 
 Remember that all assertions are relative to the channel or stack as shown above.
 
-- `assertLogged()`
-- `assertLoggedTimes()`
-- `assertNotLogged()`
+- [`assertLogged()`](#assertlogged)
+- [`assertLoggedTimes()`](#assertloggedtimes)
+- [`assertNotLogged()`](#assertnotlogged)
+- [`assertNothingLogged()`](#assertnothinglogged)
 
 ### assertLogged()
 
@@ -132,17 +133,20 @@ Log::stack(['stderr', 'single'])->assertLogged('info');
 
  // default channel...
 Log::assertLogged('info', function ($message, $context) {
-    return $message === 'User logged in.' && $context === ['user_id' => 5];
+    return $message === 'User logged in.' 
+        && $context === ['user_id' => 5];
 });
 
  // specific channel...
 Log::channel('slack')->assertLogged('info', function ($message, $context) {
-    return $message === 'User logged in.' && $context === ['user_id' => 5];
+    return $message === 'User logged in.' 
+        && $context === ['user_id' => 5];
 });
 
 // stack...
 Log::stack(['stderr', 'single'])->assertLogged('info', function ($message, $context) {
-    return $message === 'User logged in.' && $context === ['user_id' => 5];
+    return $message === 'User logged in.' 
+        && $context === ['user_id' => 5];
 });
 ```
 
@@ -170,17 +174,20 @@ Log::stack(['stderr', 'single'])->assertLogged('info', 2);
 
  // default channel...
 Log::assertLogged('info', 2, function ($message, $context) {
-    return $message === 'User logged in.' && $context === ['user_id' => 5];
+    return $message === 'User logged in.' 
+        && $context === ['user_id' => 5];
 });
 
  // specific channel...
 Log::channel('slack')->assertLogged('info', 2, function ($message, $context) {
-    return $message === 'User logged in.' && $context === ['user_id' => 5];
+    return $message === 'User logged in.' 
+        && $context === ['user_id' => 5];
 });
 
 // stack...
 Log::stack(['stderr', 'single'])->assertLogged('info', 2, function ($message, $context) {
-    return $message === 'User logged in.' && $context === ['user_id' => 5];
+    return $message === 'User logged in.' 
+        && $context === ['user_id' => 5];
 });
 ```
 
@@ -208,17 +215,20 @@ Log::stack(['stderr', 'single'])->assertNotLogged('info');
 
  // default channel...
 Log::assertNotLogged('info', function ($message, $context) {
-    return $message === 'User logged in.' && $context === ['user_id' => 5];
+    return $message === 'User logged in.' 
+        && $context === ['user_id' => 5];
 });
 
  // specific channel...
 Log::channel('slack')->assertNotLogged('info', function ($message, $context) {
-    return $message === 'User logged in.' && $context === ['user_id' => 5];
+    return $message === 'User logged in.' 
+        && $context === ['user_id' => 5];
 });
 
 // stack...
 Log::stack(['stderr', 'single'])->assertNotLogged('info', function ($message, $context) {
-    return $message === 'User logged in.' && $context === ['user_id' => 5];
+    return $message === 'User logged in.' 
+        && $context === ['user_id' => 5];
 });
 ```
 
