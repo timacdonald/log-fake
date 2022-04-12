@@ -114,11 +114,11 @@ Remember that all assertions are relative to the channel or stack as shown above
 
 ### assertLogged()
 
-Assert that a specific level was logged. It is also possible to provide a callback to pass a truth test for the expected log.
+Assert that a specific level log was created in your implementation. It is also possible to provide a truth-test closure for the expected log details.
 
 ```php
 /*
- * Without a callback you can assert that a specific level was logged...
+ * Without a closure you can assert that a specific level was logged...
  */
 
  // default channel...
@@ -131,7 +131,7 @@ Log::channel('slack')->assertLogged('info');
 Log::stack(['stderr', 'single'])->assertLogged('info');
 
 /*
- * With a callback you can assert that an expected message and/or context was logged...
+ * With a closure you can assert that an expected message and/or context was logged...
  */
 
  // default channel...
@@ -155,11 +155,11 @@ Log::stack(['stderr', 'single'])->assertLogged('info', function ($message, $cont
 
 ### assertLoggedTimes()
 
-Assert that a specific level was logged an expected number of times. It is also possible to provide a callback to pass a truth test for the expected log.
+Assert that a log with a specific level was created the specified number of times. It is also possible to provide a truth-test closure for the expected log details.
 
 ```php
 /*
- * Without a callback you can assert that a specific level was logged a specific number of times...
+ * Without a closure you can assert that a specific level was logged a specific number of times...
  */
 
  // default channel...
@@ -172,7 +172,7 @@ Log::channel('slack')->assertLoggedTimes('info', 2);
 Log::stack(['stderr', 'single'])->assertLoggedTimes('info', 2);
 
 /*
- * With a callback you can assert that an expected message and/or context was logged a specific number of times...
+ * With a closure you can assert that an expected message and/or context was logged a specific number of times...
  */
 
  // default channel...
@@ -200,7 +200,7 @@ The inverse of `assertLogged()` where you can assert that a specific log was not
 
 ```php
 /*
- * Without a callback you can assert that a specific level was not logged...
+ * Without a closure you can assert that a specific level was not logged...
  */
 
  // default channel...
@@ -213,7 +213,7 @@ Log::channel('slack')->assertNotLogged('info');
 Log::stack(['stderr', 'single'])->assertNotLogged('info');
 
 /*
- * With a callback you can assert that a specific message and/or context was not logged...
+ * With a closure you can assert that a specific message and/or context was not logged...
  */
 
  // default channel...
@@ -237,7 +237,7 @@ Log::stack(['stderr', 'single'])->assertNotLogged('info', function ($message, $c
 
 ### assertNothingLogged()
 
-Assert that nothing was written to the log in at any level.
+Assert that no logs of any level were created.
 
 ```php
  // default channel...
@@ -252,7 +252,7 @@ Log::stack(['stderr', 'single'])->assertNothingLogged();
 
 ### assertWasForgotten()
 
-Assert that the channel / stack was forgotten at least one time.
+Assert that the channel / stack was forgotten at least one time during your implementation.
 
 ```php
  // default channel...
@@ -267,7 +267,7 @@ Log::stack(['stderr', 'single'])->assertWasForgotten();
 
 ### assertWasForgottenTimes()
 
-Assert that the channel / stack was forgotten a specific number of times.
+Assert that the channel / stack was forgotten a specific number of times during your implementation.
 
 ```php
  // default channel...
@@ -282,7 +282,22 @@ Log::stack(['stderr', 'single'])->assertWasForgottenTimes(3);
 
 ### assertWasNotForgotten()
 
-Assert that the channel / stack was not forgotten.
+Assert that the channel / stack was not forgotten during your implementation.
+
+```php
+ // default channel...
+Log::assertWasNotForgotten();
+
+ // specific channel...
+Log::channel('slack')->assertWasNotForgotten();
+
+// stack...
+Log::stack(['stderr', 'single'])->assertWasNotForgotten();
+```
+
+### assertCurrentContect()
+
+Assert that the channel / stack was not forgotten during your implementation.
 
 ```php
  // default channel...
@@ -399,7 +414,7 @@ You are free to use this package, but I ask that you reach out to someone (not m
 - the `getLogger` method now returns a `ChannelFake`
 - raw log arrays now contain the 'times_channel_has_been_forgotten_at_time_of_writing_log' key, indicating how many times the channel has been forgotten at the time of creation
 `
-- assertion callbacks now recieve an addition 3rd parameter int: times_forgotten
+- assertion closures now recieve an addition 3rd parameter int: times_forgotten
 - Don't support named parameters
 - The "stack:" prefix has been removed and now uses the channel name or the default value. channels are now comma seperated
 
