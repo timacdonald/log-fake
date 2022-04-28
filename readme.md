@@ -315,8 +315,7 @@ Log::forgetChannel('single');
  * assertions...
  */
 
-Log::assertChannelIsCurrentlyForgotten('single');
-// ✅
+Log::assertChannelIsCurrentlyForgotten('single'); // ✅
 ```
 
 #### Failing tests ❌
@@ -334,8 +333,7 @@ Log::channel('single')->info('xxxx');
  * assertions...
  */
 
-Log::assertChannelIsCurrentlyForgotten('single');
-// ❌
+Log::assertChannelIsCurrentlyForgotten('single'); // ❌
 ```
 
 In the following test, the channel is forgotten, but is then created again - thus it is not _currently_ forgotten.
@@ -355,8 +353,7 @@ Log::channel('single')->info('xxxx');
  * assertions...
  */
 
-Log::assertChannelIsCurrentlyForgotten('single');
-// ❌
+Log::assertChannelIsCurrentlyForgotten('single'); // ❌
 ```
 
 ### assertCurrentContect() // not in the list

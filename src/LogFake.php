@@ -32,9 +32,9 @@ class LogFake implements LoggerInterface
     /**
      * @api
      */
-    public static function bind(?LogFake $instance = null): LogFake
+    public static function bind(): LogFake
     {
-        $instance = $instance ?? new LogFake();
+        $instance = new LogFake();
 
         Log::swap($instance);
 
