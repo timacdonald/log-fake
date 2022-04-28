@@ -306,6 +306,7 @@ Assert that a channel is _currently_ forgotten. This is distinct from asserting 
 /*
  * implementation...
  */
+
 Log::channel('single')->info('xxxx');
 
 Log::forgetChannel('single');
@@ -313,6 +314,7 @@ Log::forgetChannel('single');
 /*
  * assertions...
  */
+
 Log::assertChannelIsCurrentlyForgotten('single');
 // ✅
 ```
@@ -325,11 +327,13 @@ In the following test, the channel is not forgotten...
 /*
  * implementation...
  */
+
 Log::channel('single')->info('xxxx');
 
 /*
  * assertions...
  */
+
 Log::assertChannelIsCurrentlyForgotten('single');
 // ❌
 ```
@@ -340,6 +344,7 @@ In the following test, the channel is forgotten, but is then created again - thu
 /*
  * implementation...
  */
+
 Log::channel('single')->info('xxxx');
 
 Log::forgetChannel('single');
@@ -349,6 +354,7 @@ Log::channel('single')->info('xxxx');
 /*
  * assertions...
  */
+
 Log::assertChannelIsCurrentlyForgotten('single');
 // ❌
 ```
