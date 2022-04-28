@@ -115,43 +115,68 @@ Remember that all assertions are relative to the channel or stack as shown above
 
 ### assertLogged()
 
-Assert that a specific level log was created in your implementation. It is also possible to provide a truth-test closure for the expected log details.
+Assert that a specific level log was created. It is also possible to provide a truth-test closure for the expected log details.
+
+#### Passing tests ✅
+
+On the default channel, without a truth-test...
 
 ```php
 /*
- * Without a closure you can assert that a specific level was logged...
+ * implementation...
  */
 
- // default channel...
-Log::assertLogged('info');
-
- // specific channel...
-Log::channel('slack')->assertLogged('info');
-
-// stack...
-Log::stack(['stderr', 'single'])->assertLogged('info');
+Log::info('User logged in.');
 
 /*
- * With a closure you can assert that an expected message and/or context was logged...
+ * assertions...
  */
 
- // default channel...
+Log::assertLogged('info'); // ✅
+
 Log::assertLogged('info', function ($message, $context) {
-    return $message === 'User logged in.' 
-        && $context === ['user_id' => 5];
-});
+    return $message === 'User logged in.';
+}); // ✅
+```
 
- // specific channel...
-Log::channel('slack')->assertLogged('info', function ($message, $context) {
-    return $message === 'User logged in.' 
-        && $context === ['user_id' => 5];
-});
+On a specific channel...
 
-// stack...
+```php
+/*
+ * implementation...
+ */
+
+Log::channel('single')->info('User logged in.');
+
+/*
+ * assertions...
+ */
+
+Log::channel('single')->assertLogged('info'); // ✅
+
+Log::channel('single')->assertLogged('info', function ($message, $context) {
+    return $message === 'User logged in.';
+}); // ✅
+```
+
+On a stack...
+
+```php
+/*
+ * implementation...
+ */
+
+Log::stack(['stderr', 'single'])->info('User logged in.');
+
+/*
+ * assertions...
+ */
+
+Log::stack(['stderr', 'single'])->assertLogged('info'); // ✅
+
 Log::stack(['stderr', 'single'])->assertLogged('info', function ($message, $context) {
-    return $message === 'User logged in.' 
-        && $context === ['user_id' => 5];
-});
+    return $message === 'User logged in.';
+}); // ✅
 ```
 
 ### assertLoggedTimes()

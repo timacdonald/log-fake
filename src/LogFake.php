@@ -72,6 +72,7 @@ class LogFake implements LoggerInterface
 
     /**
      * @api
+     * @link https://github.com/timacdonald/log-fake#assertchanneliscurrentlyforgotten Documentation
      */
     public function assertChannelIsCurrentlyForgotten(string $name): LogFake
     {
