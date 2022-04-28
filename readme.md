@@ -343,24 +343,6 @@ Log::forgetChannel('single');
 Log::assertChannelIsCurrentlyForgotten('single'); // ✅
 ```
 
-#### Failing tests ❌
-
-In the following test, the channel is not forgotten...
-
-```php
-/*
- * implementation...
- */
-
-Log::channel('single')->info('xxxx');
-
-/*
- * assertions...
- */
-
-Log::assertChannelIsCurrentlyForgotten('single'); // ❌
-```
-
 In the following test, the channel is forgotten but is then re-created - thus it is not _currently_ forgotten.
 
 ```php
