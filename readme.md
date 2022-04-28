@@ -336,7 +336,7 @@ Log::channel('single')->info('xxxx');
 Log::assertChannelIsCurrentlyForgotten('single'); // ❌
 ```
 
-In the following test, the channel is forgotten, but is then created again - thus it is not _currently_ forgotten.
+In the following test, the channel is forgotten but is then re-created - thus it is not _currently_ forgotten.
 
 ```php
 /*
