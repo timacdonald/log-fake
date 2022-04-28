@@ -300,7 +300,7 @@ Log::stack(['stderr', 'single'])->assertWasNotForgotten();
 
 Assert that a channel is _currently_ forgotten. This is distinct from asserting that a channel _was_ forgotten.
 
-### A passing test ✅
+#### Passing tests ✅
 
 ```php
 /*
@@ -319,7 +319,7 @@ Log::assertChannelIsCurrentlyForgotten('single');
 // ✅
 ```
 
-### Failing tests ❌
+#### Failing tests ❌
 
 In the following test, the channel is not forgotten...
 
