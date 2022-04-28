@@ -181,43 +181,74 @@ Log::stack(['stderr', 'single'])->assertLogged('info', function ($message, $cont
 
 ### assertLoggedTimes()
 
-Assert that a log with a specific level was created the specified number of times. It is also possible to provide a truth-test closure for the expected log details.
+Assert that a specific level log was created a certain number of times. It is also possible to provide a [truth-test closure](#truth-test-closures) for the expected log details.
+
+#### Example tests
+
+On the default channel...
 
 ```php
 /*
- * Without a closure you can assert that a specific level was logged a specific number of times...
+ * implementation...
  */
 
- // default channel...
-Log::assertLoggedTimes('info', 2);
+Log::info('Stripe request initiated.');
 
- // specific channel...
-Log::channel('slack')->assertLoggedTimes('info', 2);
-
-// stack...
-Log::stack(['stderr', 'single'])->assertLoggedTimes('info', 2);
+Log::info('Stripe request initiated.');
 
 /*
- * With a closure you can assert that an expected message and/or context was logged a specific number of times...
+ * assertions...
  */
 
- // default channel...
+Log::assertLoggedTimes('info', 2); // ✅
+
 Log::assertLoggedTimes('info', 2, function ($message, $context) {
-    return $message === 'User logged in.' 
-        && $context === ['user_id' => 5];
-});
+    return $message === 'Stripe request initiated.';
+}); // ✅
+```
 
- // specific channel...
-Log::channel('slack')->assertLoggedTimes('info', 2, function ($message, $context) {
-    return $message === 'User logged in.' 
-        && $context === ['user_id' => 5];
-});
+On a specific channel...
 
-// stack...
+```php
+/*
+ * implementation...
+ */
+
+Log::channel('single')->info('Stripe request initiated.');
+
+Log::channel('single')->info('Stripe request initiated.');
+
+/*
+ * assertions...
+ */
+
+Log::channel('single')->assertLoggedTimes('info', 2); // ✅
+
+Log::channel('single')->assertLoggedTimes('info', 2, function ($message, $context) {
+    return $message === 'Stripe request initiated.';
+}); // ✅
+```
+
+On a stack...
+
+```php
+/*
+ * implementation...
+ */
+
+Log::stack(['stderr', 'single'])->info('Stripe request initiated.');
+
+Log::stack(['stderr', 'single'])->info('Stripe request initiated.');
+
+/*
+ * assertions...
+ */
+
+Log::stack(['stderr', 'single'])->assertLoggedTimes('info', 2); // ✅
+
 Log::stack(['stderr', 'single'])->assertLoggedTimes('info', 2, function ($message, $context) {
-    return $message === 'User logged in.' 
-        && $context === ['user_id' => 5];
-});
+    return $message === 'Stripe request initiated.';
+}); // ✅
 ```
 
 ### assertNotLogged()
