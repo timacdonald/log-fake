@@ -119,7 +119,7 @@ Assert that a specific level log was created. It is also possible to provide a [
 
 #### Passing tests ✅
 
-On the default channel, without a truth-test...
+On the default channel...
 
 ```php
 /*
@@ -325,7 +325,7 @@ Log::stack(['stderr', 'single'])->assertWasNotForgotten();
 
 Assert that a channel is _currently_ forgotten. This is distinct from asserting that a channel _was_ forgotten.
 
-#### Passing tests ✅
+#### Example tests
 
 ```php
 /*
