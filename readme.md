@@ -27,7 +27,7 @@ composer require timacdonald/log-fake --dev
 ```php
 public function testItLogsWhenAUserAuthenticates()
 {
-    /**
+    /*
      * Test setup.
      *
      * In the setup of your tests, you can call the following `bind` helper,
@@ -35,7 +35,7 @@ public function testItLogsWhenAUserAuthenticates()
      */
     LogFake::bind();
 
-    /**
+    /*
      * Application implementation.
      *
      * In your application's implementation, you then utilise the logger, as you
@@ -43,7 +43,7 @@ public function testItLogsWhenAUserAuthenticates()
      */
     Log::info('User logged in.', ['user_id' => $user->id]);
 
-    /**
+    /*
      * Test assertions.
      *
      * Finally you can make assertions against the log channels, stacks, etc. to
@@ -111,6 +111,7 @@ Remember that all assertions are relative to the channel or stack as shown above
 - [`assertWasForgotten`](#assertwasforgotten)
 - [`assertWasForgottenTimes`](#assertwasforgottentimes)
 - [`assertWasNotForgotten`](#assertwasnotforgotten)
+- [`assertChannelIsCurrentlyForgotten`](#assertchanneliscurrentlyforgotten)
 
 ### assertLogged()
 
@@ -295,7 +296,64 @@ Log::channel('slack')->assertWasNotForgotten();
 Log::stack(['stderr', 'single'])->assertWasNotForgotten();
 ```
 
-### assertCurrentContect()
+### assertChannelIsCurrentlyForgotten()
+
+Assert that a channel is _currently_ forgotten. This is distinct from asserting that a channel _was_ forgotten.
+
+### A passing test ✅
+
+```php
+/*
+ * implementation...
+ */
+Log::channel('single')->info('xxxx');
+
+Log::forgetChannel('single');
+
+/*
+ * assertions...
+ */
+Log::assertChannelIsCurrentlyForgotten('single');
+// ✅
+```
+
+### Failing tests ❌
+
+In the following test, the channel is not forgotten...
+
+```php
+/*
+ * implementation...
+ */
+Log::channel('single')->info('xxxx');
+
+/*
+ * assertions...
+ */
+Log::assertChannelIsCurrentlyForgotten('single');
+// ❌
+```
+
+In the following test, the channel is forgotten, but is then created again - thus it is not _currently_ forgotten.
+
+```php
+/*
+ * implementation...
+ */
+Log::channel('single')->info('xxxx');
+
+Log::forgetChannel('single');
+
+Log::channel('single')->info('xxxx');
+
+/*
+ * assertions...
+ */
+Log::assertChannelIsCurrentlyForgotten('single');
+// ❌
+```
+
+### assertCurrentContect() // not in the list
 
 Assert that the channel / stack was not forgotten during your implementation.
 
