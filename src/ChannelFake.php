@@ -95,6 +95,7 @@ class ChannelFake implements LoggerInterface
 
     /**
      * @api
+     * @link https://github.com/timacdonald/log-fake#assertloggedtimes Documentation
      */
     public function assertLoggedTimes(string $level, int $times, ?Closure $callback = null): ChannelFake
     {
