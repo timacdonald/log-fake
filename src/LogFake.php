@@ -74,18 +74,11 @@ class LogFake implements LoggerInterface
      * @api
      * @link https://github.com/timacdonald/log-fake#assertchanneliscurrentlyforgotten Documentation
      */
-    public function assertChannelIsCurrentlyForgotten(string $name): LogFake
+    public function assertChannelIsCurrentlyForgotten(string $name, ?string $message = null): LogFake
     {
-        $channel = $this->channels[$name] ?? null;
-
-        PHPUnit::assertNotNull(
-            $channel,
-            "Unable to assert that the [{$name}] channel has been forgotten. The channel was never built."
-        );
-
         PHPUnit::assertTrue(
-            $channel->isCurrentlyForgotten(),
-            "Expected to find the [{$name}] channel to be forgotten. It was not."
+            ($this->channels[$name] ?? null)?->isCurrentlyForgotten(),
+            $message ?? "Expected to find the [{$name}] channel to be forgotten. It was not."
         );
 
         return $this;

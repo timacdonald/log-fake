@@ -359,6 +359,8 @@ Log::forgetChannel('single');
  */
 
 Log::assertChannelIsCurrentlyForgotten('single'); // ✅
+
+Log::assertChannelIsCurrentlyForgotten('stderr'); // ❌ as the `single` channel was forgotten, not the `stderr` channel.
 ```
 
 ### assertCurrentContext()
