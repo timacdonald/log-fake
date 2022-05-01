@@ -50,25 +50,25 @@ class LogFakeTest extends TestCase
         $log = new LogFake();
 
         self::assertFailsWithMessage(
-            fn () => $log->assertLogged('info'),
+            fn () => $log->assertLogged(fn ($level) => $level === 'info'),
             'An expected log with level [info] was not logged in the [stack] channel.'
         );
         $log->info('xxxx');
-        $log->assertLogged('info');
+        $log->assertLogged(fn ($level) => $level === 'info');
 
         self::assertFailsWithMessage(
-            fn () => $log->channel('channel')->assertLogged('info'),
+            fn () => $log->channel('channel')->assertLogged(fn ($level) => $level === 'info'),
             'An expected log with level [info] was not logged in the [channel] channel.'
         );
         $log->channel('channel')->info('xxxx');
-        $log->channel('channel')->assertLogged('info');
+        $log->channel('channel')->assertLogged(fn ($level) => $level === 'info');
 
         self::assertFailsWithMessage(
-            fn () => $log->stack(['c1', 'c2'], 'name')->assertLogged('info'),
+            fn () => $log->stack(['c1', 'c2'], 'name')->assertLogged(fn ($level) => $level === 'info'),
             'An expected log with level [info] was not logged in the [stack::name:c1,c2] channel.'
         );
         $log->stack(['c1', 'c2'], 'name')->info('xxxx');
-        $log->stack(['c1', 'c2'], 'name')->assertLogged('info');
+        $log->stack(['c1', 'c2'], 'name')->assertLogged(fn ($level) => $level === 'info');
     }
 
     private static function assertFailsWithMessage(Closure $callback, string $message): void
@@ -79,38 +79,6 @@ class LogFakeTest extends TestCase
         } catch (ExpectationFailedException $exception) {
             self::assertThat($exception, new ExceptionMessage($message));
         }
-    }
-
-    public function testAssertLoggedWithCallback(): void
-    {
-        $log = new LogFake();
-
-        try {
-            $log->assertLogged('info', fn (): bool => true);
-            $this->fail();
-        } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('An expected log with level [info] was not logged in the [stack] channel.'));
-        }
-        $log->info('xxxx');
-        $log->assertLogged('info', fn (): bool => true);
-
-        try {
-            $log->channel('channel')->assertLogged('info', fn (): bool => true);
-            $this->fail();
-        } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('An expected log with level [info] was not logged in the [channel] channel.'));
-        }
-        $log->channel('channel')->info('xxxx');
-        $log->channel('channel')->assertLogged('info', fn (): bool => true);
-
-        try {
-            $log->stack(['c1', 'c2'], 'name')->assertLogged('info', fn (): bool => true);
-            $this->fail();
-        } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('An expected log with level [info] was not logged in the [stack::name:c1,c2] channel.'));
-        }
-        $log->stack(['c1', 'c2'], 'name')->info('xxxx');
-        $log->stack(['c1', 'c2'], 'name')->assertLogged('info', fn (): bool => true);
     }
 
     public function testAssertLoggedTimesWithCallback(): void
@@ -322,16 +290,16 @@ class LogFakeTest extends TestCase
         $log->log('custom', 'custom log');
         $log->write('custom_2', 'custom log 2');
 
-        $log->assertLogged('emergency', fn (string $message): bool => $message === 'emergency log');
-        $log->assertLogged('alert', fn (string $message): bool => $message === 'alert log');
-        $log->assertLogged('critical', fn (string $message): bool => $message === 'critical log');
-        $log->assertLogged('error', fn (string $message): bool => $message === 'error log');
-        $log->assertLogged('warning', fn (string $message): bool => $message === 'warning log');
-        $log->assertLogged('info', fn (string $message): bool => $message === 'info log');
-        $log->assertLogged('notice', fn (string $message): bool => $message === 'notice log');
-        $log->assertLogged('debug', fn (string $message): bool => $message === 'debug log');
-        $log->assertLogged('custom', fn (string $message): bool => $message === 'custom log');
-        $log->assertLogged('custom_2', fn (string $message): bool => $message === 'custom log 2');
+        $log->assertLogged(fn (string $level, string $message): bool => $level === 'emergency' && $message === 'emergency log');
+        $log->assertLogged(fn (string $level, string $message): bool => $level === 'alert' && $message === 'alert log');
+        $log->assertLogged(fn (string $level, string $message): bool => $level === 'critical' && $message === 'critical log');
+        $log->assertLogged(fn (string $level, string $message): bool => $level === 'error' && $message === 'error log');
+        $log->assertLogged(fn (string $level, string $message): bool => $level === 'warning' && $message === 'warning log');
+        $log->assertLogged(fn (string $level, string $message): bool => $level === 'info' && $message === 'info log');
+        $log->assertLogged(fn (string $level, string $message): bool => $level === 'notice' && $message === 'notice log');
+        $log->assertLogged(fn (string $level, string $message): bool => $level === 'debug' && $message === 'debug log');
+        $log->assertLogged(fn (string $level, string $message): bool => $level === 'custom' && $message === 'custom log');
+        $log->assertLogged(fn (string $level, string $message): bool => $level === 'custom_2' && $message === 'custom log 2');
     }
 
     public function assertChannelAndDriverMethodsCanBeUsedInterchangably(): void
@@ -339,7 +307,7 @@ class LogFakeTest extends TestCase
         $log = new LogFake();
 
         $log->driver('channel')->info('expected message');
-        $log->channel('channel')->assertLogged('info', fn (): bool => true);
+        $log->channel('channel')->assertLogged(fn (string $level, ): bool => $level === 'info' && true);
     }
 
     public function testCurrentStackIsTakenIntoAccount(): void

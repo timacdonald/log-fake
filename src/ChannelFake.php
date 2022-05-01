@@ -81,12 +81,13 @@ class ChannelFake implements LoggerInterface
     /**
      * @api
      * @link https://github.com/timacdonald/log-fake#assertlogged Documentation
+     * @param (Closure(string, string, array, int): bool) $callback
      */
-    public function assertLogged(string $level, ?Closure $callback = null): ChannelFake
+    public function assertLogged(Closure $callback): ChannelFake
     {
         PHPUnit::assertTrue(
-            $this->logged($level, $callback)->count() > 0,
-            "An expected log with level [{$level}] was not logged in the [{$this->name}] channel."
+            $this->logged($callback)->count() > 0,
+            "Expected log was not created in the [{$this->name}] channel."
         );
 
         return $this;
@@ -302,18 +303,16 @@ class ChannelFake implements LoggerInterface
 
     /**
      * @internal
+     * @param (Closure(string, string, array, int): bool) $callback
      * @return Collection<int, array{ level: mixed, message: string, context: array<string, mixed>, channel: string, times_channel_has_been_forgotten_at_time_of_writing_log: int }>
      */
-    public function logged(string $level, ?Closure $callback = null): Collection
+    public function logged(Closure $callback): Collection
     {
-        $callback = $callback ?? fn (): bool => true;
-
         return $this->logs()
-            ->where('level', $level)
             ->filter(fn (array $log): bool => (bool) $callback(
+                $log['level'],
                 $log['message'],
-                $log['context'],
-                $log['times_channel_has_been_forgotten_at_time_of_writing_log']
+                $log['context']
             ))
             ->values();
     }
