@@ -113,6 +113,7 @@ Remember that all assertions are relative to the channel or stack as shown above
 - [`assertWasNotForgotten()`](#assertwasnotforgotten)
 - [`assertChannelIsCurrentlyForgotten()`](#assertchanneliscurrentlyforgotten)
 - [`assertCurrentContext()`](#assertcurrentcontext)
+- [`assertHadContext()`](#asserthadcontext)
 
 ### assertLogged()
 
@@ -348,7 +349,7 @@ Log::assertChannelIsCurrentlyForgotten('single'); // ✅
 
 ### assertCurrentContext()
 
-Assert that the channel / stack contains the specified context.
+Assert that the channel / stack currently has the specified context.
 
 #### Can be called on...
 
@@ -378,6 +379,38 @@ Log::withContext([
 Log::assertCurrentContext([
     'app' => 'Acme CRM',
     'env' => 'production',
+]); // ✅
+```
+
+### assertHadContext()
+
+Assert that the channel / stack had the specified context at some point.
+
+#### Can be called on...
+
+- [x] Facade base (default channel)
+- [x] Channels
+- [x] Stacks
+
+#### Example tests
+
+```php
+/*
+ * implementation...
+ */
+
+Log::withContext([
+    'app' => 'Acme CRM',
+]);
+
+Log::withoutContext();
+
+/*
+ * assertions...
+ */
+
+Log::assertHadContext([
+    'app' => 'Acme CRM',
 ]); // ✅
 ```
 

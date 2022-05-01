@@ -173,6 +173,7 @@ class ChannelFake implements LoggerInterface
 
     /**
      * @api
+     * @link https://github.com/timacdonald/log-fake#assertcurrentcontext Documentation
      * @param array<string, mixed> $context
      */
     public function assertCurrentContext(array $context): ChannelFake
