@@ -117,9 +117,13 @@ Remember that all assertions are relative to the channel or stack as shown above
 
 Assert that a specific level log was created. It is also possible to provide a [truth-test closure](#truth-test-closures) for the expected log details.
 
-#### Example tests
+#### Can be called on
 
-On the default channel...
+- [x] Facade base (default channel)
+- [x] Channels
+- [x] Stacks
+
+#### Example tests
 
 ```php
 /*
@@ -135,46 +139,6 @@ Log::info('User logged in.');
 Log::assertLogged('info'); // ✅
 
 Log::assertLogged('info', function ($message, $context) {
-    return $message === 'User logged in.';
-}); // ✅
-```
-
-On a specific channel...
-
-```php
-/*
- * implementation...
- */
-
-Log::channel('single')->info('User logged in.');
-
-/*
- * assertions...
- */
-
-Log::channel('single')->assertLogged('info'); // ✅
-
-Log::channel('single')->assertLogged('info', function ($message, $context) {
-    return $message === 'User logged in.';
-}); // ✅
-```
-
-On a stack...
-
-```php
-/*
- * implementation...
- */
-
-Log::stack(['stderr', 'single'])->info('User logged in.');
-
-/*
- * assertions...
- */
-
-Log::stack(['stderr', 'single'])->assertLogged('info'); // ✅
-
-Log::stack(['stderr', 'single'])->assertLogged('info', function ($message, $context) {
     return $message === 'User logged in.';
 }); // ✅
 ```
@@ -253,43 +217,68 @@ Log::stack(['stderr', 'single'])->assertLoggedTimes('info', 2, function ($messag
 
 ### assertNotLogged()
 
-The inverse of `assertLogged()` where you can assert that a specific log was not created.
+The inverse of `assertLogged()`, where you can assert that a specific level log was not created. It is also possible to provide a [truth-test closure](#truth-test-closures) for the log details that should not have been created.
+
+#### Example tests
+
+On the default channel...
 
 ```php
 /*
- * Without a closure you can assert that a specific level was not logged...
+ * implementation...
  */
 
- // default channel...
-Log::assertNotLogged('info');
-
- // specific channel...
-Log::channel('slack')->assertNotLogged('info');
-
-// stack...
-Log::stack(['stderr', 'single'])->assertNotLogged('info');
+Log::info('User logged in.');
 
 /*
- * With a closure you can assert that a specific message and/or context was not logged...
+ * assertions...
  */
 
- // default channel...
-Log::assertNotLogged('info', function ($message, $context) {
-    return $message === 'User logged in.' 
-        && $context === ['user_id' => 5];
-});
+Log::assertNotLogged('critical'); // ✅
 
- // specific channel...
-Log::channel('slack')->assertNotLogged('info', function ($message, $context) {
-    return $message === 'User logged in.' 
-        && $context === ['user_id' => 5];
-});
+Log::assertNotLogged('critical', function ($message, $context) {
+    return $message === 'Authentication provider responded with an error.';
+}); // ✅
+```
 
-// stack...
-Log::stack(['stderr', 'single'])->assertNotLogged('info', function ($message, $context) {
-    return $message === 'User logged in.' 
-        && $context === ['user_id' => 5];
-});
+On a specific channel...
+
+```php
+/*
+ * implementation...
+ */
+
+Log::channel('single')->info('User logged in.');
+
+/*
+ * assertions...
+ */
+
+Log::channel('single')->assertNotLogged('critical'); // ✅
+
+Log::channel('single')->assertNotLogged('critical', function ($message, $context) {
+    return $message === 'Authentication provider responded with an error.';
+}); // ✅
+```
+
+On a stack...
+
+```php
+/*
+ * implementation...
+ */
+
+Log::stack(['stderr', 'single'])->info('User logged in.');
+
+/*
+ * assertions...
+ */
+
+Log::stack(['stdderr', 'single'])->assertNotLogged('critical'); // ✅
+
+Log::stack(['stderr', 'single'])->assertNotLogged('critical', function ($message, $context) {
+    return $message === 'Authentication provider responded with an error.';
+}); // ✅
 ```
 
 ### assertNothingLogged()
