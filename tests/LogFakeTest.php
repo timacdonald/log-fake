@@ -45,72 +45,30 @@ class LogFakeTest extends TestCase
         Facade::setFacadeApplication($container);
     }
 
-    public function testAssertLogged(): void
+    public function testAssertLoggedFunc(): void
     {
         $log = new LogFake();
 
         self::assertFailsWithMessage(
             fn () => $log->assertLogged(fn ($level) => $level === 'info'),
-            'An expected log with level [info] was not logged in the [stack] channel.'
+            'Expected log was not created in the [stack] channel.'
         );
         $log->info('xxxx');
         $log->assertLogged(fn ($level) => $level === 'info');
 
         self::assertFailsWithMessage(
             fn () => $log->channel('channel')->assertLogged(fn ($level) => $level === 'info'),
-            'An expected log with level [info] was not logged in the [channel] channel.'
+            'Expected log was not created in the [channel] channel.'
         );
         $log->channel('channel')->info('xxxx');
         $log->channel('channel')->assertLogged(fn ($level) => $level === 'info');
 
         self::assertFailsWithMessage(
             fn () => $log->stack(['c1', 'c2'], 'name')->assertLogged(fn ($level) => $level === 'info'),
-            'An expected log with level [info] was not logged in the [stack::name:c1,c2] channel.'
+            'Expected log was not created in the [stack::name:c1,c2] channel.'
         );
         $log->stack(['c1', 'c2'], 'name')->info('xxxx');
         $log->stack(['c1', 'c2'], 'name')->assertLogged(fn ($level) => $level === 'info');
-    }
-
-    private static function assertFailsWithMessage(Closure $callback, string $message): void
-    {
-        try {
-            $callback();
-            self::fail();
-        } catch (ExpectationFailedException $exception) {
-            self::assertThat($exception, new ExceptionMessage($message));
-        }
-    }
-
-    public function testAssertLoggedTimesWithCallback(): void
-    {
-        $log = new LogFake();
-
-        $log->info('xxxx');
-        try {
-            $log->assertLoggedTimes('info', 2, fn (): bool => true);
-            $this->fail();
-        } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('A log with level [info] was logged [1] times instead of an expected [2] times in the [stack] channel.'));
-        }
-        $log->assertLoggedTimes('info', 1, fn (): bool => true);
-
-        $log->channel('channel')->info('xxxx');
-        try {
-            $log->channel('channel')->assertLoggedTimes('info', 2, fn (): bool => true);
-            $this->fail();
-        } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('A log with level [info] was logged [1] times instead of an expected [2] times in the [channel] channel.'));
-        }
-        $log->channel('channel')->assertLoggedTimes('info', 1, fn (): bool => true);
-
-        $log->stack(['c1', 'c2'], 'name')->info('xxxx');
-        try {
-            $log->stack(['c1', 'c2'], 'name')->assertLoggedTimes('info', 2, fn (): bool => true);
-            $this->fail();
-        } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('A log with level [info] was logged [1] times instead of an expected [2] times in the [stack::name:c1,c2] channel.'));
-        }
-        $log->stack(['c1', 'c2'], 'name')->assertLoggedTimes('info', 1, fn (): bool => true);
     }
 
     public function testAssertLoggedTimes(): void
@@ -118,32 +76,27 @@ class LogFakeTest extends TestCase
         $log = new LogFake();
 
         $log->info('xxxx');
-        try {
-            $log->assertLoggedTimes('info', 2);
-            $this->fail();
-        } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('A log with level [info] was logged [1] times instead of an expected [2] times in the [stack] channel.'));
-        }
-        $log->assertLoggedTimes('info', 1);
+        self::assertFailsWithMessage(
+            fn () => $log->assertLoggedTimes(fn ($level) => $level === 'info', 2),
+            'Expected log was not created [2] times in the [stack] channel. Instead was created [1] times.'
+        );
+        $log->assertLoggedTimes(fn ($level) => $level === 'info', 1);
 
         $log->channel('channel')->info('xxxx');
-        try {
-            $log->channel('channel')->assertLoggedTimes('info', 2);
-            $this->fail();
-        } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('A log with level [info] was logged [1] times instead of an expected [2] times in the [channel] channel.'));
-        }
-        $log->channel('channel')->assertLoggedTimes('info', 1);
+        self::assertFailsWithMessage(
+            fn () => $log->channel('channel')->assertLoggedTimes(fn ($level) => $level === 'info', 2),
+            'Expected log was not created [2] times in the [channel] channel. Instead was created [1] times.'
+        );
+        $log->channel('channel')->assertLoggedTimes(fn ($level) => $level === 'info', 1);
 
         $log->stack(['c1', 'c2'], 'name')->info('xxxx');
-        try {
-            $log->stack(['c1', 'c2'], 'name')->assertLoggedTimes('info', 2);
-            $this->fail();
-        } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('A log with level [info] was logged [1] times instead of an expected [2] times in the [stack::name:c1,c2] channel.'));
-        }
-        $log->stack(['c1', 'c2'], 'name')->assertLoggedTimes('info', 1);
+        self::assertFailsWithMessage(
+            fn () => $log->stack(['c1', 'c2'], 'name')->assertLoggedTimes(fn ($level) => $level === 'info', 2),
+            'Expected log was not created [2] times in the [stack::name:c1,c2] channel. Instead was created [1] times.'
+        );
+        $log->stack(['c1', 'c2'], 'name')->assertLoggedTimes(fn ($level) => $level === 'info', 1);
     }
+
 
     public function testAssertNotLogged(): void
     {
@@ -1152,5 +1105,15 @@ class LogFakeTest extends TestCase
         $log->channel('channel')->assertLogged('info', function (string $message, array $context) {
             return $context === [];
         });
+    }
+
+    private static function assertFailsWithMessage(Closure $callback, string $message): void
+    {
+        try {
+            $callback();
+            self::fail();
+        } catch (ExpectationFailedException $exception) {
+            self::assertThat($exception, new ExceptionMessage($message));
+        }
     }
 }

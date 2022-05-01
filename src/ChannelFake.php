@@ -96,13 +96,13 @@ class ChannelFake implements LoggerInterface
     /**
      * @api
      * @link https://github.com/timacdonald/log-fake#assertloggedtimes Documentation
+     * @param (Closure(string, string, array<array-key, mixed>, int): bool) $callback
      */
-    public function assertLoggedTimes(string $level, int $times, ?Closure $callback = null): ChannelFake
+    public function assertLoggedTimes(Closure $callback, int $times): ChannelFake
     {
-        // TODO: flip all exception messages to follow the format "expected x. found y."
         PHPUnit::assertTrue(
-            ($count = $this->logged($level, $callback)->count()) === $times,
-            "A log with level [{$level}] was logged [{$count}] times instead of an expected [{$times}] times in the [{$this->name}] channel."
+            ($count = $this->logged($callback)->count()) === $times,
+            "Expected log was not created [{$times}] times in the [{$this->name}] channel. Instead was created [{$count}] times."
         );
 
         return $this;
@@ -114,7 +114,6 @@ class ChannelFake implements LoggerInterface
      */
     public function assertNotLogged(string $level, ?Closure $callback = null): ChannelFake
     {
-        // TODO: deprecate?
         return $this->assertLoggedTimes($level, 0, $callback);
     }
 

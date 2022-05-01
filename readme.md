@@ -117,7 +117,7 @@ Remember that all assertions are relative to the channel or stack as shown above
 
 ### assertLogged()
 
-Assert that a specific level log was created.
+Assert that a log was created.
 
 #### Can be called on...
 
@@ -139,7 +139,7 @@ Log::info('User logged in.');
  */
 
 Log::assertLogged(fn ($level, $message, $context) =>
-    $level === 'info' && $message === 'User logged in.'
+    $message === 'User logged in.'
 ); // ✅
 
 Log::assertLogged(fn ($level, $message, $context) =>
@@ -149,7 +149,7 @@ Log::assertLogged(fn ($level, $message, $context) =>
 
 ### assertLoggedTimes()
 
-Assert that a specific level log was created a certain number of times. It is also possible to provide a [truth-test closure](#truth-test-closures) for the expected log details.
+Assert that a log was created a specific number of times.
 
 #### Can be called on...
 
@@ -172,16 +172,20 @@ Log::info('Stripe request initiated.');
  * assertions...
  */
 
-Log::assertLoggedTimes('info', 2); // ✅
+Log::assertLoggedTimes(fn ($level, $message, $context) =>
+    $message === 'Stripe request initiated.',
+    2
+); // ✅
 
-Log::assertLoggedTimes('info', 2, function ($message, $context) {
-    return $message === 'Stripe request initiated.';
-}); // ✅
+Log::assertLoggedTimes(fn ($level, $message, $context) =>
+    $message === 'Stripe request initiated.',
+    99
+); // ❌
 ```
 
 ### assertNotLogged()
 
-The inverse of `assertLogged()`, where you can assert that a specific level log was not created. It is also possible to provide a [truth-test closure](#truth-test-closures) for the log details that should not have been created.
+Assert that a log was never created.
 
 #### Can be called on...
 
@@ -202,11 +206,13 @@ Log::info('User logged in.');
  * assertions...
  */
 
-Log::assertNotLogged('critical'); // ✅
+Log::assertNotLogged(fn ($level, $message, $context) =>
+    $level === 'critical'
+); // ✅
 
-Log::assertNotLogged('critical', function ($message, $context) {
-    return $message === 'Authentication provider responded with an error.';
-}); // ✅
+Log::assertNotLogged(fn ($level, $message, $context) =>
+    $level === 'critical'
+); // ❌
 ```
 
 ### assertNothingLogged()
