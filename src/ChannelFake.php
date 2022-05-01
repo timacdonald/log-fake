@@ -126,7 +126,7 @@ class ChannelFake implements LoggerInterface
     {
         PHPUnit::assertTrue(
             $this->logs()->isEmpty(),
-            "Found [{$this->logs()->count()}] logs in the [{$this->name}] channel. Expected to find [0]."
+            "Expected [0] logs to be created in the [$this->name] channel. Found [{$this->logs()->count()}] instead."
         );
 
         return $this;

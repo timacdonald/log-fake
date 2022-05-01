@@ -130,30 +130,24 @@ class LogFakeTest extends TestCase
 
         $log->assertNothingLogged();
         $log->info('xxxx');
-        try {
-            $log->assertNothingLogged();
-            $this->fail();
-        } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('Found [1] logs in the [stack] channel. Expected to find [0].'));
-        }
+        self::assertFailsWithMessage(
+            fn () => $log->assertNothingLogged(),
+            'Expected [0] logs to be created in the [stack] channel. Found [1] instead.'
+        );
 
         $log->channel('channel')->assertNothingLogged();
         $log->channel('channel')->info('expected message');
-        try {
-            $log->channel('channel')->assertNothingLogged();
-            $this->fail();
-        } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('Found [1] logs in the [channel] channel. Expected to find [0].'));
-        }
+        self::assertFailsWithMessage(
+            fn () => $log->channel('channel')->assertNothingLogged(),
+            'Expected [0] logs to be created in the [channel] channel. Found [1] instead.'
+        );
 
         $log->stack(['c1', 'c2'], 'name')->assertNothingLogged();
         $log->stack(['c1', 'c2'], 'name')->info('xxxx');
-        try {
-            $log->stack(['c1', 'c2'], 'name')->assertNothingLogged();
-            $this->fail();
-        } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('Found [1] logs in the [stack::name:c1,c2] channel. Expected to find [0].'));
-        }
+        self::assertFailsWithMessage(
+            fn () => $log->stack(['c1', 'c2'], 'name')->assertNothingLogged(),
+            'Expected [0] logs to be created in the [stack::name:c1,c2] channel. Found [1] instead.'
+        );
     }
 
     public function testLogged(): void
