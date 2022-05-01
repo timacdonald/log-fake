@@ -148,6 +148,7 @@ class ChannelFake implements LoggerInterface
 
     /**
      * @api
+     * @link https://github.com/timacdonald/log-fake#assertwasforgottentimes Documentation
      */
     public function assertWasForgottenTimes(int $times): ChannelFake
     {

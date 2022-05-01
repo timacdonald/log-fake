@@ -293,17 +293,28 @@ Log::channel('single')->assertWasForgottenTimes(2); // ✅
 
 ### assertWasNotForgotten()
 
-Assert that the channel / stack was not forgotten during your implementation.
+Assert that the channel / stack was not forgotten.
+
+#### Can be called on...
+
+- [x] Facade base (default channel)
+- [x] Channels
+- [x] Stacks
+
+#### Example tests
 
 ```php
- // default channel...
-Log::assertWasNotForgotten();
+/*
+ * implementation...
+ */
 
- // specific channel...
-Log::channel('slack')->assertWasNotForgotten();
+Log::channel('single')->info('User logged in.');
 
-// stack...
-Log::stack(['stderr', 'single'])->assertWasNotForgotten();
+/*
+ * assertions...
+ */
+
+Log::channel('single')->assertWasNotForgotten(); // ✅
 ```
 
 ### assertChannelIsCurrentlyForgotten()
