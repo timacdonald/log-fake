@@ -215,6 +215,8 @@ Assert that no logs of any level were created.
 - [x] Channels
 - [x] Stacks
 
+#### Example tests
+
 ```php
 /*
  * implementation...
