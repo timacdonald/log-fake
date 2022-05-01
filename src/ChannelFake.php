@@ -134,6 +134,7 @@ class ChannelFake implements LoggerInterface
 
     /**
      * @api
+     * @link https://github.com/timacdonald/log-fake#assertwasforgotten Documentation
      */
     public function assertWasForgotten(): ChannelFake
     {
