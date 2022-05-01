@@ -209,15 +209,24 @@ Log::assertNotLogged('critical', function ($message, $context) {
 
 Assert that no logs of any level were created.
 
+#### Can be called on...
+
+- [x] Facade base (default channel)
+- [x] Channels
+- [x] Stacks
+
 ```php
- // default channel...
-Log::assertNothingLogged();
+/*
+ * implementation...
+ */
 
- // specific channel...
-Log::channel('slack')->assertNothingLogged();
+Log::channel('single)->info('User logged in.');
 
-// stack...
-Log::stack(['stderr', 'single'])->assertNothingLogged();
+/*
+ * assertions...
+ */
+
+Log::channel('stderr')->assertNothingLogged(); // ✅
 ```
 
 ### assertWasForgotten()

@@ -110,6 +110,7 @@ class ChannelFake implements LoggerInterface
 
     /**
      * @api
+     * @link https://github.com/timacdonald/log-fake#assertnotlogged Documentation
      */
     public function assertNotLogged(string $level, ?Closure $callback = null): ChannelFake
     {
