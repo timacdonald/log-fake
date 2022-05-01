@@ -108,10 +108,10 @@ Remember that all assertions are relative to the channel or stack as shown above
 - [`assertLoggedTimes()`](#assertloggedtimes)
 - [`assertNotLogged()`](#assertnotlogged)
 - [`assertNothingLogged()`](#assertnothinglogged)
-- [`assertWasForgotten`](#assertwasforgotten)
-- [`assertWasForgottenTimes`](#assertwasforgottentimes)
-- [`assertWasNotForgotten`](#assertwasnotforgotten)
-- [`assertChannelIsCurrentlyForgotten`](#assertchanneliscurrentlyforgotten)
+- [`assertWasForgotten()`](#assertwasforgotten)
+- [`assertWasForgottenTimes()`](#assertwasforgottentimes)
+- [`assertWasNotForgotten()`](#assertwasnotforgotten)
+- [`assertChannelIsCurrentlyForgotten()`](#assertchanneliscurrentlyforgotten)
 
 ### assertLogged()
 
