@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests;
 
+use Closure;
 use Illuminate\Config\Repository as Config;
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Config\Repository;
@@ -48,32 +49,36 @@ class LogFakeTest extends TestCase
     {
         $log = new LogFake();
 
-        try {
-            $log->assertLogged('info');
-            $this->fail();
-        } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('An expected log with level [info] was not logged in the [stack] channel.'));
-        }
+        self::assertFailsWithMessage(
+            fn () => $log->assertLogged('info'),
+            'An expected log with level [info] was not logged in the [stack] channel.'
+        );
         $log->info('xxxx');
         $log->assertLogged('info');
 
-        try {
-            $log->channel('channel')->assertLogged('info');
-            $this->fail();
-        } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('An expected log with level [info] was not logged in the [channel] channel.'));
-        }
+        self::assertFailsWithMessage(
+            fn () => $log->channel('channel')->assertLogged('info'),
+            'An expected log with level [info] was not logged in the [channel] channel.'
+        );
         $log->channel('channel')->info('xxxx');
         $log->channel('channel')->assertLogged('info');
 
-        try {
-            $log->stack(['c1', 'c2'], 'name')->assertLogged('info');
-            $this->fail();
-        } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('An expected log with level [info] was not logged in the [stack::name:c1,c2] channel.'));
-        }
+        self::assertFailsWithMessage(
+            fn () => $log->stack(['c1', 'c2'], 'name')->assertLogged('info'),
+            'An expected log with level [info] was not logged in the [stack::name:c1,c2] channel.'
+        );
         $log->stack(['c1', 'c2'], 'name')->info('xxxx');
         $log->stack(['c1', 'c2'], 'name')->assertLogged('info');
+    }
+
+    private static function assertFailsWithMessage(Closure $callback, string $message): void
+    {
+        try {
+            $callback();
+            self::fail();
+        } catch (ExpectationFailedException $exception) {
+            self::assertThat($exception, new ExceptionMessage($message));
+        }
     }
 
     public function testAssertLoggedWithCallback(): void
@@ -138,38 +143,6 @@ class LogFakeTest extends TestCase
             $this->assertThat($e, new ExceptionMessage('A log with level [info] was logged [1] times instead of an expected [2] times in the [stack::name:c1,c2] channel.'));
         }
         $log->stack(['c1', 'c2'], 'name')->assertLoggedTimes('info', 1, fn (): bool => true);
-    }
-
-    public function testAssertLoggedMessage(): void
-    {
-        $log = new LogFake();
-
-        try {
-            $log->assertLoggedMessage('info', 'expected message');
-            $this->fail();
-        } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('An expected log with level [info] was not logged in the [stack] channel.'));
-        }
-        $log->info('expected message');
-        $log->assertLoggedMessage('info', 'expected message');
-
-        try {
-            $log->channel('channel')->assertLoggedMessage('info', 'expected message');
-            $this->fail();
-        } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('An expected log with level [info] was not logged in the [channel] channel.'));
-        }
-        $log->channel('channel')->info('expected message');
-        $log->channel('channel')->assertLoggedMessage('info', 'expected message');
-
-        try {
-            $log->stack(['c1', 'c2'], 'name')->assertLoggedMessage('info', 'expected message');
-            $this->fail();
-        } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('An expected log with level [info] was not logged in the [stack::name:c1,c2] channel.'));
-        }
-        $log->stack(['c1', 'c2'], 'name')->info('expected message');
-        $log->stack(['c1', 'c2'], 'name')->assertLoggedMessage('info', 'expected message');
     }
 
     public function testAssertLoggedTimes(): void
@@ -422,7 +395,7 @@ class LogFakeTest extends TestCase
         $log = new LogFake();
 
         try {
-            $log->stack(['c', 'b', 'a'], 'name')->assertLoggedMessage('info', 'xxxx');
+            $log->stack(['c', 'b', 'a'], 'name')->assertLogged('info', fn (string $message) => 'xxxx');
             $this->fail();
         } catch (Throwable $e) {
             $this->assertStringContainsString('An expected log with level [info] was not logged in the [stack::name:a,b,c] channel.', $e->getMessage());
@@ -932,7 +905,7 @@ class LogFakeTest extends TestCase
 
         $log->build([])->info('expected message');
 
-        $log->channel('ondemand')->assertLoggedMessage('info', 'expected message');
+        $log->channel('ondemand')->assertLogged('info', fn ($message) => $message === 'expected message');
     }
 
     public function testItCanRetrieveChannels(): void
@@ -960,7 +933,7 @@ class LogFakeTest extends TestCase
 
         $log->info('expected message');
 
-        $log->channel('null')->assertLoggedMessage('info', 'expected message');
+        $log->channel('null')->assertLogged('info', fn (string $message) => $message === 'expected message');
     }
 
     public function testItResetsStackContextOnChannelBuild()
@@ -1009,7 +982,7 @@ class LogFakeTest extends TestCase
         $log = new LogFake();
 
         try {
-            $log->stack(['c1'])->assertLoggedMessage('info', 'xxxx');
+            $log->stack(['c1'])->assertLogged('info', fn (string $message) => $message === 'xxxx');
             $this->fail();
         } catch (Throwable $e) {
             $this->assertStringContainsString('An expected log with level [info] was not logged in the [stack::unnamed:c1] channel.', $e->getMessage());
@@ -1166,121 +1139,6 @@ class LogFakeTest extends TestCase
         }
         $log->stack(['c1', 'c2'], 'name')->withContext(['bar' => 'baz']);
         $log->stack(['c1', 'c2'], 'name')->assertHadContext(fn (array $context) => $context === ['bar' => 'baz']);
-    }
-
-    public function testItCanAssertTheContextAtAParticularSetCall(): void
-    {
-        $log = new LogFake();
-
-        $log->withContext(['foo' => 'bar']);
-        $log->withContext(['foo' => 'bar', 'bar' => 'baz']);
-        $log->withoutContext();
-        $log->assertHadContextAtSetCall(['foo' => 'bar'], 1);
-        $log->assertHadContextAtSetCall(['foo' => 'bar', 'bar' => 'baz'], 2);
-        $log->assertHadContextAtSetCall([], 3);
-        try {
-            $log->assertHadContextAtSetCall(['bar' => 'baz'], 2);
-            $this->fail();
-        } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('Expected to find the context [{"bar":"baz"}] at set call [2] in the [stack] channel but did not.'));
-        }
-
-        $log->channel('channel')->withContext(['foo' => 'bar']);
-        $log->channel('channel')->withContext(['foo' => 'bar', 'bar' => 'baz']);
-        $log->channel('channel')->withoutContext();
-        $log->channel('channel')->assertHadContextAtSetCall(['foo' => 'bar'], 1);
-        $log->channel('channel')->assertHadContextAtSetCall(['foo' => 'bar', 'bar' => 'baz'], 2);
-        $log->channel('channel')->assertHadContextAtSetCall([], 3);
-        try {
-            $log->channel('channel')->assertHadContextAtSetCall(['bar' => 'baz'], 2);
-            $this->fail();
-        } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('Expected to find the context [{"bar":"baz"}] at set call [2] in the [channel] channel but did not.'));
-        }
-
-        $log->stack(['c1', 'c2'], 'name')->withContext(['foo' => 'bar']);
-        $log->stack(['c1', 'c2'], 'name')->withContext(['foo' => 'bar', 'bar' => 'baz']);
-        $log->stack(['c1', 'c2'], 'name')->withoutContext();
-        $log->stack(['c1', 'c2'], 'name')->assertHadContextAtSetCall(['foo' => 'bar'], 1);
-        $log->stack(['c1', 'c2'], 'name')->assertHadContextAtSetCall(['foo' => 'bar', 'bar' => 'baz'], 2);
-        $log->stack(['c1', 'c2'], 'name')->assertHadContextAtSetCall([], 3);
-        try {
-            $log->stack(['c1', 'c2'], 'name')->assertHadContextAtSetCall(['bar' => 'baz'], 2);
-            $this->fail();
-        } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('Expected to find the context [{"bar":"baz"}] at set call [2] in the [stack::name:c1,c2] channel but did not.'));
-        }
-    }
-
-    public function testItFailsWhenItHasNotSetContextAsManyTimesAsExpected()
-    {
-        $log = new LogFake();
-
-        $log->withContext(['foo' => 'bar']);
-        $log->withContext(['foo' => 'bar', 'bar' => 'baz']);
-        try {
-            $log->assertHadContextAtSetCall(['foo' => 'bar', 'bar' => 'baz'], 3);
-            $this->fail();
-        } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('Expected to find the context set at least [3] times in the [stack] channel, but instead found it was set [2] times.'));
-        }
-        $log->assertHadContextAtSetCall(['foo' => 'bar', 'bar' => 'baz'], 2);
-
-        $log->channel('channel')->withContext(['foo' => 'bar']);
-        $log->channel('channel')->withContext(['foo' => 'bar', 'bar' => 'baz']);
-        try {
-            $log->channel('channel')->assertHadContextAtSetCall(['foo' => 'bar', 'bar' => 'baz'], 3);
-            $this->fail();
-        } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('Expected to find the context set at least [3] times in the [channel] channel, but instead found it was set [2] times.'));
-        }
-        $log->channel('channel')->assertHadContextAtSetCall(['foo' => 'bar', 'bar' => 'baz'], 2);
-
-        $log->stack(['c1', 'c2'], 'name')->withContext(['foo' => 'bar']);
-        $log->stack(['c1', 'c2'], 'name')->withContext(['foo' => 'bar', 'bar' => 'baz']);
-        try {
-            $log->stack(['c1', 'c2'], 'name')->assertHadContextAtSetCall(['foo' => 'bar', 'bar' => 'baz'], 3);
-            $this->fail();
-        } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('Expected to find the context set at least [3] times in the [stack::name:c1,c2] channel, but instead found it was set [2] times.'));
-        }
-        $log->stack(['c1', 'c2'], 'name')->assertHadContextAtSetCall(['foo' => 'bar', 'bar' => 'baz'], 2);
-    }
-
-    public function testItCanAssertTimesContextWasSet(): void
-    {
-        $log = new LogFake();
-
-        try {
-            $log->assertContextSetTimes(1);
-            $this->fail();
-        } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('Expected to find the context set [1] times in the [stack] channel, but instead found it set [0] times.'));
-        }
-        $log->withContext(['foo' => 'bar']);
-        $log->assertContextSetTimes(1);
-        $log->withoutContext();
-        $log->assertContextSetTimes(2);
-
-        try {
-            $log->channel('channel')->assertContextSetTimes(1);
-            $this->fail();
-        } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('Expected to find the context set [1] times in the [channel] channel, but instead found it set [0] times.'));
-        }
-        $log->channel('channel')->withContext(['foo' => 'bar']);
-        $log->channel('channel')->assertContextSetTimes(1);
-        $log->channel('channel')->withoutContext();
-        $log->channel('channel')->assertContextSetTimes(2);
-
-        try {
-            $log->stack(['c1', 'c2'], 'name')->assertContextSetTimes(1);
-            $this->fail();
-        } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('Expected to find the context set [1] times in the [stack::name:c1,c2] channel, but instead found it set [0] times.'));
-        }
-        $stack =$log->stack(['c1', 'c2'], 'name')->withContext(['foo' => 'bar']);
-        $stack->assertContextSetTimes(1);
     }
 
     public function testItCanAssertAChannelIsCurrentlyFogotten(): void

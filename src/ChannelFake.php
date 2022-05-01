@@ -84,7 +84,6 @@ class ChannelFake implements LoggerInterface
      */
     public function assertLogged(string $level, ?Closure $callback = null): ChannelFake
     {
-        // TODO: document what the closure accepts. Does PHPStan have a rule for this?
         PHPUnit::assertTrue(
             $this->logged($level, $callback)->count() > 0,
             "An expected log with level [{$level}] was not logged in the [{$this->name}] channel."
