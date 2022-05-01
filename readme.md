@@ -387,7 +387,7 @@ Log::assertCurrentContext(fn ($context) => $context['app'] === 'Acme CRM')); // 
 
 ### assertHadContext()
 
-Assert that the channel / stack had the specified context at some point.
+Assert that the channel / stack had the specified context at some point. It is possible to provide the context as an array or a [truth-test closure](#truth-test-closures) for the context details that should exist.
 
 #### Can be called on...
 
@@ -415,6 +415,8 @@ Log::withoutContext();
 Log::assertHadContext([
     'app' => 'Acme CRM',
 ]); // ✅
+
+Log::assertHadContext(fn ($context) => $context['app'] === 'Acme CRM'); // ✅
 ```
 
 ## Inspection
