@@ -321,6 +321,12 @@ Log::channel('single')->assertWasNotForgotten(); // ✅
 
 Assert that a channel is _currently_ forgotten. This is distinct from asserting that a channel _was_ forgotten.
 
+#### Can be called on...
+
+- [ ] Facade base
+- [ ] Channels
+- [ ] Stacks
+
 #### Example tests
 
 ```php
@@ -337,26 +343,6 @@ Log::forgetChannel('single');
  */
 
 Log::assertChannelIsCurrentlyForgotten('single'); // ✅
-```
-
-In the following test, the channel is forgotten but is then re-created - thus it is not _currently_ forgotten.
-
-```php
-/*
- * implementation...
- */
-
-Log::channel('single')->info('xxxx');
-
-Log::forgetChannel('single');
-
-Log::channel('single')->info('xxxx');
-
-/*
- * assertions...
- */
-
-Log::assertChannelIsCurrentlyForgotten('single'); // ❌
 ```
 
 ### assertCurrentContect() // not in the list
