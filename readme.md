@@ -220,7 +220,7 @@ Assert that no logs of any level were created.
  * implementation...
  */
 
-Log::channel('single)->info('User logged in.');
+Log::channel('single')->info('User logged in.');
 
 /*
  * assertions...
