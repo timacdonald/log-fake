@@ -23,12 +23,12 @@ class ChannelFake implements LoggerInterface
     private Dispatcher $dispatcher;
 
     /**
-     * @var array<int, array{ level: mixed, message: string, context: array<string, mixed>, channel: string, times_channel_has_been_forgotten_at_time_of_writing_log: int }>
+     * @var array<int, array{ level: mixed, message: string, context: array<array-key, mixed>, channel: string, times_channel_has_been_forgotten_at_time_of_writing_log: int }>
      */
     private array $logs = [];
 
     /**
-     * @var array<int, array<string, mixed>>
+     * @var array<int, array<array-key, mixed>>
      */
     private array $context = [];
 
@@ -81,7 +81,7 @@ class ChannelFake implements LoggerInterface
     /**
      * @api
      * @link https://github.com/timacdonald/log-fake#assertlogged Documentation
-     * @param (Closure(string, string, array, int): bool) $callback
+     * @param (Closure(string, string, array<array-key, mixed>, int): bool) $callback
      */
     public function assertLogged(Closure $callback): ChannelFake
     {
@@ -303,7 +303,7 @@ class ChannelFake implements LoggerInterface
 
     /**
      * @internal
-     * @param (Closure(string, string, array, int): bool) $callback
+     * @param (Closure(string, string, array<array-key, mixed>, int): bool) $callback
      * @return Collection<int, array{ level: mixed, message: string, context: array<string, mixed>, channel: string, times_channel_has_been_forgotten_at_time_of_writing_log: int }>
      */
     public function logged(Closure $callback): Collection

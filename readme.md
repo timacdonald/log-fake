@@ -117,7 +117,7 @@ Remember that all assertions are relative to the channel or stack as shown above
 
 ### assertLogged()
 
-Assert that a specific level log was created. It is also possible to provide a [truth-test closure](#truth-test-closures) for the expected log details.
+Assert that a specific level log was created.
 
 #### Can be called on...
 
