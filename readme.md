@@ -117,13 +117,13 @@ Remember that all assertions are relative to the channel or stack as shown above
 
 Assert that a specific level log was created. It is also possible to provide a [truth-test closure](#truth-test-closures) for the expected log details.
 
-#### Can be called on
+#### Can be called on...
 
 - [x] Facade base (default channel)
 - [x] Channels
 - [x] Stacks
 
-#### Example tests
+#### Example tests...
 
 ```php
 /*
