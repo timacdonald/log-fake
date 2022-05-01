@@ -269,6 +269,8 @@ Log::forgetChannel('single');
  */
 
 Log::channel('single')->assertWasForgotten(); // ✅
+
+Log::channel('stderr')->assertWasForgotten(); // ❌ as it was the `single` not the `stderr` channel that was not forgotten.
 ```
 
 ### assertWasForgottenTimes()

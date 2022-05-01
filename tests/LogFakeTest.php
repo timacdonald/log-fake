@@ -150,6 +150,27 @@ class LogFakeTest extends TestCase
         );
     }
 
+    public function testAssertWasForgotten(): void
+    {
+        $log = new LogFake();
+
+        self::assertFailsWithMessage(
+            fn () => $log->assertWasForgotten(),
+            'Expected the [stack] channel to be forgotten at least once. It was forgotten [0] times.'
+        );
+        $log->forgetChannel('stack');
+        $log->assertWasForgotten();
+
+        self::assertFailsWithMessage(
+            fn () => $log->channel('channel')->assertWasForgotten(),
+            'Expected the [channel] channel to be forgotten at least once. It was forgotten [0] times.',
+        );
+        $log->forgetChannel('channel');
+        $log->channel('channel')->assertWasForgotten();
+
+        // cannot assert against a stack.
+    }
+
     public function testLogged(): void
     {
         $log = new LogFake();
@@ -730,28 +751,6 @@ class LogFakeTest extends TestCase
         ]);
     }
 
-    public function testItCanAssertAChannelHasBeenForgotten(): void
-    {
-        $log = new LogFake();
-
-        try {
-            $log->assertWasForgotten();
-            $this->fail();
-        } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('Expected the [stack] channel to be forgotten at least once. It was forgotten [0] times.'));
-        }
-        $log->forgetChannel('stack');
-        $log->assertWasForgotten();
-
-        try {
-            $log->channel('channel')->assertWasForgotten();
-            $this->fail();
-        } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('Expected the [channel] channel to be forgotten at least once. It was forgotten [0] times.'));
-        }
-        $log->forgetChannel('channel');
-        $log->channel('channel')->assertWasForgotten();
-    }
 
     public function testItCanAssertAChannelHasNotBeenForgotten(): void
     {
