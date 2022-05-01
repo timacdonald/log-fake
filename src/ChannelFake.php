@@ -122,11 +122,11 @@ class ChannelFake implements LoggerInterface
      * @api
      * @link https://github.com/timacdonald/log-fake#assertnothinglogged Documentation
      */
-    public function assertNothingLogged(): ChannelFake
+    public function assertNothingLogged(?string $message = null): ChannelFake
     {
         PHPUnit::assertTrue(
             $this->logs()->isEmpty(),
-            "Expected [0] logs to be created in the [$this->name] channel. Found [{$this->logs()->count()}] instead."
+            $message ?? "Expected [0] logs to be created in the [$this->name] channel. Found [{$this->logs()->count()}] instead."
         );
 
         return $this;
@@ -136,11 +136,11 @@ class ChannelFake implements LoggerInterface
      * @api
      * @link https://github.com/timacdonald/log-fake#assertwasforgotten Documentation
      */
-    public function assertWasForgotten(): ChannelFake
+    public function assertWasForgotten(?string $message = null): ChannelFake
     {
         PHPUnit::assertTrue(
             $this->timesForgotten > 0,
-            "Expected the [{$this->name}] channel to be forgotten at least once. It was forgotten [0] times."
+            $message ?? "Expected the [{$this->name}] channel to be forgotten at least once. It was forgotten [0] times."
         );
 
         return $this;
@@ -150,12 +150,12 @@ class ChannelFake implements LoggerInterface
      * @api
      * @link https://github.com/timacdonald/log-fake#assertwasforgottentimes Documentation
      */
-    public function assertWasForgottenTimes(int $times): ChannelFake
+    public function assertWasForgottenTimes(int $times, ?string $message = null): ChannelFake
     {
         PHPUnit::assertSame(
             $times,
             $this->timesForgotten,
-            "Expected the [{$this->name}] channel to be forgotten [{$times}] times. It was forgotten [{$this->timesForgotten}] times."
+            $message ?? "Expected the [{$this->name}] channel to be forgotten [{$times}] times. It was forgotten [{$this->timesForgotten}] times."
         );
 
         return $this;
@@ -165,10 +165,9 @@ class ChannelFake implements LoggerInterface
      * @api
      * @link https://github.com/timacdonald/log-fake#assertwasnotforgotten Documentation
      */
-    public function assertWasNotForgotten(): ChannelFake
+    public function assertWasNotForgotten(?string $message = null): ChannelFake
     {
-        // @deprecate?
-        return $this->assertWasForgottenTimes(0);
+        return $this->assertWasForgottenTimes(0, $message);
     }
 
     /**

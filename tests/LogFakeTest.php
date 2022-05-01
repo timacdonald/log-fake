@@ -168,8 +168,53 @@ class LogFakeTest extends TestCase
         $log->forgetChannel('channel');
         $log->channel('channel')->assertWasForgotten();
 
-        // cannot assert against a stack.
+        // cannot assert against a stack TODO is this true? Mark as such in the class?
     }
+
+    public function testAssertWasForgottenTimes(): void
+    {
+        $log = new LogFake();
+
+        self::assertFailsWithMessage(
+            fn () => $log->assertWasForgottenTimes(1),
+            'Expected the [stack] channel to be forgotten [1] times. It was forgotten [0] times.'
+        );
+        $log->forgetChannel('stack');
+        $log->assertWasForgottenTimes(1);
+
+        self::assertFailsWithMessage(
+            fn () => $log->channel('channel')->assertWasForgottenTimes(1),
+            'Expected the [channel] channel to be forgotten [1] times. It was forgotten [0] times.'
+        );
+        $log->forgetChannel('channel');
+        $log->channel('channel')->assertWasForgottenTimes(1);
+
+        // cannot assert against a stack TODO is this true? Mark as such in the class?
+    }
+
+    public function testAssertWasNotForgotten(): void
+    {
+        $log = new LogFake();
+
+        $log->assertWasNotForgotten();
+        $log->forgetChannel('stack');
+        try {
+            $log->assertWasNotForgotten();
+            $this->fail();
+        } catch (ExpectationFailedException $e) {
+            $this->assertThat($e, new ExceptionMessage('Expected the [stack] channel to be forgotten [0] times. It was forgotten [1] times.'));
+        }
+
+        $log->channel('channel')->assertWasNotForgotten();
+        $log->forgetChannel('channel');
+        try {
+            $log->channel('channel')->assertWasNotForgotten();
+            $this->fail();
+        } catch (ExpectationFailedException $e) {
+            $this->assertThat($e, new ExceptionMessage('Expected the [channel] channel to be forgotten [0] times. It was forgotten [1] times.'));
+        }
+    }
+
 
     public function testLogged(): void
     {
@@ -751,29 +796,6 @@ class LogFakeTest extends TestCase
         ]);
     }
 
-
-    public function testItCanAssertAChannelHasNotBeenForgotten(): void
-    {
-        $log = new LogFake();
-
-        $log->assertWasNotForgotten();
-        $log->forgetChannel('stack');
-        try {
-            $log->assertWasNotForgotten();
-            $this->fail();
-        } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('Expected the [stack] channel to be forgotten [0] times. It was forgotten [1] times.'));
-        }
-
-        $log->channel('channel')->assertWasNotForgotten();
-        $log->forgetChannel('channel');
-        try {
-            $log->channel('channel')->assertWasNotForgotten();
-            $this->fail();
-        } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('Expected the [channel] channel to be forgotten [0] times. It was forgotten [1] times.'));
-        }
-    }
 
     public function testItCanFakeOnDemandChannels(): void
     {

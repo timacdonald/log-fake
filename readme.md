@@ -303,6 +303,8 @@ Log::forgetChannel('single');
  */
 
 Log::channel('single')->assertWasForgottenTimes(2); // ✅
+
+Log::channel('single')->assertWasForgottenTimes(99); // ❌ as the channel was forgotten twice, not 99 times.
 ```
 
 ### assertWasNotForgotten()
