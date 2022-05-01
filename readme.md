@@ -147,9 +147,13 @@ Log::assertLogged('info', function ($message, $context) {
 
 Assert that a specific level log was created a certain number of times. It is also possible to provide a [truth-test closure](#truth-test-closures) for the expected log details.
 
-#### Example tests
+#### Can be called on...
 
-On the default channel...
+- [x] Facade base (default channel)
+- [x] Channels
+- [x] Stacks
+
+#### Example tests...
 
 ```php
 /*
@@ -171,57 +175,17 @@ Log::assertLoggedTimes('info', 2, function ($message, $context) {
 }); // ✅
 ```
 
-On a specific channel...
-
-```php
-/*
- * implementation...
- */
-
-Log::channel('single')->info('Stripe request initiated.');
-
-Log::channel('single')->info('Stripe request initiated.');
-
-/*
- * assertions...
- */
-
-Log::channel('single')->assertLoggedTimes('info', 2); // ✅
-
-Log::channel('single')->assertLoggedTimes('info', 2, function ($message, $context) {
-    return $message === 'Stripe request initiated.';
-}); // ✅
-```
-
-On a stack...
-
-```php
-/*
- * implementation...
- */
-
-Log::stack(['stderr', 'single'])->info('Stripe request initiated.');
-
-Log::stack(['stderr', 'single'])->info('Stripe request initiated.');
-
-/*
- * assertions...
- */
-
-Log::stack(['stderr', 'single'])->assertLoggedTimes('info', 2); // ✅
-
-Log::stack(['stderr', 'single'])->assertLoggedTimes('info', 2, function ($message, $context) {
-    return $message === 'Stripe request initiated.';
-}); // ✅
-```
-
 ### assertNotLogged()
 
 The inverse of `assertLogged()`, where you can assert that a specific level log was not created. It is also possible to provide a [truth-test closure](#truth-test-closures) for the log details that should not have been created.
 
-#### Example tests
+#### Can be called on...
 
-On the default channel...
+- [x] Facade base (default channel)
+- [x] Channels
+- [x] Stacks
+
+#### Example tests
 
 ```php
 /*
@@ -237,46 +201,6 @@ Log::info('User logged in.');
 Log::assertNotLogged('critical'); // ✅
 
 Log::assertNotLogged('critical', function ($message, $context) {
-    return $message === 'Authentication provider responded with an error.';
-}); // ✅
-```
-
-On a specific channel...
-
-```php
-/*
- * implementation...
- */
-
-Log::channel('single')->info('User logged in.');
-
-/*
- * assertions...
- */
-
-Log::channel('single')->assertNotLogged('critical'); // ✅
-
-Log::channel('single')->assertNotLogged('critical', function ($message, $context) {
-    return $message === 'Authentication provider responded with an error.';
-}); // ✅
-```
-
-On a stack...
-
-```php
-/*
- * implementation...
- */
-
-Log::stack(['stderr', 'single'])->info('User logged in.');
-
-/*
- * assertions...
- */
-
-Log::stack(['stdderr', 'single'])->assertNotLogged('critical'); // ✅
-
-Log::stack(['stderr', 'single'])->assertNotLogged('critical', function ($message, $context) {
     return $message === 'Authentication provider responded with an error.';
 }); // ✅
 ```
