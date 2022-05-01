@@ -219,42 +219,6 @@ class ChannelFake implements LoggerInterface
 
     /**
      * @api
-     * @param array<string, mixed> $context
-     */
-    public function assertHadContextAtSetCall(array $context, int $call): ChannelFake
-    {
-        PHPUnit::assertGreaterThanOrEqual(
-            $call,
-            $this->allContextInstances()->count(),
-            'Expected to find the context set at least [' . $call . '] times in the [' . $this->name . '] channel, but instead found it was set [' . $this->allContextInstances()->count() .'] times.'
-        );
-
-        PHPUnit::assertSame(
-            $this->allContextInstances()->get($call - 1),
-            $context,
-            'Expected to find the context [' . json_encode($context, JSON_THROW_ON_ERROR) . '] at set call ['. $call .'] in the [' . $this->name . '] channel but did not.'
-        );
-
-        return $this;
-    }
-
-    /**
-     * @api
-     */
-    public function assertContextSetTimes(int $times): ChannelFake
-    {
-        // TODO: allow a 2nd parameter for the specific context you'd like to check against.
-        PHPUnit::assertSame(
-            $this->allContextInstances()->count(),
-            $times,
-            'Expected to find the context set [' . $times . '] times in the [' . $this->name . '] channel, but instead found it set [' . $this->allContextInstances()->count() .'] times.'
-        );
-
-        return $this;
-    }
-
-    /**
-     * @api
      * @see Logger::info()
      */
     public function log($level, $message, array $context = []): void

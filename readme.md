@@ -356,7 +356,7 @@ Assert that the channel / stack currently has the specified context. It is possi
 
 - [x] Facade base (default channel)
 - [x] Channels
-- [x] Stacks
+- [ ] Stacks
 
 #### Example tests
 
