@@ -1039,6 +1039,29 @@ class LogFakeTest extends TestCase
         $log->channel('channel')->assertCurrentContext(['foo' => 'bar']);
     }
 
+    public function testItCanAssertTheCurrentContextForChannelsWithClosure(): void
+    {
+        $log = new LogFake();
+
+        try {
+            $log->assertCurrentContext(fn (array $context) => $context === ['foo' => 'bar']);
+            $this->fail();
+        } catch (ExpectationFailedException $e) {
+            $this->assertThat($e, new ExceptionMessage('Unexpected context found in the [stack] channel. Found [{}].'));
+        }
+        $log->withContext(['foo' => 'bar']);
+        $log->assertCurrentContext(fn (array $context) => $context === ['foo' => 'bar']);
+
+        try {
+            $log->channel('channel')->assertCurrentContext(fn (array $context) => $context === ['foo' => 'bar']);
+            $this->fail();
+        } catch (ExpectationFailedException $e) {
+            $this->assertThat($e, new ExceptionMessage('Unexpected context found in the [channel] channel. Found [{}].'));
+        }
+        $log->channel('channel')->withContext(['foo' => 'bar']);
+        $log->channel('channel')->assertCurrentContext(fn (array $context) => $context === ['foo' => 'bar']);
+    }
+
     public function testItCannotAssertCurrentContextForStacks(): void
     {
         $this->expectException(RuntimeException::class);

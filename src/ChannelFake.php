@@ -174,22 +174,30 @@ class ChannelFake implements LoggerInterface
     /**
      * @api
      * @link https://github.com/timacdonald/log-fake#assertcurrentcontext Documentation
-     * @param array<string, mixed> $context
+     * @param Closure|array<string, mixed> $context
      */
-    public function assertCurrentContext(array $context): ChannelFake
+    public function assertCurrentContext(Closure|array $context): ChannelFake
     {
         // TODO: current context for the on-demand channel?
-        PHPUnit::assertSame(
-            $context,
-            $this->currentContext(),
-            'Expected to find the context [' . json_encode($context, JSON_THROW_ON_ERROR) . '] in the [' . $this->name . '] channel. Found [' . json_encode((object) $this->currentContext()) . '] instead.'
-        );
+        if ($context instanceof Closure) {
+            PHPUnit::assertTrue(
+                (bool) $context($this->currentContext()),
+                'Unexpected context found in the [' . $this->name . '] channel. Found [' . json_encode((object) $this->currentContext()) . '].'
+            );
+        } else {
+            PHPUnit::assertSame(
+                $context,
+                $this->currentContext(),
+                'Expected to find the context [' . json_encode($context, JSON_THROW_ON_ERROR) . '] in the [' . $this->name . '] channel. Found [' . json_encode((object) $this->currentContext()) . '] instead.'
+            );
+        }
 
         return $this;
     }
 
     /**
      * @api
+     * @link https://github.com/timacdonald/log-fake#asserthadcontext Documentation
      * @param array<string, mixed> $context
      */
     public function assertHadContext(array $context): ChannelFake

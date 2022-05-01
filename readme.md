@@ -349,7 +349,8 @@ Log::assertChannelIsCurrentlyForgotten('single'); // ✅
 
 ### assertCurrentContext()
 
-Assert that the channel / stack currently has the specified context.
+Assert that the channel / stack currently has the specified context. It is possible to provide the context as an array or a [truth-test closure](#truth-test-closures) for the context details that should exist.
+
 
 #### Can be called on...
 
@@ -380,6 +381,8 @@ Log::assertCurrentContext([
     'app' => 'Acme CRM',
     'env' => 'production',
 ]); // ✅
+
+Log::assertCurrentContext(fn ($context) => $context['app'] === 'Acme CRM')); // ✅
 ```
 
 ### assertHadContext()
