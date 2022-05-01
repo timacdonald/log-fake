@@ -144,9 +144,9 @@ Log::assertLogged('info', function ($message, $context) {
     return $message === 'User logged in.';
 }); // ✅
 
-Log::assertLogged(function ($level, $message, $context) {
-    return $level === 'info' && $message === 'User logged in.';
-}); // ✅
+Log::assertLogged(fn ($level, $message, $context) =>
+    $level === 'info' && $message === 'User logged in.'
+); // ✅
 ```
 
 ### assertLoggedTimes()
