@@ -239,6 +239,8 @@ Log::channel('single')->info('User logged in.');
  */
 
 Log::channel('stderr')->assertNothingLogged(); // ✅
+
+Log::channel('single')->assertNothingLogged(); // ❌ as a log was created in the `single` channel.
 ```
 
 ### assertWasForgotten()
