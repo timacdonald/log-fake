@@ -120,6 +120,7 @@ class ChannelFake implements LoggerInterface
 
     /**
      * @api
+     * @link https://github.com/timacdonald/log-fake#assertnothinglogged Documentation
      */
     public function assertNothingLogged(): ChannelFake
     {
