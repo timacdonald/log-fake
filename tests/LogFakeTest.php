@@ -102,64 +102,26 @@ class LogFakeTest extends TestCase
     {
         $log = new LogFake();
 
-        $log->assertNotLogged('xxxx');
+        $log->assertNotLogged(fn ($level) => $level === 'info');
         $log->info('xxxx');
-        try {
-            $log->assertNotLogged('info');
-            $this->fail();
-        } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('An unexpected log with level [info] was logged [1] times in the [stack] channel.'));
-        }
+        self::assertFailsWithMessage(
+            fn () => $log->assertNotLogged(fn ($level) => $level === 'info'),
+            'Expected log was not created [0] times in the [stack] channel. Instead was created [1] times.'
+        );
 
-        $log->channel('channel')->assertNotLogged('info');
+        $log->channel('channel')->assertNotLogged(fn ($level) => $level === 'info');
         $log->channel('channel')->info('xxxx');
-        try {
-            $log->channel('channel')->assertNotLogged('info');
-            $this->fail();
-        } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('An unexpected log with level [info] was logged [1] times in the [channel] channel.'));
-        }
+        self::assertFailsWithMessage(
+            fn () => $log->channel('channel')->assertNotLogged(fn ($level) => $level === 'info'),
+            'Expected log was not created [0] times in the [channel] channel. Instead was created [1] times.'
+        );
 
-        $log->stack(['c1', 'c2'], 'name')->assertNotLogged('info');
+        $log->stack(['c1', 'c2'], 'name')->assertNotLogged(fn ($level) => $level === 'info');
         $log->stack(['c1', 'c2'], 'name')->info('xxxx');
-        try {
-            $log->stack(['c1', 'c2'], 'name')->assertNotLogged('info');
-            $this->fail();
-        } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('An unexpected log with level [info] was logged [1] times in the [stack::name:c1,c2] channel.'));
-        }
-    }
-
-    public function testAssertNotLoggedWithCallback(): void
-    {
-        $log = new LogFake();
-
-        $log->assertNotLogged('info', fn (): bool => true);
-        $log->info('xxxx');
-        try {
-            $log->assertNotLogged('info', fn (): bool => true);
-            $this->fail();
-        } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('An unexpected log with level [info] was logged [1] times in the [stack] channel.'));
-        }
-
-        $log->channel('channel')->assertNotLogged('info', fn (): bool => true);
-        $log->channel('channel')->info('expected message');
-        try {
-            $log->channel('channel')->assertNotLogged('info', fn (): bool => true);
-            $this->fail();
-        } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('An unexpected log with level [info] was logged [1] times in the [channel] channel.'));
-        }
-
-        $log->stack(['c1', 'c2'], 'name')->assertNotLogged('info', fn (): bool => true);
-        $log->stack(['c1', 'c2'], 'name')->info('expected message');
-        try {
-            $log->stack(['c1', 'c2'], 'name')->assertNotLogged('info', fn (): bool => true);
-            $this->fail();
-        } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('An unexpected log with level [info] was logged [1] times in the [stack::name:c1,c2] channel.'));
-        }
+        self::assertFailsWithMessage(
+            fn () => $log->stack(['c1', 'c2'], 'name')->assertNotLogged(fn ($level) => $level === 'info'),
+            'Expected log was not created [0] times in the [stack::name:c1,c2] channel. Instead was created [1] times.'
+        );
     }
 
     public function testAssertNothingLogged(): void

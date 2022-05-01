@@ -83,11 +83,11 @@ class ChannelFake implements LoggerInterface
      * @link https://github.com/timacdonald/log-fake#assertlogged Documentation
      * @param (Closure(string, string, array<array-key, mixed>, int): bool) $callback
      */
-    public function assertLogged(Closure $callback): ChannelFake
+    public function assertLogged(Closure $callback, ?string $message = null): ChannelFake
     {
         PHPUnit::assertTrue(
             $this->logged($callback)->count() > 0,
-            "Expected log was not created in the [{$this->name}] channel."
+            $message ?? "Expected log was not created in the [{$this->name}] channel."
         );
 
         return $this;
@@ -98,11 +98,11 @@ class ChannelFake implements LoggerInterface
      * @link https://github.com/timacdonald/log-fake#assertloggedtimes Documentation
      * @param (Closure(string, string, array<array-key, mixed>, int): bool) $callback
      */
-    public function assertLoggedTimes(Closure $callback, int $times): ChannelFake
+    public function assertLoggedTimes(Closure $callback, int $times, ?string $message = null): ChannelFake
     {
         PHPUnit::assertTrue(
             ($count = $this->logged($callback)->count()) === $times,
-            "Expected log was not created [{$times}] times in the [{$this->name}] channel. Instead was created [{$count}] times."
+            $message ?? "Expected log was not created [{$times}] times in the [{$this->name}] channel. Instead was created [{$count}] times."
         );
 
         return $this;
@@ -111,10 +111,11 @@ class ChannelFake implements LoggerInterface
     /**
      * @api
      * @link https://github.com/timacdonald/log-fake#assertnotlogged Documentation
+     * @param (Closure(string, string, array<array-key, mixed>, int): bool) $callback
      */
-    public function assertNotLogged(string $level, ?Closure $callback = null): ChannelFake
+    public function assertNotLogged(Closure $callback, ?string $message = null): ChannelFake
     {
-        return $this->assertLoggedTimes($level, 0, $callback);
+        return $this->assertLoggedTimes($callback, 0, $message);
     }
 
     /**

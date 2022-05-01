@@ -512,9 +512,7 @@ Log::dumpAll();
 
 ## Advanced
 
-### Truth-test Closures
-
-// todo
+### Custom messages in assertions
 
 ## Credits
 
