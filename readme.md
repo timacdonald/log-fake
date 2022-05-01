@@ -144,7 +144,7 @@ Log::assertLogged(fn ($level, $message, $context) =>
 
 Log::assertLogged(fn ($level, $message, $context) =>
     $level === 'critical'
-); // ❌
+); // ❌ as log had a level of `info`.
 ```
 
 ### assertLoggedTimes()
@@ -180,7 +180,7 @@ Log::assertLoggedTimes(fn ($level, $message, $context) =>
 Log::assertLoggedTimes(fn ($level, $message, $context) =>
     $message === 'Stripe request initiated.',
     99
-); // ❌
+); // ❌ as the log was created twice, not 99 times.
 ```
 
 ### assertNotLogged()
@@ -211,8 +211,8 @@ Log::assertNotLogged(fn ($level, $message, $context) =>
 ); // ✅
 
 Log::assertNotLogged(fn ($level, $message, $context) =>
-    $level === 'critical'
-); // ❌
+    $level === 'info'
+); // ❌ as the level was `info`.
 ```
 
 ### assertNothingLogged()
