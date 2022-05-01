@@ -119,9 +119,9 @@ Assert that a specific level log was created. It is also possible to provide a [
 
 #### Can be called on...
 
-✅ Facade base (default channel)
-✅ Channels
-✅ Stacks
+- [x] Facade base (default channel)
+- [x] Channels
+- [x] Stacks
 
 #### Example tests...
 
@@ -149,9 +149,9 @@ Assert that a specific level log was created a certain number of times. It is al
 
 #### Can be called on...
 
-✅ Facade base (default channel)
-✅ Channels
-✅ Stacks
+- [x] Facade base (default channel)
+- [x] Channels
+- [x] Stacks
 
 #### Example tests...
 
@@ -181,9 +181,9 @@ The inverse of `assertLogged()`, where you can assert that a specific level log 
 
 #### Can be called on...
 
-✅ Facade base (default channel)
-✅ Channels
-✅ Stacks
+- [x] Facade base (default channel)
+- [x] Channels
+- [x] Stacks
 
 #### Example tests
 
