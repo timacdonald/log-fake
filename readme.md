@@ -323,7 +323,7 @@ Assert that a channel is _currently_ forgotten. This is distinct from asserting 
 
 #### Can be called on...
 
-- [ ] Facade base
+- [x] Facade base ~(default channel)~
 - [ ] Channels
 - [ ] Stacks
 
