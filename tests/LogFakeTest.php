@@ -19,6 +19,7 @@ use RuntimeException;
 use Stringable;
 use Symfony\Component\VarDumper\VarDumper;
 use Throwable;
+use TiMacDonald\CallableFake\CallableFake;
 use TiMacDonald\Log\ChannelFake;
 use TiMacDonald\Log\LogFake;
 use function assert;
@@ -49,71 +50,170 @@ class LogFakeTest extends TestCase
     {
         $log = new LogFake();
 
+        // default...
         self::assertFailsWithMessage(
-            fn () => $log->assertLogged(fn ($level) => $level === 'info'),
+            fn () => $log->assertLogged(fn () => true),
+            'Expected log was not created in the [stack] channel.'
+        );
+        self::assertFailsWithMessage(
+            fn () => $log->assertLogged(fn () => false),
             'Expected log was not created in the [stack] channel.'
         );
         $log->info('xxxx');
-        $log->assertLogged(fn ($level) => $level === 'info');
-
+        $log->assertLogged(fn () => true);
         self::assertFailsWithMessage(
-            fn () => $log->channel('channel')->assertLogged(fn ($level) => $level === 'info'),
+            fn () => $log->assertLogged(fn () => false),
+            'Expected log was not created in the [stack] channel.'
+        );
+
+        // channel...
+        self::assertFailsWithMessage(
+            fn () => $log->channel('channel')->assertLogged(fn () => true),
+            'Expected log was not created in the [channel] channel.'
+        );
+        self::assertFailsWithMessage(
+            fn () => $log->channel('channel')->assertLogged(fn () => false),
             'Expected log was not created in the [channel] channel.'
         );
         $log->channel('channel')->info('xxxx');
-        $log->channel('channel')->assertLogged(fn ($level) => $level === 'info');
-
+        $log->channel('channel')->assertLogged(fn () => true);
         self::assertFailsWithMessage(
-            fn () => $log->stack(['c1', 'c2'], 'name')->assertLogged(fn ($level) => $level === 'info'),
+            fn () => $log->channel('channel')->assertLogged(fn () => false),
+            'Expected log was not created in the [channel] channel.'
+        );
+
+        // stack...
+        self::assertFailsWithMessage(
+            fn () => $log->stack(['c1', 'c2'], 'name')->assertLogged(fn () => true),
+            'Expected log was not created in the [stack::name:c1,c2] channel.'
+        );
+        self::assertFailsWithMessage(
+            fn () => $log->stack(['c1', 'c2'], 'name')->assertLogged(fn () => false),
             'Expected log was not created in the [stack::name:c1,c2] channel.'
         );
         $log->stack(['c1', 'c2'], 'name')->info('xxxx');
-        $log->stack(['c1', 'c2'], 'name')->assertLogged(fn ($level) => $level === 'info');
+        $log->stack(['c1', 'c2'], 'name')->assertLogged(fn () => true);
+        self::assertFailsWithMessage(
+            fn () => $log->stack(['c1', 'c2'], 'name')->assertLogged(fn () => false),
+            'Expected log was not created in the [stack::name:c1,c2] channel.'
+        );
+    }
+
+    public function testAssertLoggedFuncArgs(): void
+    {
+        // arrange...
+        $log = new LogFake();
+        $callable = new CallableFake(fn () => true);
+        $log->info('expected message', ['expected' => 'context']);
+
+        // act...
+        $log->assertLogged($callable);
+
+        // assert...
+        $callable->assertCalledTimes(function (string $info, string $message, array $context) {
+            return $info === 'info' && $message === 'expected message' && $context === ['expected' => 'context'];
+        }, 1);
     }
 
     public function testAssertLoggedTimes(): void
     {
         $log = new LogFake();
 
+        // default...
         $log->info('xxxx');
         self::assertFailsWithMessage(
-            fn () => $log->assertLoggedTimes(fn ($level) => $level === 'info', 2),
+            fn () => $log->assertLoggedTimes(fn () => true, 2),
             'Expected log was not created [2] times in the [stack] channel. Instead was created [1] times.'
         );
-        $log->assertLoggedTimes(fn ($level) => $level === 'info', 1);
+        self::assertFailsWithMessage(
+            fn () => $log->assertLoggedTimes(fn () => false, 2),
+            'Expected log was not created [2] times in the [stack] channel. Instead was created [0] times.'
+        );
+        $log->info('xxxx');
+        $log->assertLoggedTimes(fn () => true, 2);
+        self::assertFailsWithMessage(
+            fn () => $log->assertLoggedTimes(fn () => false, 2),
+            'Expected log was not created [2] times in the [stack] channel. Instead was created [0] times.'
+        );
 
+        // channel...
+        $log->channel('channel')->assertLoggedTimes(fn () => true, 0);
+        $log->channel('channel')->assertLoggedTimes(fn () => false, 0);
         $log->channel('channel')->info('xxxx');
         self::assertFailsWithMessage(
-            fn () => $log->channel('channel')->assertLoggedTimes(fn ($level) => $level === 'info', 2),
+            fn () => $log->channel('channel')->assertLoggedTimes(fn () => true, 2),
             'Expected log was not created [2] times in the [channel] channel. Instead was created [1] times.'
         );
-        $log->channel('channel')->assertLoggedTimes(fn ($level) => $level === 'info', 1);
+        self::assertFailsWithMessage(
+            fn () => $log->channel('channel')->assertLoggedTimes(fn () => false, 2),
+            'Expected log was not created [2] times in the [channel] channel. Instead was created [0] times.'
+        );
+        $log->channel('channel')->info('xxxx');
+        $log->channel('channel')->assertLoggedTimes(fn () => true, 2);
+        self::assertFailsWithMessage(
+            fn () => $log->channel('channel')->assertLoggedTimes(fn () => false, 2),
+            'Expected log was not created [2] times in the [channel] channel. Instead was created [0] times.'
+        );
 
+        // stack...
+        $log->stack(['c1', 'c2'], 'name')->assertLoggedTimes(fn () => true, 0);
+        $log->stack(['c1', 'c2'], 'name')->assertLoggedTimes(fn () => false, 0);
         $log->stack(['c1', 'c2'], 'name')->info('xxxx');
         self::assertFailsWithMessage(
-            fn () => $log->stack(['c1', 'c2'], 'name')->assertLoggedTimes(fn ($level) => $level === 'info', 2),
+            fn () => $log->stack(['c1', 'c2'], 'name')->assertLoggedTimes(fn () => true, 2),
             'Expected log was not created [2] times in the [stack::name:c1,c2] channel. Instead was created [1] times.'
         );
-        $log->stack(['c1', 'c2'], 'name')->assertLoggedTimes(fn ($level) => $level === 'info', 1);
+        self::assertFailsWithMessage(
+            fn () => $log->stack(['c1', 'c2'], 'name')->assertLoggedTimes(fn () => false, 2),
+            'Expected log was not created [2] times in the [stack::name:c1,c2] channel. Instead was created [0] times.'
+        );
+        $log->stack(['c1', 'c2'], 'name')->info('xxxx');
+        $log->stack(['c1', 'c2'], 'name')->assertLoggedTimes(fn () => true, 2);
+        self::assertFailsWithMessage(
+            fn () => $log->stack(['c1', 'c2'], 'name')->assertLoggedTimes(fn () => false, 2),
+            'Expected log was not created [2] times in the [stack::name:c1,c2] channel. Instead was created [0] times.'
+        );
+    }
+
+    public function testAssertLoggedTimesArgs(): void
+    {
+        // arrange...
+        $log = new LogFake();
+        $callable = new CallableFake(fn () => true);
+        $log->info('expected message', ['expected' => 'context']);
+
+        // act...
+        $log->assertLoggedTimes($callable, 1);
+
+        // assert...
+        $callable->assertCalledTimes(function (string $info, string $message, array $context) {
+            return $info === 'info' && $message === 'expected message' && $context === ['expected' => 'context'];
+        }, 1);
     }
 
     public function testAssertNotLogged(): void
     {
         $log = new LogFake();
 
-        $log->assertNotLogged(fn ($level) => $level === 'info');
+        $log->assertNotLogged(fn () => true);
+        $log->assertNotLogged(fn () => false);
         $log->info('xxxx');
         self::assertFailsWithMessage(
-            fn () => $log->assertNotLogged(fn ($level) => $level === 'info'),
+            fn () => $log->assertNotLogged(fn () => true),
             'Expected log was not created [0] times in the [stack] channel. Instead was created [1] times.'
         );
+        $log->assertNotLogged(fn () => false);
 
-        $log->channel('channel')->assertNotLogged(fn ($level) => $level === 'info');
+        $log->channel('channel')->assertNotLogged(fn () => true);
+        $log->channel('channel')->assertNotLogged(fn () => false);
         $log->channel('channel')->info('xxxx');
         self::assertFailsWithMessage(
-            fn () => $log->channel('channel')->assertNotLogged(fn ($level) => $level === 'info'),
+            fn () => $log->channel('channel')->assertNotLogged(fn () => true),
             'Expected log was not created [0] times in the [channel] channel. Instead was created [1] times.'
         );
+        $log->channel('channel')->assertNotLogged(fn () => false);
+
+        // up to here...
 
         $log->stack(['c1', 'c2'], 'name')->assertNotLogged(fn ($level) => $level === 'info');
         $log->stack(['c1', 'c2'], 'name')->info('xxxx');
@@ -208,7 +308,7 @@ class LogFakeTest extends TestCase
             fn () => $log->channel('channel')->assertWasNotForgotten(),
             'Expected the [channel] channel to be forgotten [0] times. It was forgotten [1] times.'
         );
-        
+
         // cannot assert against a stack TODO is this true? Mark as such in the class?
     }
 
@@ -225,6 +325,7 @@ class LogFakeTest extends TestCase
         $log->forgetChannel('channel');
         $log->assertChannelIsCurrentlyForgotten('channel');
     }
+
 
     public function testLogged(): void
     {
@@ -1066,7 +1167,7 @@ class LogFakeTest extends TestCase
     {
         try {
             $callback();
-            self::fail();
+            self::fail('The log fake assertion did not fail as expected.');
         } catch (ExpectationFailedException $exception) {
             self::assertThat($exception, new ExceptionMessage($message));
         }

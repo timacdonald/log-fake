@@ -28,7 +28,8 @@
         "symfony/var-dumper": "^6.0"
     },
     "require-dev": {
-        "bamarni/composer-bin-plugin": "^1.4"
+        "bamarni/composer-bin-plugin": "^1.4",
+        "timacdonald/callable-fake": "^1.5"
     },
     "config": {
         "preferred-install": "dist",
