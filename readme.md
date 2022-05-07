@@ -113,7 +113,6 @@ Remember that all assertions are relative to the channel or stack as shown above
 - [`assertWasNotForgotten()`](#assertwasnotforgotten)
 - [`assertChannelIsCurrentlyForgotten()`](#assertchanneliscurrentlyforgotten)
 - [`assertCurrentContext()`](#assertcurrentcontext)
-- [`assertHadContext()`](#asserthadcontext)
 
 ### assertLogged()
 
@@ -335,7 +334,7 @@ Log::channel('single')->assertWasNotForgotten(); // ✅
 
 ### assertChannelIsCurrentlyForgotten()
 
-Assert that a channel is _currently_ forgotten. This is distinct from asserting that a channel _was_ forgotten.
+Assert that a channel is _currently_ forgotten. This is distinct from [asserting that a channel _was_ forgotten](https://github.com/timacdonald/log-fake#assertwasforgotten).
 
 #### Can be called on...
 
@@ -365,8 +364,7 @@ Log::assertChannelIsCurrentlyForgotten('stderr'); // ❌ as the `single` channel
 
 ### assertCurrentContext()
 
-Assert that the channel / stack currently has the specified context. It is possible to provide the context as an array or a [truth-test closure](#truth-test-closures) for the context details that should exist.
-
+Assert that the channel currently has the specified context. It is possible to provide the expected context as an array or alternatively you can provide a [truth-test closure](#truth-test-closures) to check the current context.
 
 #### Can be called on...
 
@@ -399,40 +397,12 @@ Log::assertCurrentContext([
 ]); // ✅
 
 Log::assertCurrentContext(fn ($context) => $context['app'] === 'Acme CRM')); // ✅
-```
 
-### assertHadContext()
+Log::assertCurrentContext([
+    'env' => 'production',
+]); // ❌ missing the "app" key.
 
-Assert that the channel / stack had the specified context at some point. It is possible to provide the context as an array or a [truth-test closure](#truth-test-closures) for the context details that should exist.
-
-#### Can be called on...
-
-- [x] Facade base (default channel)
-- [x] Channels
-- [x] Stacks
-
-#### Example tests
-
-```php
-/*
- * implementation...
- */
-
-Log::withContext([
-    'app' => 'Acme CRM',
-]);
-
-Log::withoutContext();
-
-/*
- * assertions...
- */
-
-Log::assertHadContext([
-    'app' => 'Acme CRM',
-]); // ✅
-
-Log::assertHadContext(fn ($context) => $context['app'] === 'Acme CRM'); // ✅
+Log::assertCurrentContext(fn ($context) => $context['env'] === 'develop')); // ❌ the 'env' key is set to "production"
 ```
 
 ## Inspection

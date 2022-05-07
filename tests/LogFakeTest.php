@@ -349,7 +349,96 @@ class LogFakeTest extends TestCase
         $log->assertChannelIsCurrentlyForgotten('channel');
     }
 
+    public function testAssertCurrentContext(): void
+    {
+        $log = new LogFake();
+
+        // default channel...
+        $log->assertCurrentContext([]);
+        self::assertFailsWithMessage(
+            fn () => $log->assertCurrentContext(['foo' => 'bar']),
+            'Expected to find the context [{"foo":"bar"}] in the [stack] channel. Found [{}] instead.'
+        );
+        $log->withContext(['foo' => 'bar']);
+        self::assertFailsWithMessage(
+            fn () => $log->assertCurrentContext([]),
+            'Expected to find the context [[]] in the [stack] channel. Found [{"foo":"bar"}] instead.'
+        );
+        $log->assertCurrentContext(['foo' => 'bar']);
+
+        // channel...
+        $log->channel('channel')->assertCurrentContext([]);
+        self::assertFailsWithMessage(
+            fn () => $log->channel('channel')->assertCurrentContext(['foo' => 'bar']),
+            'Expected to find the context [{"foo":"bar"}] in the [channel] channel. Found [{}] instead.'
+        );
+        $log->channel('channel')->withContext(['foo' => 'bar']);
+        self::assertFailsWithMessage(
+            fn () => $log->channel('channel')->assertCurrentContext([]),
+            'Expected to find the context [[]] in the [channel] channel. Found [{"foo":"bar"}] instead.'
+        );
+        $log->channel('channel')->assertCurrentContext(['foo' => 'bar']);
+    }
+
+    public function testAssertCurrentContextWithClosure(): void
+    {
+        $log = new LogFake();
+
+        // default channel...
+        $log->assertCurrentContext(fn () => true);
+        self::assertFailsWithMessage(
+            fn () => $log->assertCurrentContext(fn () => false),
+            'Unexpected context found in the [stack] channel. Found [{}].'
+        );
+        $log->withContext(['foo' => 'bar']);
+        $log->assertCurrentContext(fn () => true);
+        self::assertFailsWithMessage(
+            fn () => $log->assertCurrentContext(fn () => false),
+            'Unexpected context found in the [stack] channel. Found [{"foo":"bar"}].'
+        );
+
+        // channel...
+        $log->channel('channel')->assertCurrentContext(fn () => true);
+        self::assertFailsWithMessage(
+            fn () => $log->channel('channel')->assertCurrentContext(fn () => false),
+            'Unexpected context found in the [channel] channel. Found [{}].'
+        );
+        $log->channel('channel')->withContext(['foo' => 'bar']);
+        $log->channel('channel')->assertCurrentContext(fn () => true);
+        self::assertFailsWithMessage(
+            fn () => $log->channel('channel')->assertCurrentContext(fn () => false),
+            'Unexpected context found in the [channel] channel. Found [{"foo":"bar"}].'
+        );
+    }
+
+    public function testAssertCurrentContextWithClosureArgs(): void
+    {
+        $log = new LogFake();
+        $callable = new CallableFake(fn () => true);
+
+        $log->withContext(['foo' => 'bar']);
+        $log->assertCurrentContext($callable);
+        $callable->assertCalledTimes(function (array $context) {
+            return $context === ['foo' => 'bar'];
+        }, 1);
+
+        $log->withContext(['bar' => 'baz']);
+        $log->assertCurrentContext($callable);
+        $callable->assertCalledTimes(function (array $context) {
+            return $context === ['foo' => 'bar', 'bar' => 'baz'];
+        }, 1);
+    }
+
     // up to here...
+
+    public function testItCannotAssertCurrentContextForStacks(): void
+    {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Cannot call [Log::stack(...)->assertCurrentContext(...)] as stack contexts are reset each time they are resolved from the LogManager.');
+
+        (new LogFake())->stack(['c1', 'c2'], 'name')->assertCurrentContext(['foo' => 'bar']);
+    }
+
     public function testLogged(): void
     {
         $log = new LogFake();
@@ -1020,159 +1109,6 @@ class LogFakeTest extends TestCase
             $this->assertStringContainsString('An expected log with level [info] was not logged in the [stack::unnamed:c1] channel.', $e->getMessage());
         }
     }
-
-    public function testItCanAssertTheCurrentContextForChannels(): void
-    {
-        $log = new LogFake();
-
-        try {
-            $log->assertCurrentContext(['foo' => 'bar']);
-            $this->fail();
-        } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('Expected to find the context [{"foo":"bar"}] in the [stack] channel. Found [{}] instead.'));
-        }
-        $log->withContext(['foo' => 'bar']);
-        $log->assertCurrentContext(['foo' => 'bar']);
-
-        try {
-            $log->channel('channel')->assertCurrentContext(['foo' => 'bar']);
-            $this->fail();
-        } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('Expected to find the context [{"foo":"bar"}] in the [channel] channel. Found [{}] instead.'));
-        }
-        $log->channel('channel')->withContext(['foo' => 'bar']);
-        $log->channel('channel')->assertCurrentContext(['foo' => 'bar']);
-    }
-
-    public function testItCanAssertTheCurrentContextForChannelsWithClosure(): void
-    {
-        $log = new LogFake();
-
-        try {
-            $log->assertCurrentContext(fn (array $context) => $context === ['foo' => 'bar']);
-            $this->fail();
-        } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('Unexpected context found in the [stack] channel. Found [{}].'));
-        }
-        $log->withContext(['foo' => 'bar']);
-        $log->assertCurrentContext(fn (array $context) => $context === ['foo' => 'bar']);
-
-        try {
-            $log->channel('channel')->assertCurrentContext(fn (array $context) => $context === ['foo' => 'bar']);
-            $this->fail();
-        } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('Unexpected context found in the [channel] channel. Found [{}].'));
-        }
-        $log->channel('channel')->withContext(['foo' => 'bar']);
-        $log->channel('channel')->assertCurrentContext(fn (array $context) => $context === ['foo' => 'bar']);
-    }
-
-    public function testItCannotAssertCurrentContextForStacks(): void
-    {
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('Cannot call [Log::stack(...)->assertCurrentContext(...)] as stack contexts are reset each time they are resolved from the LogManager. Instead utilise [Log::stack(...)->assertHadContext(...)].');
-
-        (new LogFake())->stack(['c1', 'c2'], 'name')->assertCurrentContext(['foo' => 'bar']);
-    }
-
-    public function testItCanAssertPreviousContext(): void
-    {
-        $log = new LogFake();
-
-        $log->withContext(['foo' => 'bar']);
-        $log->withContext(['foo' => 'bar', 'bar' => 'baz']);
-        $log->withoutContext();
-        $log->assertCurrentContext([]);
-        $log->assertHadContext(['foo' => 'bar']);
-        $log->assertHadContext(['foo' => 'bar', 'bar' => 'baz']);
-        try {
-            $log->assertHadContext(['bar' => 'baz']);
-            $this->fail();
-        } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('Expected to find the context [{"bar":"baz"}] in the [stack] channel but did not.'));
-        }
-        $log->withContext(['bar' => 'baz']);
-        $log->assertHadContext(['bar' => 'baz']);
-
-        $log->channel('channel')->withContext(['foo' => 'bar']);
-        $log->channel('channel')->withContext(['foo' => 'bar', 'bar' => 'baz']);
-        $log->channel('channel')->withoutContext();
-        $log->channel('channel')->assertCurrentContext([]);
-        $log->channel('channel')->assertHadContext(['foo' => 'bar']);
-        $log->channel('channel')->assertHadContext(['foo' => 'bar', 'bar' => 'baz']);
-        try {
-            $log->channel('channel')->assertHadContext(['bar' => 'baz']);
-            $this->fail();
-        } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('Expected to find the context [{"bar":"baz"}] in the [channel] channel but did not.'));
-        }
-        $log->channel('channel')->withContext(['bar' => 'baz']);
-        $log->channel('channel')->assertHadContext(['bar' => 'baz']);
-
-        $log->stack(['c1', 'c2'], 'name')->withContext(['foo' => 'bar']);
-        $log->stack(['c1', 'c2'], 'name')->withContext(['foo' => 'bar', 'bar' => 'baz']);
-        $log->stack(['c1', 'c2'], 'name')->withoutContext();
-        $log->stack(['c1', 'c2'], 'name')->assertHadContext(['foo' => 'bar']);
-        $log->stack(['c1', 'c2'], 'name')->assertHadContext(['foo' => 'bar', 'bar' => 'baz']);
-        try {
-            $log->stack(['c1', 'c2'], 'name')->assertHadContext(['bar' => 'baz']);
-            $this->fail();
-        } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('Expected to find the context [{"bar":"baz"}] in the [stack::name:c1,c2] channel but did not.'));
-        }
-        $log->stack(['c1', 'c2'], 'name')->withContext(['bar' => 'baz']);
-        $log->stack(['c1', 'c2'], 'name')->assertHadContext(['bar' => 'baz']);
-    }
-
-    public function testItCanAssertPreviousContextWithClosure(): void
-    {
-        $log = new LogFake();
-
-        $log->withContext(['foo' => 'bar']);
-        $log->withContext(['foo' => 'bar', 'bar' => 'baz']);
-        $log->withoutContext();
-        $log->assertCurrentContext([]);
-        $log->assertHadContext(fn (array $context) => $context === ['foo' => 'bar']);
-        $log->assertHadContext(fn (array $context) => $context === ['foo' => 'bar', 'bar' => 'baz']);
-        try {
-            $log->assertHadContext(fn (array $context) => $context === ['bar' => 'baz']);
-            $this->fail();
-        } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('Unexpected context found in the [stack] channel.'));
-        }
-        $log->withContext(['bar' => 'baz']);
-        $log->assertHadContext(fn (array $context) => $context === ['bar' => 'baz']);
-
-        $log->channel('channel')->withContext(['foo' => 'bar']);
-        $log->channel('channel')->withContext(['foo' => 'bar', 'bar' => 'baz']);
-        $log->channel('channel')->withoutContext();
-        $log->channel('channel')->assertCurrentContext([]);
-        $log->channel('channel')->assertHadContext(fn (array $context) => $context === ['foo' => 'bar']);
-        $log->channel('channel')->assertHadContext(fn (array $context) => $context === ['foo' => 'bar', 'bar' => 'baz']);
-        try {
-            $log->channel('channel')->assertHadContext(fn (array $context) => $context === ['bar' => 'baz']);
-            $this->fail();
-        } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('Unexpected context found in the [channel] channel.'));
-        }
-        $log->channel('channel')->withContext(['bar' => 'baz']);
-        $log->channel('channel')->assertHadContext(fn (array $context) => $context === ['bar' => 'baz']);
-
-        $log->stack(['c1', 'c2'], 'name')->withContext(['foo' => 'bar']);
-        $log->stack(['c1', 'c2'], 'name')->withContext(['foo' => 'bar', 'bar' => 'baz']);
-        $log->stack(['c1', 'c2'], 'name')->withoutContext();
-        $log->stack(['c1', 'c2'], 'name')->assertHadContext(fn (array $context) => $context === ['foo' => 'bar']);
-        $log->stack(['c1', 'c2'], 'name')->assertHadContext(fn (array $context) => $context === ['foo' => 'bar', 'bar' => 'baz']);
-        try {
-            $log->stack(['c1', 'c2'], 'name')->assertHadContext(fn (array $context) => $context === ['bar' => 'baz']);
-            $this->fail();
-        } catch (ExpectationFailedException $e) {
-            $this->assertThat($e, new ExceptionMessage('Unexpected context found in the [stack::name:c1,c2] channel.'));
-        }
-        $log->stack(['c1', 'c2'], 'name')->withContext(['bar' => 'baz']);
-        $log->stack(['c1', 'c2'], 'name')->assertHadContext(fn (array $context) => $context === ['bar' => 'baz']);
-    }
-
 
     public function testItClearsContextWhenAChannelIsForgotten(): void
     {

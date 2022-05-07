@@ -196,28 +196,6 @@ class ChannelFake implements LoggerInterface
 
     /**
      * @api
-     * @link https://github.com/timacdonald/log-fake#asserthadcontext Documentation
-     * @param callable|array<string, mixed> $context
-     */
-    public function assertHadContext(callable|array $context): ChannelFake
-    {
-        if (is_callable($context)) {
-            PHPUnit::assertTrue(
-                $this->allContextInstances()->containsStrict($context),
-                'Unexpected context found in the [' . $this->name . '] channel.'
-            );
-        } else {
-            PHPUnit::assertTrue(
-                $this->allContextInstances()->containsStrict($context),
-                'Expected to find the context [' . json_encode($context, JSON_THROW_ON_ERROR) . '] in the [' . $this->name . '] channel but did not.'
-            );
-        }
-
-        return $this;
-    }
-
-    /**
-     * @api
      * @see Logger::info()
      */
     public function log($level, $message, array $context = []): void
