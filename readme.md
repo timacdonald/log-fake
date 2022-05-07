@@ -223,7 +223,7 @@ Assert that no logs of any level were created.
 
 - [x] Facade base (default channel)
 - [x] Channels
-- [x] Stacks
+- [ ] Stacks
 
 #### Example tests
 
@@ -251,7 +251,7 @@ Assert that the channel / stack was forgotten at least one time.
 
 - [x] Facade base (default channel)
 - [x] Channels
-- [x] Stacks
+- [ ] Stacks
 
 #### Example tests
 
@@ -281,7 +281,7 @@ Assert that the channel / stack was forgotten a specific number of times.
 
 - [x] Facade base (default channel)
 - [x] Channels
-- [x] Stacks
+- [] Stacks
 
 #### Example tests
 
@@ -315,7 +315,7 @@ Assert that the channel / stack was not forgotten.
 
 - [x] Facade base (default channel)
 - [x] Channels
-- [x] Stacks
+- [ ] Stacks
 
 #### Example tests
 

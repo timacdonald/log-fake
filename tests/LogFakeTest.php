@@ -99,17 +99,14 @@ class LogFakeTest extends TestCase
         );
     }
 
-    public function testAssertLoggedFuncArgs(): void
+    public function testAssertLoggedArgs(): void
     {
-        // arrange...
         $log = new LogFake();
         $callable = new CallableFake(fn () => true);
         $log->info('expected message', ['expected' => 'context']);
 
-        // act...
         $log->assertLogged($callable);
 
-        // assert...
         $callable->assertCalledTimes(function (string $info, string $message, array $context) {
             return $info === 'info' && $message === 'expected message' && $context === ['expected' => 'context'];
         }, 1);
@@ -177,15 +174,12 @@ class LogFakeTest extends TestCase
 
     public function testAssertLoggedTimesArgs(): void
     {
-        // arrange...
         $log = new LogFake();
         $callable = new CallableFake(fn () => true);
         $log->info('expected message', ['expected' => 'context']);
 
-        // act...
         $log->assertLoggedTimes($callable, 1);
 
-        // assert...
         $callable->assertCalledTimes(function (string $info, string $message, array $context) {
             return $info === 'info' && $message === 'expected message' && $context === ['expected' => 'context'];
         }, 1);
@@ -195,6 +189,7 @@ class LogFakeTest extends TestCase
     {
         $log = new LogFake();
 
+        // default channel...
         $log->assertNotLogged(fn () => true);
         $log->assertNotLogged(fn () => false);
         $log->info('xxxx');
@@ -204,6 +199,7 @@ class LogFakeTest extends TestCase
         );
         $log->assertNotLogged(fn () => false);
 
+        // channel...
         $log->channel('channel')->assertNotLogged(fn () => true);
         $log->channel('channel')->assertNotLogged(fn () => false);
         $log->channel('channel')->info('xxxx');
@@ -213,20 +209,35 @@ class LogFakeTest extends TestCase
         );
         $log->channel('channel')->assertNotLogged(fn () => false);
 
-        // up to here...
-
-        $log->stack(['c1', 'c2'], 'name')->assertNotLogged(fn ($level) => $level === 'info');
+        // stack...
+        $log->stack(['c1', 'c2'], 'name')->assertNotLogged(fn () => true);
+        $log->stack(['c1', 'c2'], 'name')->assertNotLogged(fn () => false);
         $log->stack(['c1', 'c2'], 'name')->info('xxxx');
         self::assertFailsWithMessage(
-            fn () => $log->stack(['c1', 'c2'], 'name')->assertNotLogged(fn ($level) => $level === 'info'),
+            fn () => $log->stack(['c1', 'c2'], 'name')->assertNotLogged(fn () => true),
             'Expected log was not created [0] times in the [stack::name:c1,c2] channel. Instead was created [1] times.'
         );
+        $log->stack(['c1', 'c2'], 'name')->assertNotLogged(fn () => false);
+    }
+
+    public function testAssertNotLoggedArgs(): void
+    {
+        $log = new LogFake();
+        $callable = new CallableFake(fn () => false);
+        $log->info('expected message', ['expected' => 'context']);
+
+        $log->assertNotLogged($callable);
+
+        $callable->assertCalledTimes(function (string $info, string $message, array $context) {
+            return $info === 'info' && $message === 'expected message' && $context === ['expected' => 'context'];
+        }, 1);
     }
 
     public function testAssertNothingLogged(): void
     {
         $log = new LogFake();
 
+        // default channel...
         $log->assertNothingLogged();
         $log->info('xxxx');
         self::assertFailsWithMessage(
@@ -234,6 +245,7 @@ class LogFakeTest extends TestCase
             'Expected [0] logs to be created in the [stack] channel. Found [1] instead.'
         );
 
+        // channel...
         $log->channel('channel')->assertNothingLogged();
         $log->channel('channel')->info('expected message');
         self::assertFailsWithMessage(
@@ -241,6 +253,7 @@ class LogFakeTest extends TestCase
             'Expected [0] logs to be created in the [channel] channel. Found [1] instead.'
         );
 
+        // stack...
         $log->stack(['c1', 'c2'], 'name')->assertNothingLogged();
         $log->stack(['c1', 'c2'], 'name')->info('xxxx');
         self::assertFailsWithMessage(
@@ -249,10 +262,11 @@ class LogFakeTest extends TestCase
         );
     }
 
-    public function testAssertWasForgottenFunc(): void
+    public function testAssertWasForgotten(): void
     {
         $log = new LogFake();
 
+        // default channel...
         self::assertFailsWithMessage(
             fn () => $log->assertWasForgotten(),
             'Expected the [stack] channel to be forgotten at least once. It was forgotten [0] times.'
@@ -260,6 +274,7 @@ class LogFakeTest extends TestCase
         $log->forgetChannel('stack');
         $log->assertWasForgotten();
 
+        // channel...
         self::assertFailsWithMessage(
             fn () => $log->channel('channel')->assertWasForgotten(),
             'Expected the [channel] channel to be forgotten at least once. It was forgotten [0] times.',
@@ -267,34 +282,38 @@ class LogFakeTest extends TestCase
         $log->forgetChannel('channel');
         $log->channel('channel')->assertWasForgotten();
 
-        // cannot assert against a stack TODO is this true? Mark as such in the class?
+        // not available on a stack.
     }
 
     public function testAssertWasForgottenTimes(): void
     {
         $log = new LogFake();
 
+        // default channel...
         self::assertFailsWithMessage(
-            fn () => $log->assertWasForgottenTimes(1),
-            'Expected the [stack] channel to be forgotten [1] times. It was forgotten [0] times.'
+            fn () => $log->assertWasForgottenTimes(2),
+            'Expected the [stack] channel to be forgotten [2] times. It was forgotten [0] times.'
         );
         $log->forgetChannel('stack');
-        $log->assertWasForgottenTimes(1);
+        $log->forgetChannel('stack');
+        $log->assertWasForgottenTimes(2);
 
         self::assertFailsWithMessage(
-            fn () => $log->channel('channel')->assertWasForgottenTimes(1),
-            'Expected the [channel] channel to be forgotten [1] times. It was forgotten [0] times.'
+            fn () => $log->channel('channel')->assertWasForgottenTimes(2),
+            'Expected the [channel] channel to be forgotten [2] times. It was forgotten [0] times.'
         );
         $log->forgetChannel('channel');
-        $log->channel('channel')->assertWasForgottenTimes(1);
+        $log->forgetChannel('channel');
+        $log->channel('channel')->assertWasForgottenTimes(2);
 
-        // cannot assert against a stack TODO is this true? Mark as such in the class?
+        // not available on a stack.
     }
 
     public function testAssertWasNotForgotten(): void
     {
         $log = new LogFake();
 
+        // default channel...
         $log->assertWasNotForgotten();
         $log->forgetChannel('stack');
         self::assertFailsWithMessage(
@@ -302,6 +321,7 @@ class LogFakeTest extends TestCase
             'Expected the [stack] channel to be forgotten [0] times. It was forgotten [1] times.'
         );
 
+        // channel...
         $log->channel('channel')->assertWasNotForgotten();
         $log->forgetChannel('channel');
         self::assertFailsWithMessage(
@@ -309,24 +329,27 @@ class LogFakeTest extends TestCase
             'Expected the [channel] channel to be forgotten [0] times. It was forgotten [1] times.'
         );
 
-        // cannot assert against a stack TODO is this true? Mark as such in the class?
+        // not available on a stack.
     }
 
     public function testAssertChannelIsCurrentlyForgotten(): void
     {
         $log = new LogFake();
 
+        self::assertFailsWithMessage(
+            fn () => $log->assertChannelIsCurrentlyForgotten('channel'),
+            'Expected to find the [channel] channel to be forgotten. It was not.'
+        );
         $log->channel('channel')->info('xxxx');
         self::assertFailsWithMessage(
             fn () => $log->assertChannelIsCurrentlyForgotten('channel'),
             'Expected to find the [channel] channel to be forgotten. It was not.'
         );
-
         $log->forgetChannel('channel');
         $log->assertChannelIsCurrentlyForgotten('channel');
     }
 
-
+    // up to here...
     public function testLogged(): void
     {
         $log = new LogFake();
