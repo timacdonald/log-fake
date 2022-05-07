@@ -216,7 +216,7 @@ Log::assertNotLogged(fn ($level, $message, $context) =>
 
 ### assertNothingLogged()
 
-Assert that no logs of any level were created.
+Assert that no logs were created.
 
 #### Can be called on...
 
