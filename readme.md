@@ -91,10 +91,9 @@ public function testItLogsWhenAUserAuthenticates()
     Log::stack(['stderr', 'single'])->info('User logged in.', ['user_id' => $user->id]);
 
     // assertions...
-    Log::stack(['stderr', 'single'])->assertLogged('info', function ($message, $context) {
-        return $message === 'User logged in.' 
-            && $context === ['user_id' => 5];
-    });
+    Log::stack(['stderr', 'single'])->assertLogged(fn (LogEntry $log) =>
+        $log->message === 'User logged in.'
+    );
 }
 ```
 
