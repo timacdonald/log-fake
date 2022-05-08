@@ -412,12 +412,6 @@ Log::assertCurrentContext(
 
 Sometimes when debugging tests it's useful to be able to take a peek at the messages that have been logged. There are a couple of helpers to assist with this.
 
-If you would like to utilise these helpers, ensure you have installed the `symfony/var-dumper` package...
-
-```sh
-composer require --dev symfony/var-dumper:^6.0
-```
-
 ### dump()
 
 Dumps all the logs in the channel. You can also pass a truth-based closure to filter the logs that are dumped.

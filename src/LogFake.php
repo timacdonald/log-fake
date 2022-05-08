@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
 use PHPUnit\Framework\Assert as PHPUnit;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\VarDumper\VarDumper;
 
 /**
  * @no-named-arguments
@@ -48,7 +49,7 @@ class LogFake implements LoggerInterface
      */
     public function dumpAll(?Closure $callback = null): LogFake
     {
-        dump($this->allLogs()
+        VarDumper::dump($this->allLogs()
             ->filter($callback ?? fn () => true)
             ->values()
             ->toArray());
