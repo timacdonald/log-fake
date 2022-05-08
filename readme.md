@@ -71,8 +71,8 @@ public function testItLogsWhenAUserAuthenticates()
     Log::channel('slack')->info('User logged in.', ['user_id' => $user->id]);
 
     // assertions...
-    Log::channel('slack')->assertLogged(fn (LogEntry $log) =>
-        $log->message === 'User logged in.'
+    Log::channel('slack')->assertLogged(
+        fn (LogEntry $log) => $log->message === 'User logged in.'
     );
 }
 ```
@@ -91,8 +91,8 @@ public function testItLogsWhenAUserAuthenticates()
     Log::stack(['stderr', 'single'])->info('User logged in.', ['user_id' => $user->id]);
 
     // assertions...
-    Log::stack(['stderr', 'single'])->assertLogged(fn (LogEntry $log) =>
-        $log->message === 'User logged in.'
+    Log::stack(['stderr', 'single'])->assertLogged(
+        fn (LogEntry $log) => $log->message === 'User logged in.'
     );
 }
 ```
@@ -136,12 +136,12 @@ Log::info('User logged in.');
  * assertions...
  */
 
-Log::assertLogged(fn (LogEntry $log) =>
-    $log->message === 'User logged in.'
+Log::assertLogged(
+    fn (LogEntry $log) => $log->message === 'User logged in.'
 ); // ✅
 
-Log::assertLogged(fn (LogEntry $log) =>
-    $log->level === 'critical'
+Log::assertLogged(
+    fn (LogEntry $log) => $log->level === 'critical'
 ); // ❌ as log had a level of `info`.
 ```
 
@@ -176,7 +176,7 @@ Log::assertLoggedTimes(
 ); // ✅
 
 Log::assertLoggedTimes(
-    fn ($level, $message, $context) => $message === 'Stripe request initiated.',
+    fn (LogEntry $log) => $log->message === 'Stripe request initiated.',
     99
 ); // ❌ as the log was created twice, not 99 times.
 ```
@@ -204,12 +204,12 @@ Log::info('User logged in.');
  * assertions...
  */
 
-Log::assertNotLogged(fn ($level, $message, $context) =>
-    $level === 'critical'
+Log::assertNotLogged(
+    fn (LogEntry $log) => $log->level === 'critical'
 ); // ✅
 
-Log::assertNotLogged(fn ($level, $message, $context) =>
-    $level === 'info'
+Log::assertNotLogged(
+    fn (LogEntry $log) => $log->level === 'info'
 ); // ❌ as the level was `info`.
 ```
 
