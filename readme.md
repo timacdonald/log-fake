@@ -460,7 +460,7 @@ Log::channel('slack')->dump();
 
 ### dd()
 
-Works the same as `dump`, but also ends the execution of the test.
+The same as [`dump`](https://github.com/timacdonald/log-fake#dump), but also ends the execution.
 
 ### dumpAll()
 
@@ -509,25 +509,16 @@ Log::dumpAll();
 
 ### ddAll()
 
-Same as [`dumpAll()`](https://github.com/timacdonald/log-fake#dumpall), but it stops execution.
+The same as [`dumpAll()`](https://github.com/timacdonald/log-fake#dumpall), but also ends the execution.
 
-#### Can be called on...
+## Other APIs
 
-- [x] Facade base ~(default channel)~
-- [ ] Channels
-- [ ] Stacks
+### Log::allLogs()
 
 
-## Advanced
-
-### Other APIs
-
-- allLogs
-- allChannelsAndStacks
-- logged
-- logs
-
-### Custom messages in assertions
+### Log::allChannelsAndStacks()
+### Log::logged()
+### Log::logs()
 
 ## Credits
 
