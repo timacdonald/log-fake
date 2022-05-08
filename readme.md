@@ -463,15 +463,13 @@ Works the same as `dump`, but also ends the execution of the test.
 
 Dumps the logs for all channels. Also accepts a truth-test closure to filter any logs.
 
-### ddAll()
-
-Dumps the logs for all channels and then stops execution. Also accepts a truth-test closure to filter any logs.
-
 #### Can be called on...
 
 - [x] Facade base ~(default channel)~
 - [ ] Channels
 - [ ] Stacks
+
+#### Example usage...
 
 ```php
 /*
@@ -505,6 +503,17 @@ Log::dumpAll();
 //   ]
 // ]
 ```
+
+### ddAll()
+
+Same as [`dumpAll()`](https://github.com/timacdonald/log-fake#dumpall), but it stops execution.
+
+#### Can be called on...
+
+- [x] Facade base ~(default channel)~
+- [ ] Channels
+- [ ] Stacks
+
 
 ## Advanced
 

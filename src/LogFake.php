@@ -31,6 +31,7 @@ class LogFake implements LoggerInterface
 
     /**
      * @api
+     * @link https://github.com/timacdonald/log-fake#basic-usage Documentation
      */
     public static function bind(): LogFake
     {
