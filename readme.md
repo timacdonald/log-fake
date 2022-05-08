@@ -395,13 +395,17 @@ Log::assertCurrentContext([
     'env' => 'production',
 ]); // ✅
 
-Log::assertCurrentContext(fn ($context) => $context['app'] === 'Acme CRM')); // ✅
+Log::assertCurrentContext(
+    fn (array $context) => $context['app'] === 'Acme CRM')
+); // ✅
 
 Log::assertCurrentContext([
     'env' => 'production',
 ]); // ❌ missing the "app" key.
 
-Log::assertCurrentContext(fn ($context) => $context['env'] === 'develop')); // ❌ the 'env' key is set to "production"
+Log::assertCurrentContext(
+    fn (array $context) => $context['env'] === 'develop')
+); // ❌ the 'env' key is set to "production"
 ```
 
 ## Inspection
