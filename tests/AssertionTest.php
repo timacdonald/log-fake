@@ -442,6 +442,12 @@ class AssertionTest extends TestCase
             'Expected to find the context [[]] in the [channel] channel. Found [{"foo":"bar"}] instead.'
         );
         $log->channel('channel')->assertCurrentContext(['foo' => 'bar']);
+
+        // not available on a stack.
+        self::assertFailsWithMessage(
+            fn () => $log->stack(['c1'])->assertCurrentContext([]),
+            'Cannot call [Log::stack(...)->assertCurrentContext(...)] as stack contexts are reset each time they are resolved from the LogManager.',
+        );
     }
 
     public function testAssertCurrentContextCustomMesage(): void
