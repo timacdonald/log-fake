@@ -7,6 +7,7 @@ namespace TiMacDonald\Log;
 use Closure;
 use Illuminate\Log\LogManager;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
 use PHPUnit\Framework\Assert as PHPUnit;
 use Psr\Log\LoggerInterface;
@@ -132,7 +133,7 @@ class LogFake implements LoggerInterface
     public function getDefaultDriver(): ?string
     {
         /** @var ?string */
-        return config()->get('logging.default');
+        return Config::get('logging.default');
     }
 
     /**
@@ -140,7 +141,7 @@ class LogFake implements LoggerInterface
      */
     public function setDefaultDriver(string $name): void
     {
-        config()->set('logging.default', $name);
+        Config::set('logging.default', $name);
     }
 
     /**

@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Tests;
 
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Log;
 use PHPUnit\Framework\ExpectationFailedException;
 use Stringable;
 use Symfony\Component\VarDumper\VarDumper;
@@ -13,7 +15,6 @@ use TiMacDonald\CallableFake\CallableFake;
 use TiMacDonald\Log\ChannelFake;
 use TiMacDonald\Log\LogEntry;
 use TiMacDonald\Log\LogFake;
-use function config;
 
 /**
  * @small
@@ -169,7 +170,7 @@ class LogFakeApiTest extends TestCase
         $log = new LogFake();
         $log->setDefaultDriver('expected-driver');
 
-        self::assertSame('expected-driver', config()->get('logging.default'));
+        self::assertSame('expected-driver', Config::get('logging.default'));
     }
 
     public function testDummyMethods(): void
@@ -466,7 +467,7 @@ class LogFakeApiTest extends TestCase
     public function testItHandlesNullDriverConfig(): void
     {
         $log = new LogFake();
-        config()->set('logging.default', null);
+        Config::set('logging.default', null);
 
         $log->info('xxxx');
         $log->channel('null')->assertLogged(fn () => true);
@@ -552,11 +553,11 @@ class LogFakeApiTest extends TestCase
 
     public function testItCanBindItselfToTheContainer(): void
     {
-        self::assertNotInstanceOf(LogFake::class, app('log'));
+        self::assertNotInstanceOf(LogFake::class, Log::getFacadeRoot());
 
         $log = LogFake::bind();
 
-        self::assertSame($log, app('log'));
+        self::assertSame($log, Log::getFacadeRoot());
     }
 
     public function testItResetsStackContextOnChannelBuild(): void

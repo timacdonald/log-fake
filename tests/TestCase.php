@@ -10,7 +10,6 @@ use Illuminate\Container\Container;
 use Illuminate\Log\LogManager;
 use Illuminate\Support\Facades\Facade;
 use PHPUnit\Framework\TestCase as BaseTestCase;
-use Psr\Log\LoggerInterface;
 use Throwable;
 
 class TestCase extends BaseTestCase
@@ -19,13 +18,13 @@ class TestCase extends BaseTestCase
     {
         parent::setUp();
 
-        $container = Container::setInstance(new Container());
+        $app = Container::setInstance(new Container());
 
-        $container->singleton('config', fn (): Repository => new Repository(['logging' => ['default' => 'stack']]));
+        $app->singleton('config', fn () => new Repository(['logging' => ['default' => 'stack']]));
+        $app->singleton('log', fn () => new LogManager($app));
 
-        $container->singleton('log', fn (Container $app): LoggerInterface => new LogManager($app)); /** @phpstan-ignore-line */
-
-        Facade::setFacadeApplication($container); /** @phpstan-ignore-line */
+        Facade::setFacadeApplication($app); /** @phpstan-ignore-line */
+        Facade::clearResolvedInstances();
     }
 
     protected static function assertFailsWithMessage(Closure $callback, string $message): void
