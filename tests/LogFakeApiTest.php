@@ -13,7 +13,6 @@ use TiMacDonald\CallableFake\CallableFake;
 use TiMacDonald\Log\ChannelFake;
 use TiMacDonald\Log\LogEntry;
 use TiMacDonald\Log\LogFake;
-use function assert;
 use function config;
 
 /**
