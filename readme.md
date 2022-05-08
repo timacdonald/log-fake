@@ -50,7 +50,9 @@ public function testItLogsWhenAUserAuthenticates()
      * ensure the expected logging occurred in your implementation.
      */
     Log::assertLogged(fn (LogEntry $log) =>
-        $log->message === 'User logged in.' && $log->context === ['user_id' => 5]
+        $log->level === 'info'
+        && $log->message === 'User logged in.' 
+        && $log->context === ['user_id' => 5]
     );
 }
 ```
@@ -69,10 +71,9 @@ public function testItLogsWhenAUserAuthenticates()
     Log::channel('slack')->info('User logged in.', ['user_id' => $user->id]);
 
     // assertions...
-    Log::channel('slack')->assertLogged('info', function ($message, $context) {
-        return $message === 'User logged in.' 
-            && $context === ['user_id' => 5];
-    });
+    Log::channel('slack')->assertLogged(fn (LogEntry $log) =>
+        $log->message === 'User logged in.'
+    );
 }
 ```
 
