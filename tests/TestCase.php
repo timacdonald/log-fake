@@ -21,7 +21,7 @@ class TestCase extends BaseTestCase
         $app = Container::setInstance(new Container());
 
         $app->singleton('config', fn () => new Repository(['logging' => ['default' => 'stack']]));
-        $app->singleton('log', fn () => new LogManager($app));
+        $app->singleton('log', fn () => new LogManager($app)); /** @phpstan-ignore-line */
 
         Facade::setFacadeApplication($app); /** @phpstan-ignore-line */
         Facade::clearResolvedInstances();
