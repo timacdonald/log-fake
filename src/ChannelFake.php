@@ -11,7 +11,6 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use PHPUnit\Framework\Assert as PHPUnit;
 use Psr\Log\LoggerInterface;
-use stdClass;
 
 /**
  * @no-named-arguments
@@ -37,16 +36,11 @@ class ChannelFake implements LoggerInterface
     private bool $isCurrentlyForgotten = false;
 
     /**
-     * @var array{ '_': stdClass }
-     */
-    private array $sentinalContext;
-
-    /**
      * @internal
      */
     public function __construct(private string $name)
     {
-        $this->sentinalContext = ['_' => new stdClass()];
+        //
     }
 
     /**
@@ -165,12 +159,12 @@ class ChannelFake implements LoggerInterface
      * @link https://github.com/timacdonald/log-fake#assertcurrentcontext Documentation
      * @param (Closure(array<array-key, mixed>): bool)|array<array-key, mixed> $context
      */
-    public function assertCurrentContext(Closure|array $context): ChannelFake
+    public function assertCurrentContext(Closure|array $context, ?string $message = null): ChannelFake
     {
         if ($context instanceof Closure) {
             PHPUnit::assertTrue(
                 (bool) $context($this->currentContext()), /** @phpstan-ignore-line */
-                'Unexpected context found in the [' . $this->name . '] channel. Found [' . json_encode((object) $this->currentContext()) . '].'
+                $message ?? 'Unexpected context found in the [' . $this->name . '] channel. Found [' . json_encode((object) $this->currentContext()) . '].'
             );
         } else {
             PHPUnit::assertSame(
@@ -315,7 +309,7 @@ class ChannelFake implements LoggerInterface
      */
     public function clearContext(): ChannelFake
     {
-        $this->context[] = $this->sentinalContext;
+        $this->context[] = [];
 
         return $this;
     }
@@ -326,18 +320,6 @@ class ChannelFake implements LoggerInterface
     private function currentContext(): array
     {
         /** @var array<array-key, mixed> */
-        $context = Arr::last($this->context) ?? [];
-
-        return $this->isNotSentinalContext($context)
-            ? $context
-            : [];
-    }
-
-    /**
-     * @param array<array-key, mixed> $context
-     */
-    private function isNotSentinalContext(array $context): bool
-    {
-        return $this->sentinalContext !== $context;
+        return Arr::last($this->context) ?? [];
     }
 }

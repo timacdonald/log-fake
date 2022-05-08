@@ -80,6 +80,16 @@ class AssertionTest extends TestCase
         }, 1);
     }
 
+    public function testAssertLoggedCustomError(): void
+    {
+        $log = new LogFake();
+
+        self::assertFailsWithMessage(
+            fn () => $log->assertLogged(fn () => false, 'expected message'),
+            'expected message'
+        );
+    }
+
     public function testAssertLoggedTimes(): void
     {
         $log = new LogFake();
@@ -153,6 +163,16 @@ class AssertionTest extends TestCase
         }, 1);
     }
 
+    public function testAssertLoggedTimesCustomError(): void
+    {
+        $log = new LogFake();
+
+        self::assertFailsWithMessage(
+            fn () => $log->assertLoggedTimes(fn () => false, 3, 'expected message'),
+            'expected message'
+        );
+    }
+
     public function testAssertNotLogged(): void
     {
         $log = new LogFake();
@@ -201,6 +221,17 @@ class AssertionTest extends TestCase
         }, 1);
     }
 
+    public function testAssertNotLoggedCustomMessage(): void
+    {
+        $log = new LogFake();
+        $log->info('xxxx');
+
+        self::assertFailsWithMessage(
+            fn () => $log->assertNotLogged(fn () => true, 'expected message'),
+            'expected message'
+        );
+    }
+
     public function testAssertNothingLogged(): void
     {
         $log = new LogFake();
@@ -230,6 +261,17 @@ class AssertionTest extends TestCase
         );
     }
 
+    public function testAssertNothingLoggedCustomError(): void
+    {
+        $log = new LogFake();
+        $log->info('xxxx');
+
+        self::assertFailsWithMessage(
+            fn () => $log->assertNothingLogged('expected message'),
+            'expected message'
+        );
+    }
+
     public function testAssertWasForgotten(): void
     {
         $log = new LogFake();
@@ -251,6 +293,16 @@ class AssertionTest extends TestCase
         $log->channel('channel')->assertWasForgotten();
 
         // not available on a stack.
+    }
+
+    public function testAssertWasForgottenCustomError(): void
+    {
+        $log = new LogFake();
+
+        self::assertFailsWithMessage(
+            fn () => $log->assertWasForgotten('expected message'),
+            'expected message'
+        );
     }
 
     public function testAssertWasForgottenTimes(): void
@@ -277,6 +329,16 @@ class AssertionTest extends TestCase
         // not available on a stack.
     }
 
+    public function testAssertWasForgottenTimesCustomError(): void
+    {
+        $log = new LogFake();
+
+        self::assertFailsWithMessage(
+            fn () => $log->assertWasForgottenTimes(3, 'expected message'),
+            'expected message'
+        );
+    }
+
     public function testAssertWasNotForgotten(): void
     {
         $log = new LogFake();
@@ -300,6 +362,17 @@ class AssertionTest extends TestCase
         // not available on a stack.
     }
 
+    public function testAssertWasNotForgottenCustomError(): void
+    {
+        $log = new LogFake();
+        $log->forgetChannel('stack');
+
+        self::assertFailsWithMessage(
+            fn () => $log->assertWasNotForgotten('expected message'),
+            'expected message'
+        );
+    }
+
     public function testAssertChannelIsCurrentlyForgotten(): void
     {
         $log = new LogFake();
@@ -315,6 +388,17 @@ class AssertionTest extends TestCase
         );
         $log->forgetChannel('channel');
         $log->assertChannelIsCurrentlyForgotten('channel');
+    }
+
+    public function testAssertChannelIsCurrentlyForgottenCustomMessage(): void
+    {
+        $log = new LogFake();
+        $log->channel('channel');
+
+        self::assertFailsWithMessage(
+            fn () => $log->assertChannelIsCurrentlyForgotten('channel', 'expected message'),
+            'expected message'
+        );
     }
 
     public function testAssertCurrentContext(): void
@@ -346,6 +430,16 @@ class AssertionTest extends TestCase
             'Expected to find the context [[]] in the [channel] channel. Found [{"foo":"bar"}] instead.'
         );
         $log->channel('channel')->assertCurrentContext(['foo' => 'bar']);
+    }
+
+    public function testAssertCurrentContextCustomMesage(): void
+    {
+        $log = new LogFake();
+
+        self::assertFailsWithMessage(
+            fn () => $log->assertCurrentContext(fn () => false, 'expected message'),
+            'expected message'
+        );
     }
 
     public function testAssertCurrentContextWithClosure(): void
@@ -405,5 +499,16 @@ class AssertionTest extends TestCase
         $this->expectExceptionMessage('Cannot call [Log::stack(...)->assertCurrentContext(...)] as stack contexts are reset each time they are resolved from the LogManager.');
 
         $log->stack(['c1', 'c2'], 'name')->assertCurrentContext(['foo' => 'bar']);
+    }
+
+    public function testAssertCurrentContextWithNonBoolReturnedFromClosure(): void
+    {
+        $log = new LogFake();
+
+        $log->assertCurrentContext(fn () => 1); /** @phpstan-ignore-line */
+        self::assertFailsWithMessage(
+            fn () => $log->assertCurrentContext(fn () => 0), /** @phpstan-ignore-line */
+            'Unexpected context found in the [stack] channel. Found [{}].'
+        );
     }
 }

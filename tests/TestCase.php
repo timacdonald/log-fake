@@ -9,7 +9,6 @@ use Illuminate\Config\Repository;
 use Illuminate\Container\Container;
 use Illuminate\Log\LogManager;
 use Illuminate\Support\Facades\Facade;
-use PHPUnit\Framework\Constraint\ExceptionMessage;
 use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Framework\TestCase as BaseTestCase;
 use Psr\Log\LoggerInterface;
@@ -24,9 +23,9 @@ class TestCase extends BaseTestCase
 
         $container->singleton('config', fn (): Repository => new Repository(['logging' => ['default' => 'stack']]));
 
-        $container->singleton('log', fn (Container $app): LoggerInterface => new LogManager($app));
+        $container->singleton('log', fn (Container $app): LoggerInterface => new LogManager($app)); /** @phpstan-ignore-line */
 
-        Facade::setFacadeApplication($container);
+        Facade::setFacadeApplication($container); /** @phpstan-ignore-line */
     }
 
     protected static function assertFailsWithMessage(Closure $callback, string $message): void
@@ -35,7 +34,7 @@ class TestCase extends BaseTestCase
             $callback();
             self::fail('The log fake assertion did not fail as expected.');
         } catch (ExpectationFailedException $exception) {
-            self::assertThat($exception, new ExceptionMessage($message));
+            self::assertStringStartsWith($message.PHP_EOL, $exception->getMessage());
         }
     }
 }
