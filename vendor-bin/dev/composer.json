@@ -5,7 +5,9 @@
         "phpstan/phpstan": "^1.0",
         "phpstan/phpstan-phpunit": "^1.0",
         "phpstan/phpstan-strict-rules": "^1.2",
-        "thecodingmachine/phpstan-safe-rule": "^1.2"
+        "thecodingmachine/phpstan-safe-rule": "^1.2",
+        "maglnet/composer-require-checker": "^4.0",
+        "icanhazstring/composer-unused": "^0.8.2"
     },
     "config": {
         "allow-plugins": {
