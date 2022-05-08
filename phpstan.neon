@@ -4,5 +4,5 @@ parameters:
         - src
         - tests
 includes:
-    - vendor/phpstan/phpstan-strict-rules/rules.neon
-    - vendor/thecodingmachine/phpstan-safe-rule/phpstan-safe-rule.neon
+    - vendor-bin/dev/vendor/phpstan/phpstan-strict-rules/rules.neon
+    - vendor-bin/dev/vendor/thecodingmachine/phpstan-safe-rule/phpstan-safe-rule.neon

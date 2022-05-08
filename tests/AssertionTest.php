@@ -529,4 +529,16 @@ class AssertionTest extends TestCase
             'Unexpected context found in the [stack] channel. Found [{}].'
         );
     }
+
+    public function testAssertLoggedFuncWithNonBoolReturnedFromClosure(): void
+    {
+        $log = new LogFake();
+        $log->info('xxxx');
+
+        $log->assertLogged(fn () => 1); /** @phpstan-ignore-line */
+        self::assertFailsWithMessage(
+            fn () => $log->assertLogged(fn () => 0), /** @phpstan-ignore-line */
+            'Expected log was not created in the [stack] channel.'
+        );
+    }
 }
