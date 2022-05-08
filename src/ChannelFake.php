@@ -161,13 +161,13 @@ class ChannelFake implements LoggerInterface
         if ($context instanceof Closure) {
             PHPUnit::assertTrue(
                 (bool) $context($this->currentContext()), /** @phpstan-ignore-line */
-                $message ?? 'Unexpected context found in the [' . $this->name . '] channel. Found [' . json_encode((object) $this->currentContext()) . '].'
+                $message ?? 'Unexpected context found in the [' . $this->name . '] channel. Found [' . json_encode((object) $this->currentContext(), JSON_THROW_ON_ERROR) . '].'
             );
         } else {
             PHPUnit::assertSame(
                 $context,
                 $this->currentContext(),
-                'Expected to find the context [' . json_encode($context, JSON_THROW_ON_ERROR) . '] in the [' . $this->name . '] channel. Found [' . json_encode((object) $this->currentContext()) . '] instead.'
+                'Expected to find the context [' . json_encode($context, JSON_THROW_ON_ERROR) . '] in the [' . $this->name . '] channel. Found [' . json_encode((object) $this->currentContext(), JSON_THROW_ON_ERROR) . '] instead.'
             );
         }
 

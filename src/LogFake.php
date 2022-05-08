@@ -89,7 +89,7 @@ class LogFake implements LoggerInterface
     public function build(array $config): ChannelFake
     {
         return $this->driver(
-            'ondemand::'.json_encode((object) $config)
+            'ondemand::'.json_encode((object) $config, JSON_THROW_ON_ERROR)
         )->clearContext();
     }
 
