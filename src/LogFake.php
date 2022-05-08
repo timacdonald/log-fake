@@ -98,7 +98,7 @@ class LogFake implements LoggerInterface
      */
     public function stack(array $channels, ?string $channel = null): ChannelFake
     {
-        $name = $this->parseStackDriver($channels, $channel);
+        $name = self::parseStackDriver($channels, $channel);
 
         $this->stacks[$name] ??= new StackFake($name);
 
@@ -172,6 +172,7 @@ class LogFake implements LoggerInterface
 
     /**
      * @see LogManager::log()
+     * @see LoggerInterface::log()
      * @param mixed $level
      */
     public function log($level, $message, array $context = []): void
@@ -189,22 +190,9 @@ class LogFake implements LoggerInterface
     }
 
     /**
-     * @param array<int, string> $channels
-     */
-    private function parseStackDriver(array $channels, ?string $channel): string
-    {
-        return 'stack::' . ($channel ?? 'unnamed') . ':' . Collection::make($channels)->sort()->implode(',');
-    }
-
-    private function parseChannelDriver(?string $driver): string
-    {
-        return $driver ?? $this->getDefaultDriver() ?? 'null';
-    }
-
-    /**
      * @return Collection<int, LogEntry>
      */
-    private function allLogs(): Collection
+    public function allLogs(): Collection
     {
         /** @var Collection<int, LogEntry> */
         return $this->allChannelsAndStacks()->flatMap(fn (ChannelFake $channel): Collection => $channel->logs());
@@ -213,8 +201,21 @@ class LogFake implements LoggerInterface
     /**
      * @return Collection<string, ChannelFake>
      */
-    private function allChannelsAndStacks(): Collection
+    public function allChannelsAndStacks(): Collection
     {
         return Collection::make($this->channels)->merge($this->stacks);
+    }
+
+    private function parseChannelDriver(?string $driver): string
+    {
+        return $driver ?? $this->getDefaultDriver() ?? 'null';
+    }
+
+    /**
+     * @param array<int, string> $channels
+     */
+    private static function parseStackDriver(array $channels, ?string $channel): string
+    {
+        return 'stack::' . ($channel ?? 'unnamed') . ':' . Collection::make($channels)->sort()->implode(',');
     }
 }

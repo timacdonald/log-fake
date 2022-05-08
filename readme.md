@@ -520,6 +520,13 @@ Same as [`dumpAll()`](https://github.com/timacdonald/log-fake#dumpall), but it s
 
 ## Advanced
 
+### Other APIs
+
+- allLogs
+- allChannelsAndStacks
+- logged
+- logs
+
 ### Custom messages in assertions
 
 ## Credits

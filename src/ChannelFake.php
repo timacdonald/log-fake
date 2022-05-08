@@ -184,7 +184,8 @@ class ChannelFake implements LoggerInterface
     }
 
     /**
-     * @see Logger::info()
+     * @see Logger::log()
+     * @see LoggerInterface::log()
      */
     public function log($level, $message, array $context = []): void
     {
