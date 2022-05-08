@@ -13,7 +13,6 @@ use RuntimeException;
 class StackFake extends ChannelFake
 {
     /**
-     * @api
      * @link https://github.com/timacdonald/log-fake#assertcurrentcontext Documentation
      * @param (Closure(array<array-key, mixed>): bool)|array<array-key, mixed> $context
      */

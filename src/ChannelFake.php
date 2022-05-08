@@ -13,6 +13,9 @@ use PHPUnit\Framework\Assert as PHPUnit;
 use Psr\Log\LoggerInterface;
 use stdClass;
 
+/**
+ * @no-named-arguments
+ */
 class ChannelFake implements LoggerInterface
 {
     use LogHelpers;
@@ -39,7 +42,7 @@ class ChannelFake implements LoggerInterface
     private array $sentinalContext;
 
     /**
-     * @api
+     * @internal
      */
     public function __construct(private string $name)
     {
@@ -47,7 +50,7 @@ class ChannelFake implements LoggerInterface
     }
 
     /**
-     * @api
+     * @link https://github.com/timacdonald/log-fake#dump Documentation
      * @param (Closure(LogEntry): bool) $callback
      */
     public function dump(?Closure $callback = null): ChannelFake
@@ -61,7 +64,7 @@ class ChannelFake implements LoggerInterface
     }
 
     /**
-     * @api
+     * @link https://github.com/timacdonald/log-fake#dd Documentation
      * @codeCoverageIgnore
      * @infection-ignore-all
      * @param (Closure(LogEntry): bool) $callback
@@ -74,7 +77,6 @@ class ChannelFake implements LoggerInterface
     }
 
     /**
-     * @api
      * @link https://github.com/timacdonald/log-fake#assertlogged Documentation
      * @param (Closure(LogEntry): bool) $callback
      */
@@ -89,7 +91,6 @@ class ChannelFake implements LoggerInterface
     }
 
     /**
-     * @api
      * @link https://github.com/timacdonald/log-fake#assertloggedtimes Documentation
      * @param (Closure(LogEntry): bool) $callback
      */
@@ -104,7 +105,6 @@ class ChannelFake implements LoggerInterface
     }
 
     /**
-     * @api
      * @link https://github.com/timacdonald/log-fake#assertnotlogged Documentation
      * @param (Closure(LogEntry): bool) $callback
      */
@@ -114,7 +114,6 @@ class ChannelFake implements LoggerInterface
     }
 
     /**
-     * @api
      * @link https://github.com/timacdonald/log-fake#assertnothinglogged Documentation
      */
     public function assertNothingLogged(?string $message = null): ChannelFake
@@ -128,7 +127,6 @@ class ChannelFake implements LoggerInterface
     }
 
     /**
-     * @api
      * @link https://github.com/timacdonald/log-fake#assertwasforgotten Documentation
      */
     public function assertWasForgotten(?string $message = null): ChannelFake
@@ -142,7 +140,6 @@ class ChannelFake implements LoggerInterface
     }
 
     /**
-     * @api
      * @link https://github.com/timacdonald/log-fake#assertwasforgottentimes Documentation
      */
     public function assertWasForgottenTimes(int $times, ?string $message = null): ChannelFake
@@ -157,7 +154,6 @@ class ChannelFake implements LoggerInterface
     }
 
     /**
-     * @api
      * @link https://github.com/timacdonald/log-fake#assertwasnotforgotten Documentation
      */
     public function assertWasNotForgotten(?string $message = null): ChannelFake
@@ -166,13 +162,11 @@ class ChannelFake implements LoggerInterface
     }
 
     /**
-     * @api
      * @link https://github.com/timacdonald/log-fake#assertcurrentcontext Documentation
      * @param (Closure(array<array-key, mixed>): bool)|array<array-key, mixed> $context
      */
     public function assertCurrentContext(Closure|array $context): ChannelFake
     {
-        // TODO: current context for the on-demand channel?
         if ($context instanceof Closure) {
             PHPUnit::assertTrue(
                 (bool) $context($this->currentContext()), /** @phpstan-ignore-line */
@@ -190,7 +184,6 @@ class ChannelFake implements LoggerInterface
     }
 
     /**
-     * @api
      * @see Logger::info()
      */
     public function log($level, $message, array $context = []): void
@@ -205,9 +198,7 @@ class ChannelFake implements LoggerInterface
     }
 
     /**
-     * @api
      * @see Logger::write()
-     *
      * @param \Illuminate\Contracts\Support\Arrayable<array-key, mixed>|\Illuminate\Contracts\Support\Jsonable|\Illuminate\Support\Stringable|array<array-key, mixed>|string $message
      * @param array<array-key, mixed> $context
      */
@@ -217,7 +208,6 @@ class ChannelFake implements LoggerInterface
     }
 
     /**
-     * @api
      * @see Logger::withContext()
      * @param array<array-key, mixed> $context
      */
@@ -229,7 +219,6 @@ class ChannelFake implements LoggerInterface
     }
 
     /**
-     * @api
      * @see Logger::withoutContext()
      */
     public function withoutContext(): ChannelFake
@@ -240,7 +229,6 @@ class ChannelFake implements LoggerInterface
     }
 
     /**
-     * @api
      * @see Logger::listen()
      */
     public function listen(Closure $callback): void
@@ -249,7 +237,6 @@ class ChannelFake implements LoggerInterface
     }
 
     /**
-     * @api
      * @see Logger::getLogger()
      */
     public function getLogger(): ChannelFake
@@ -258,7 +245,6 @@ class ChannelFake implements LoggerInterface
     }
 
     /**
-     * @api
      * @see Logger::getEventDispatcher()
      */
     public function getEventDispatcher(): Dispatcher
@@ -267,7 +253,6 @@ class ChannelFake implements LoggerInterface
     }
 
     /**
-     * @api
      * @see Logger::setEventDispatcher()
      */
     public function setEventDispatcher(Dispatcher $dispatcher): void
@@ -276,7 +261,6 @@ class ChannelFake implements LoggerInterface
     }
 
     /**
-     * @api
      * @param (Closure(LogEntry): bool) $callback
      * @return Collection<int, LogEntry>
      */
@@ -288,7 +272,6 @@ class ChannelFake implements LoggerInterface
     }
 
     /**
-     * @internal
      * @return Collection<int, LogEntry>
      */
     public function logs(): Collection

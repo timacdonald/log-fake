@@ -326,7 +326,7 @@ class LogFakeApiTest extends TestCase
         $log->info('expected log');
         $log->debug('missing log');
         $log->channel('channel')->info('missing channel log');
-        $log = $log->dump('info');
+        $log = $log->dump(fn (LogEntry $log) => $log->level === 'info');
 
         self::assertInstanceOf(ChannelFake::class, $log);
         self::assertCount(1, $dumps);
@@ -391,7 +391,7 @@ class LogFakeApiTest extends TestCase
         $log->channel('unknown')->info('missing log');
         $log->channel('known')->info('expected log');
         $log->channel('known')->debug('missing log');
-        $log = $log->channel('known')->dump('info');
+        $log = $log->channel('known')->dump(fn (LogEntry $log) => $log->level === 'info');
 
         self::assertInstanceOf(ChannelFake::class, $log);
         self::assertCount(1, $dumps);
@@ -476,7 +476,7 @@ class LogFakeApiTest extends TestCase
         $log->debug('missing log');
         $log->channel('channel')->info('expected log 2');
         $log->channel('channel')->debug('missing log');
-        $log = $log->dumpAll('info');
+        $log = $log->dumpAll(fn (LogEntry $log) => $log->level === 'info');
 
         self::assertInstanceOf(LogFake::class, $log);
         self::assertCount(1, $dumps);
@@ -567,9 +567,11 @@ class LogFakeApiTest extends TestCase
     {
         $log = new LogFake();
 
-        $log->build([])->info('expected message');
+        $log->build([])->info('expected message 1');
+        $log->channel('ondemand::{}')->assertLogged(fn (LogEntry $log) => $log->message === 'expected message 1');
 
-        $log->channel('ondemand')->assertLogged(fn (LogEntry $log) => $log->message === 'expected message');
+        $log->build(['foo' => 'bar'])->info('expected message 2');
+        $log->channel('ondemand::{"foo":"bar"}')->assertLogged(fn (LogEntry $log) => $log->message === 'expected message 2');
     }
 
     public function testItCanRetrieveChannels(): void

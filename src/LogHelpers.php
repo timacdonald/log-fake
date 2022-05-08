@@ -8,13 +8,11 @@ use Illuminate\Log\Logger;
 use Illuminate\Log\LogManager;
 
 /**
- * @internal
  * @no-named-arguments
  */
 trait LogHelpers
 {
     /**
-     * @api
      * @see LogManager::emergency()
      * @see Logger::emergency()
      */
@@ -24,7 +22,6 @@ trait LogHelpers
     }
 
     /**
-     * @api
      * @see LogManager::alert()
      * @see Logger::alert()
      */
@@ -34,7 +31,6 @@ trait LogHelpers
     }
 
     /**
-     * @api
      * @see LogManager::critical()
      * @see Logger::critical()
      */
@@ -44,7 +40,6 @@ trait LogHelpers
     }
 
     /**
-     * @api
      * @see LogManager::error()
      * @see Logger::error()
      */
@@ -54,7 +49,6 @@ trait LogHelpers
     }
 
     /**
-     * @api
      * @see LogManager::warning()
      * @see Logger::warning()
      */
@@ -64,7 +58,6 @@ trait LogHelpers
     }
 
     /**
-     * @api
      * @see LogManager::notice()
      * @see Logger::notice()
      */
@@ -74,7 +67,6 @@ trait LogHelpers
     }
 
     /**
-     * @api
      * @see LogManager::info()
      * @see Logger::info()
      */
@@ -84,18 +76,15 @@ trait LogHelpers
     }
 
     /**
-     * @api
      * @see LogManager::debug()
      * @see Logger::debug()
      */
     public function debug($message, array $context = []): void
     {
-        // TODO: specify
         $this->log('debug', $message, $context);
     }
 
     /**
-     * @api
      * @see LogManager::log()
      * @see Logger::log()
      */

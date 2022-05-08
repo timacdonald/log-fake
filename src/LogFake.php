@@ -12,8 +12,8 @@ use PHPUnit\Framework\Assert as PHPUnit;
 use Psr\Log\LoggerInterface;
 
 /**
- * @mixin ChannelFake
  * @no-named-arguments
+ * @mixin ChannelFake
  */
 class LogFake implements LoggerInterface
 {
@@ -30,7 +30,6 @@ class LogFake implements LoggerInterface
     private array $stacks = [];
 
     /**
-     * @api
      * @link https://github.com/timacdonald/log-fake#basic-usage Documentation
      */
     public static function bind(): LogFake
@@ -43,7 +42,7 @@ class LogFake implements LoggerInterface
     }
 
     /**
-     * @api
+     * @link https://github.com/timacdonald/log-fake#dumpall Documentation
      * @param (CLosure(LogEntry): bool) $callback
      */
     public function dumpAll(?Closure $callback = null): LogFake
@@ -57,7 +56,7 @@ class LogFake implements LoggerInterface
     }
 
     /**
-     * @api
+     * @link https://github.com/timacdonald/log-fake#ddall Documentation
      * @codeCoverageIgnore
      * @infection-ignore-all
      * @param (Closure(LogEntry): bool) $callback
@@ -70,7 +69,6 @@ class LogFake implements LoggerInterface
     }
 
     /**
-     * @api
      * @link https://github.com/timacdonald/log-fake#assertchanneliscurrentlyforgotten Documentation
      */
     public function assertChannelIsCurrentlyForgotten(string $name, ?string $message = null): LogFake
@@ -84,19 +82,17 @@ class LogFake implements LoggerInterface
     }
 
     /**
-     * @api
      * @see LogManager::build()
      * @param array<string, mixed> $config
      */
     public function build(array $config): ChannelFake
     {
         return $this->driver(
-            'ondemand::'.json_encode($config)
+            'ondemand::'.json_encode((object) $config)
         )->clearContext();
     }
 
     /**
-     * @api
      * @see LogManager::stack()
      * @param array<int, string> $channels
      */
@@ -111,7 +107,6 @@ class LogFake implements LoggerInterface
 
 
     /**
-     * @api
      * @see LogManager::channel()
      */
     public function channel(?string $channel = null): ChannelFake
@@ -120,7 +115,6 @@ class LogFake implements LoggerInterface
     }
 
     /**
-     * @api
      * @see LogManager::driver()
      */
     public function driver(?string $driver = null): ChannelFake
@@ -133,7 +127,6 @@ class LogFake implements LoggerInterface
     }
 
     /**
-     * @api
      * @see LogManager::getDefaultDriver()
      */
     public function getDefaultDriver(): ?string
@@ -143,7 +136,6 @@ class LogFake implements LoggerInterface
     }
 
     /**
-     * @api
      * @see LogManager::setDefaultDriver()
      */
     public function setDefaultDriver(string $name): void
@@ -152,7 +144,6 @@ class LogFake implements LoggerInterface
     }
 
     /**
-     * @api
      * @see LogManager::extend()
      */
     public function extend(string $driver, Closure $callback): LogFake
@@ -161,7 +152,6 @@ class LogFake implements LoggerInterface
     }
 
     /**
-     * @api
      * @see LogManager::forgetChannel()
      */
     public function forgetChannel(?string $driver = null): LogFake
@@ -172,18 +162,15 @@ class LogFake implements LoggerInterface
     }
 
     /**
-     * @api
      * @see LogManager::getChannels()
      * @return array<string, ChannelFake>
      */
     public function getChannels(): array
     {
-        // TODO this could just return non-forgotten channels now.
         return $this->channels;
     }
 
     /**
-     * @api
      * @see LogManager::log()
      * @param mixed $level
      */
@@ -193,7 +180,6 @@ class LogFake implements LoggerInterface
     }
 
     /**
-     * @api
      * @see LogManager::__call()
      * @param array<string, mixed> $parameters
      */

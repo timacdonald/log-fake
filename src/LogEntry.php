@@ -8,6 +8,7 @@ use Illuminate\Contracts\Support\Arrayable;
 use Stringable;
 
 /**
+ * @no-named-arguments
  * @implements Arrayable<string, mixed>
  */
 class LogEntry implements Arrayable

@@ -49,10 +49,9 @@ public function testItLogsWhenAUserAuthenticates()
      * Finally you can make assertions against the log channels, stacks, etc. to
      * ensure the expected logging occurred in your implementation.
      */
-    Log::assertLogged('info', function ($message, $context) {
-        return $message === 'User logged in.'
-            && $context === ['user_id' => 5];
-    });
+    Log::assertLogged(fn (LogEntry $log) =>
+        $log->message === 'User logged in.' && $log->context === ['user_id' => 5]
+    );
 }
 ```
 
