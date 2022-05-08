@@ -13,9 +13,6 @@ use PHPUnit\Framework\Assert as PHPUnit;
 use Psr\Log\LoggerInterface;
 use stdClass;
 
-/**
- * @no-named-arguments
- */
 class ChannelFake implements LoggerInterface
 {
     use LogHelpers;
@@ -23,7 +20,7 @@ class ChannelFake implements LoggerInterface
     private Dispatcher $dispatcher;
 
     /**
-     * @var array<int, array{ level: mixed, message: string, context: array<array-key, mixed>, channel: string, times_channel_has_been_forgotten_at_time_of_writing_log: int }>
+     * @var array<int, LogEntry>
      */
     private array $logs = [];
 
@@ -42,7 +39,7 @@ class ChannelFake implements LoggerInterface
     private array $sentinalContext;
 
     /**
-     * @internal
+     * @api
      */
     public function __construct(private string $name)
     {
@@ -56,7 +53,7 @@ class ChannelFake implements LoggerInterface
     {
         $callback = $level === null
             ? fn (): bool => true
-            : fn (array $log) => $log['level'] === $level;
+            : fn (LogEntry $log) => $log->level === $level;
 
         $this->logs()
             ->filter($callback)
@@ -81,9 +78,9 @@ class ChannelFake implements LoggerInterface
     /**
      * @api
      * @link https://github.com/timacdonald/log-fake#assertlogged Documentation
-     * @param (callable(string, string, array<array-key, mixed>, int): bool) $callback
+     * @param (Closure(LogEntry): bool) $callback
      */
-    public function assertLogged(callable $callback, ?string $message = null): ChannelFake
+    public function assertLogged(Closure $callback, ?string $message = null): ChannelFake
     {
         PHPUnit::assertTrue(
             $this->logged($callback)->count() > 0,
@@ -96,9 +93,9 @@ class ChannelFake implements LoggerInterface
     /**
      * @api
      * @link https://github.com/timacdonald/log-fake#assertloggedtimes Documentation
-     * @param (callable(string, string, array<array-key, mixed>, int): bool) $callback
+     * @param (Closure(LogEntry): bool) $callback
      */
-    public function assertLoggedTimes(callable $callback, int $times, ?string $message = null): ChannelFake
+    public function assertLoggedTimes(Closure $callback, int $times, ?string $message = null): ChannelFake
     {
         PHPUnit::assertTrue(
             ($count = $this->logged($callback)->count()) === $times,
@@ -111,9 +108,9 @@ class ChannelFake implements LoggerInterface
     /**
      * @api
      * @link https://github.com/timacdonald/log-fake#assertnotlogged Documentation
-     * @param (callable(string, string, array<array-key, mixed>, int): bool) $callback
+     * @param (Closure(LogEntry): bool) $callback
      */
-    public function assertNotLogged(callable $callback, ?string $message = null): ChannelFake
+    public function assertNotLogged(Closure $callback, ?string $message = null): ChannelFake
     {
         return $this->assertLoggedTimes($callback, 0, $message);
     }
@@ -173,12 +170,12 @@ class ChannelFake implements LoggerInterface
     /**
      * @api
      * @link https://github.com/timacdonald/log-fake#assertcurrentcontext Documentation
-     * @param callable|array<string, mixed> $context
+     * @param (Closure(array<array-key, mixed>): bool)|array<array-key, mixed> $context
      */
-    public function assertCurrentContext(callable|array $context): ChannelFake
+    public function assertCurrentContext(Closure|array $context): ChannelFake
     {
         // TODO: current context for the on-demand channel?
-        if (is_callable($context)) {
+        if ($context instanceof Closure) {
             PHPUnit::assertTrue(
                 (bool) $context($this->currentContext()),
                 'Unexpected context found in the [' . $this->name . '] channel. Found [' . json_encode((object) $this->currentContext()) . '].'
@@ -200,29 +197,30 @@ class ChannelFake implements LoggerInterface
      */
     public function log($level, $message, array $context = []): void
     {
-        $this->logs[] = [
-            'level' => $level,
-            'message' => (string) $message,
-            'context' => array_merge($this->currentContext(), $context),
-            'times_channel_has_been_forgotten_at_time_of_writing_log' => $this->timesForgotten,
-            'channel' => $this->name,
-        ];
+        $this->logs[] = new LogEntry(
+            $level,
+            $message,
+            array_merge($this->currentContext(), $context),
+            $this->timesForgotten
+        );
     }
 
     /**
      * @api
      * @see Logger::write()
-     * @param array<string, mixed> $context
+     *
+     * @param \Illuminate\Contracts\Support\Arrayable<array-key, mixed>|\Illuminate\Contracts\Support\Jsonable|\Illuminate\Support\Stringable|array<array-key, mixed>|string $message
+     * @param array<array-key, mixed> $context
      */
-    public function write($level, $message, array $context = []): void
+    public function write(string $level, $message, array $context = []): void
     {
-        $this->log($level, $message, $context);
+        $this->log($level, $message, $context); /** @phpstan-ignore-line */
     }
 
     /**
      * @api
      * @see Logger::withContext()
-     * @param array<string, mixed> $context
+     * @param array<array-key, mixed> $context
      */
     public function withContext(array $context = []): ChannelFake
     {
@@ -280,23 +278,19 @@ class ChannelFake implements LoggerInterface
 
     /**
      * @internal
-     * @param (callable(string, string, array<array-key, mixed>, int): bool) $callback
-     * @return Collection<int, array{ level: mixed, message: string, context: array<string, mixed>, channel: string, times_channel_has_been_forgotten_at_time_of_writing_log: int }>
+     * @param (Closure(LogEntry): bool) $callback
+     * @return Collection<int, LogEntry>
      */
-    public function logged(callable $callback): Collection
+    public function logged(Closure $callback): Collection
     {
         return $this->logs()
-            ->filter(fn (array $log): bool => (bool) $callback(
-                $log['level'],
-                $log['message'],
-                $log['context']
-            ))
+            ->filter(fn (LogEntry $log): bool => (bool) $callback($log))
             ->values();
     }
 
     /**
      * @internal
-     * @return Collection<int, array{ level: mixed, message: string, context: array<string, mixed>, channel: string, times_channel_has_been_forgotten_at_time_of_writing_log: int }>
+     * @return Collection<int, LogEntry>
      */
     public function logs(): Collection
     {
@@ -344,26 +338,16 @@ class ChannelFake implements LoggerInterface
     }
 
     /**
-     * @return array<string, mixed>
+     * @return array<array-key, mixed>
      */
     private function currentContext(): array
     {
-        /** @var array<string, mixed> */
+        /** @var array<array-key, mixed> */
         $context = Arr::last($this->context) ?? [];
 
         return $this->isNotSentinalContext($context)
             ? $context
             : [];
-    }
-
-    /**
-     * @return Collection<int, array<string, mixed>>
-     */
-    private function allContextInstances(): Collection
-    {
-        return Collection::make($this->context)
-            ->filter(fn (array $value): bool => $this->isNotSentinalContext($value))
-            ->values();
     }
 
     /**

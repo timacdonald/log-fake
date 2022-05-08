@@ -29,6 +29,7 @@
     },
     "require-dev": {
         "bamarni/composer-bin-plugin": "^1.4",
+        "phpstan/phpstan-strict-rules": "^1.2",
         "timacdonald/callable-fake": "^1.5"
     },
     "config": {

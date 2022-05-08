@@ -48,7 +48,7 @@ class LogFake implements LoggerInterface
     {
         $callback = $level === null
             ? fn (): bool => true
-            : fn (array $log): bool => $log['level'] === $level;
+            : fn (LogEntry $log): bool => $log->level === $level;
 
         $this->allLogs()
             ->filter($callback)
@@ -201,7 +201,7 @@ class LogFake implements LoggerInterface
      */
     public function __call(string $method, array $parameters): mixed
     {
-        return $this->driver()->{$method}(...$parameters);
+        return $this->driver()->{$method}(...$parameters); /** @phpstan-ignore-line */
     }
 
     /**
@@ -218,11 +218,11 @@ class LogFake implements LoggerInterface
     }
 
     /**
-     * @return Collection<int, array{ level: mixed, message: string, context: array<string, mixed>, channel: string, times_channel_has_been_forgotten_at_time_of_writing_log: int }>
+     * @return Collection<int, LogEntry>
      */
     private function allLogs(): Collection
     {
-        /** @var Collection<int, array{ level: mixed, message: string, context: array<string, mixed>, channel: string, times_channel_has_been_forgotten_at_time_of_writing_log: int }> */
+        /** @var Collection<int, LogEntry> */
         return $this->allChannelsAndStacks()->flatMap(fn (ChannelFake $channel): Collection => $channel->logs());
     }
 

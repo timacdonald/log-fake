@@ -280,7 +280,7 @@ Assert that the channel / stack was forgotten a specific number of times.
 
 - [x] Facade base (default channel)
 - [x] Channels
-- [] Stacks
+- [ ] Stacks
 
 #### Example tests
 
