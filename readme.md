@@ -97,7 +97,7 @@ public function testItLogsWhenAUserAuthenticates()
 }
 ```
 
-That's it really. Now let's dig into the available assertions to improve you experience testing your applications logging.
+That's it really. Now let's dig into the available assertions to improve your experience testing your applications logging.
 
 ## Available assertions
 
@@ -136,12 +136,12 @@ Log::info('User logged in.');
  * assertions...
  */
 
-Log::assertLogged(fn ($level, $message, $context) =>
-    $message === 'User logged in.'
+Log::assertLogged(fn (LogEntry $log) =>
+    $log->message === 'User logged in.'
 ); // ✅
 
-Log::assertLogged(fn ($level, $message, $context) =>
-    $level === 'critical'
+Log::assertLogged(fn (LogEntry $log) =>
+    $log->level === 'critical'
 ); // ❌ as log had a level of `info`.
 ```
 
@@ -170,13 +170,13 @@ Log::info('Stripe request initiated.');
  * assertions...
  */
 
-Log::assertLoggedTimes(fn ($level, $message, $context) =>
-    $message === 'Stripe request initiated.',
+Log::assertLoggedTimes(
+    fn (LogEntry $log) => $log->message === 'Stripe request initiated.',
     2
 ); // ✅
 
-Log::assertLoggedTimes(fn ($level, $message, $context) =>
-    $message === 'Stripe request initiated.',
+Log::assertLoggedTimes(
+    fn ($level, $message, $context) => $message === 'Stripe request initiated.',
     99
 ); // ❌ as the log was created twice, not 99 times.
 ```
