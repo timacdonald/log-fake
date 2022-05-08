@@ -117,13 +117,13 @@ Remember that all assertions are relative to the channel or stack as shown above
 
 Assert that a log was created.
 
-#### Can be called on...
+#### Can be called on
 
 - [x] Facade base (default channel)
 - [x] Channels
 - [x] Stacks
 
-#### Example tests...
+#### Example tests
 
 ```php
 /*
@@ -149,13 +149,13 @@ Log::assertLogged(
 
 Assert that a log was created a specific number of times.
 
-#### Can be called on...
+#### Can be called on
 
 - [x] Facade base (default channel)
 - [x] Channels
 - [x] Stacks
 
-#### Example tests...
+#### Example tests
 
 ```php
 /*
@@ -185,7 +185,7 @@ Log::assertLoggedTimes(
 
 Assert that a log was never created.
 
-#### Can be called on...
+#### Can be called on
 
 - [x] Facade base (default channel)
 - [x] Channels
@@ -217,7 +217,7 @@ Log::assertNotLogged(
 
 Assert that no logs were created.
 
-#### Can be called on...
+#### Can be called on
 
 - [x] Facade base (default channel)
 - [x] Channels
@@ -245,7 +245,7 @@ Log::channel('single')->assertNothingLogged(); // ❌ as a log was created in th
 
 Assert that the channel was forgotten at least one time.
 
-#### Can be called on...
+#### Can be called on
 
 - [x] Facade base (default channel)
 - [x] Channels
@@ -275,7 +275,7 @@ Log::channel('stderr')->assertWasForgotten(); // ❌ as it was the `single` not 
 
 Assert that the channel was forgotten a specific number of times.
 
-#### Can be called on...
+#### Can be called on
 
 - [x] Facade base (default channel)
 - [x] Channels
@@ -309,7 +309,7 @@ Log::channel('single')->assertWasForgottenTimes(99); // ❌ as the channel was f
 
 Assert that the channel was not forgotten.
 
-#### Can be called on...
+#### Can be called on
 
 - [x] Facade base (default channel)
 - [x] Channels
@@ -335,7 +335,7 @@ Log::channel('single')->assertWasNotForgotten(); // ✅
 
 Assert that a channel is _currently_ forgotten. This is distinct from [asserting that a channel _was_ forgotten](https://github.com/timacdonald/log-fake#assertwasforgotten).
 
-#### Can be called on...
+#### Can be called on
 
 - [x] Facade base ~(default channel)~
 - [ ] Channels
@@ -365,7 +365,7 @@ Log::assertChannelIsCurrentlyForgotten('stderr'); // ❌ as the `single` channel
 
 Assert that the channel currently has the specified context. It is possible to provide the expected context as an array or alternatively you can provide a truth-test closure to check the current context.
 
-#### Can be called on...
+#### Can be called on
 
 - [x] Facade base (default channel)
 - [x] Channels
@@ -416,7 +416,7 @@ Sometimes when debugging tests it's useful to be able to take a peek at the mess
 
 Dumps all the logs in the channel. You can also pass a truth-based closure to filter the logs that are dumped.
 
-#### Can be called on...
+#### Can be called on
 
 - [x] Facade base (default channel)
 - [x] Channels
@@ -466,13 +466,13 @@ The same as [`dump`](https://github.com/timacdonald/log-fake#dump), but also end
 
 Dumps the logs for all channels. Also accepts a truth-test closure to filter any logs.
 
-#### Can be called on...
+#### Can be called on
 
 - [x] Facade base ~(default channel)~
 - [ ] Channels
 - [ ] Stacks
 
-#### Example usage...
+#### Example usage
 
 ```php
 /*
@@ -517,13 +517,13 @@ The same as [`dumpAll()`](https://github.com/timacdonald/log-fake#dumpall), but 
 
 Get a collection of all log entries from a channel or stack.
 
-#### Can be called on...
+#### Can be called on
 
 - [x] Facade base (default channel)
 - [x] Channels
 - [x] Stacks
 
-#### Example usage...
+#### Example usage
 
 ```php
 /*
@@ -547,13 +547,13 @@ assert($logs->count() === 2); ✅
 
 Similar to [`logs()`](https://github.com/timacdonald/log-fake#logs), except that it is called on the Facade base and returns a collection of logs from all the channels and stacks.
 
-#### Can be called on...
+#### Can be called on
 
 - [x] Facade base ~(default channel)~
 - [ ] Channels
 - [ ] Stacks
 
-#### Example usage...
+#### Example usage
 
 ```php
 /*
