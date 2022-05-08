@@ -48,17 +48,14 @@ class ChannelFake implements LoggerInterface
 
     /**
      * @api
+     * @param (Closure(LogEntry): bool) $callback
      */
-    public function dump(?string $level = null): ChannelFake
+    public function dump(?Closure $callback = null): ChannelFake
     {
-        $callback = $level === null
-            ? fn (): bool => true
-            : fn (LogEntry $log) => $log->level === $level;
-
-        $this->logs()
-            ->filter($callback)
+        dump(($this->logs()
+            ->filter($callback ?? fn () => true)
             ->values()
-            ->dump();
+            ->toArray()));
 
         return $this;
     }
@@ -67,10 +64,11 @@ class ChannelFake implements LoggerInterface
      * @api
      * @codeCoverageIgnore
      * @infection-ignore-all
+     * @param (Closure(LogEntry): bool) $callback
      */
-    public function dd(?string $level = null): never
+    public function dd(?Closure $callback = null): never
     {
-        $this->dump($level);
+        $this->dump($callback);
 
         exit(1);
     }
@@ -123,7 +121,7 @@ class ChannelFake implements LoggerInterface
     {
         PHPUnit::assertTrue(
             $this->logs()->isEmpty(),
-            $message ?? "Expected [0] logs to be created in the [$this->name] channel. Found [{$this->logs()->count()}] instead."
+            $message ?? "Expected [0] logs to be created in the [{$this->name}] channel. Found [{$this->logs()->count()}] instead."
         );
 
         return $this;
@@ -177,7 +175,7 @@ class ChannelFake implements LoggerInterface
         // TODO: current context for the on-demand channel?
         if ($context instanceof Closure) {
             PHPUnit::assertTrue(
-                (bool) $context($this->currentContext()),
+                (bool) $context($this->currentContext()), /** @phpstan-ignore-line */
                 'Unexpected context found in the [' . $this->name . '] channel. Found [' . json_encode((object) $this->currentContext()) . '].'
             );
         } else {
@@ -201,7 +199,8 @@ class ChannelFake implements LoggerInterface
             $level,
             $message,
             array_merge($this->currentContext(), $context),
-            $this->timesForgotten
+            $this->timesForgotten,
+            $this->name
         );
     }
 
@@ -277,14 +276,14 @@ class ChannelFake implements LoggerInterface
     }
 
     /**
-     * @internal
+     * @api
      * @param (Closure(LogEntry): bool) $callback
      * @return Collection<int, LogEntry>
      */
     public function logged(Closure $callback): Collection
     {
         return $this->logs()
-            ->filter(fn (LogEntry $log): bool => (bool) $callback($log))
+            ->filter(fn (LogEntry $log): bool => (bool) $callback($log)) /** @phpstan-ignore-line */
             ->values();
     }
 

@@ -43,17 +43,14 @@ class LogFake implements LoggerInterface
 
     /**
      * @api
+     * @param (CLosure(LogEntry): bool) $callback
      */
-    public function dumpAll(?string $level = null): LogFake
+    public function dumpAll(?Closure $callback = null): LogFake
     {
-        $callback = $level === null
-            ? fn (): bool => true
-            : fn (LogEntry $log): bool => $log->level === $level;
-
-        $this->allLogs()
-            ->filter($callback)
+        dump($this->allLogs()
+            ->filter($callback ?? fn () => true)
             ->values()
-            ->dump();
+            ->toArray());
 
         return $this;
     }
@@ -62,10 +59,11 @@ class LogFake implements LoggerInterface
      * @api
      * @codeCoverageIgnore
      * @infection-ignore-all
+     * @param (Closure(LogEntry): bool) $callback
      */
-    public function ddAll(?string $level = null): never
+    public function ddAll(?Closure $callback = null): never
     {
-        $this->dumpAll($level);
+        $this->dumpAll($callback);
 
         exit(1);
     }
@@ -91,10 +89,9 @@ class LogFake implements LoggerInterface
      */
     public function build(array $config): ChannelFake
     {
-        // should this take the config into account so you can assert against different configs?
-        // TODO: Should this reset the current context of the channel? as each time one is built
-        // it is unset and recreated.
-        return $this->driver('ondemand');
+        return $this->driver(
+            'ondemand::'.json_encode($config)
+        )->clearContext();
     }
 
     /**

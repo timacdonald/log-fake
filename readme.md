@@ -409,28 +409,35 @@ Log::assertCurrentContext(fn ($context) => $context['env'] === 'develop')); // â
 
 Sometimes when debugging tests it's useful to be able to take a peek at the messages that have been logged. There are a couple of helpers to assist with this.
 
-### dump($level = null)
+### dump()
+
+Dumps all the logs in the channel. You can also pass a truth-based closure to filter the logs that are dumped.
+
+#### Can be called on...
+
+- [x] Facade base (default channel)
+- [x] Channels
+- [x] Stacks
 
 ```php
-<?php
+/*
+ * implementation...
+ */
 
-use TiMacDonald\Log\LogFake;
-use Illuminate\Support\Facades\Log;
+Log::info('User logged in.');
 
-// ...
+Log::channel('slack')->alert('Stripe request initiated.');
 
-LogFake::bind();
-
-Log::info('Donuts have arrived');
-
-Log::channel('slack')->alert('It is 5pm, go home');
+/*
+ * inspection...
+ */
 
 Log::dump();
 
 // array:1 [
 //   0 => array:4 [
 //     "level" => "info"
-//     "message" => "Donuts have arrived."
+//     "message" => "User logged in."
 //     "context" => []
 //     "channel" => "stack"
 //   ]
@@ -441,48 +448,59 @@ Log::channel('slack')->dump();
 // array:1 [
 //   0 => array:4 [
 //     "level" => "alert"
-//     "message" => "It is 5pm, go home"
+//     "message" => "Stripe request initiated."
 //     "context" => []
 //     "channel" => "slack"
 //   ]
 // ]
 ```
 
-### dd($level = null)
+### dd()
 
 Works the same as `dump`, but also ends the execution of the test.
 
-### dumpAll($level = null)
+### dumpAll()
 
-Only available calling on the default channel. This will dump every log regardless of the channel it was captured in.
+Dumps the logs for all channels. Also accepts a truth-test closure to filter any logs.
+
+### ddAll()
+
+Dumps the logs for all channels and then stops execution. Also accepts a truth-test closure to filter any logs.
+
+#### Can be called on...
+
+- [x] Facade base ~(default channel)~
+- [ ] Channels
+- [ ] Stacks
 
 ```php
-<?php
+/*
+ * implementation...
+ */
 
-use TiMacDonald\Log\LogFake;
-use Illuminate\Support\Facades\Log;
+Log::info('User logged in.');
 
-// ...
+Log::channel('slack')->alert('Stripe request initiated.');
 
-LogFake::bind();
-
-Log::info('Donuts have arrived');
-
-Log::channel('slack')->alert('It is 5pm, go home');
+/*
+ * inspection...
+ */
 
 Log::dumpAll();
 
-// array:1 [
+// array:2 [
 //   0 => array:4 [
 //     "level" => "info"
-//     "message" => "Donuts have arrived."
+//     "message" => "User logged in."
 //     "context" => []
+//     "times_channel_has_been_forgotten_at_time_of_writing_log" => 0
 //     "channel" => "stack"
 //   ]
 //   1 => array:4 [
 //     "level" => "alert"
-//     "message" => "It is 5pm, go home"
+//     "message" => "Stripe request initiated."
 //     "context" => []
+//     "times_channel_has_been_forgotten_at_time_of_writing_log" => 0
 //     "channel" => "slack"
 //   ]
 // ]
