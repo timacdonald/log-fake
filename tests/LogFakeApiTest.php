@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests;
 
-use Closure;
 use Illuminate\Contracts\Events\Dispatcher;
 use PHPUnit\Framework\ExpectationFailedException;
 use Stringable;
@@ -13,6 +12,7 @@ use Throwable;
 use TiMacDonald\Log\ChannelFake;
 use TiMacDonald\Log\LogEntry;
 use TiMacDonald\Log\LogFake;
+use function assert;
 use function config;
 
 /**
