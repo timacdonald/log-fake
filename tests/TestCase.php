@@ -9,9 +9,9 @@ use Illuminate\Config\Repository;
 use Illuminate\Container\Container;
 use Illuminate\Log\LogManager;
 use Illuminate\Support\Facades\Facade;
-use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Framework\TestCase as BaseTestCase;
 use Psr\Log\LoggerInterface;
+use Throwable;
 
 class TestCase extends BaseTestCase
 {
@@ -33,8 +33,8 @@ class TestCase extends BaseTestCase
         try {
             $callback();
             self::fail('The log fake assertion did not fail as expected.');
-        } catch (ExpectationFailedException $exception) {
-            self::assertStringStartsWith($message.PHP_EOL, $exception->getMessage());
+        } catch (Throwable $exception) {
+            self::assertStringStartsWith($message, $exception->getMessage());
         }
     }
 }

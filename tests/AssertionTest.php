@@ -293,6 +293,10 @@ class AssertionTest extends TestCase
         $log->channel('channel')->assertWasForgotten();
 
         // not available on a stack.
+        self::assertFailsWithMessage(
+            fn () => $log->stack(['c1'])->assertWasForgotten(),
+            'Cannot call [Log::stack(...)->assertWasForgotten(...)] as stack is not able to be forgotten.',
+        );
     }
 
     public function testAssertWasForgottenCustomError(): void
@@ -327,6 +331,10 @@ class AssertionTest extends TestCase
         $log->channel('channel')->assertWasForgottenTimes(2);
 
         // not available on a stack.
+        self::assertFailsWithMessage(
+            fn () => $log->stack(['c1'])->assertWasForgottenTimes(2),
+            'Cannot call [Log::stack(...)->assertWasForgottenTimes(...)] as stack is not able to be forgotten.',
+        );
     }
 
     public function testAssertWasForgottenTimesCustomError(): void
@@ -360,6 +368,10 @@ class AssertionTest extends TestCase
         );
 
         // not available on a stack.
+        self::assertFailsWithMessage(
+            fn () => $log->stack(['c1'])->assertWasNotForgotten(),
+            'Cannot call [Log::stack(...)->assertWasNotForgotten(...)] as stack is not able to be forgotten.',
+        );
     }
 
     public function testAssertWasNotForgottenCustomError(): void

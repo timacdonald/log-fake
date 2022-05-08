@@ -243,7 +243,7 @@ Log::channel('single')->assertNothingLogged(); // ❌ as a log was created in th
 
 ### assertWasForgotten()
 
-Assert that the channel / stack was forgotten at least one time.
+Assert that the channel was forgotten at least one time.
 
 #### Can be called on...
 
@@ -273,7 +273,7 @@ Log::channel('stderr')->assertWasForgotten(); // ❌ as it was the `single` not 
 
 ### assertWasForgottenTimes()
 
-Assert that the channel / stack was forgotten a specific number of times.
+Assert that the channel was forgotten a specific number of times.
 
 #### Can be called on...
 
@@ -307,7 +307,7 @@ Log::channel('single')->assertWasForgottenTimes(99); // ❌ as the channel was f
 
 ### assertWasNotForgotten()
 
-Assert that the channel / stack was not forgotten.
+Assert that the channel was not forgotten.
 
 #### Can be called on...
 
