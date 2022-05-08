@@ -35,9 +35,6 @@ class ChannelFake implements LoggerInterface
 
     private bool $isCurrentlyForgotten = false;
 
-    /**
-     * @internal
-     */
     public function __construct(private string $name)
     {
         //
@@ -259,7 +256,7 @@ class ChannelFake implements LoggerInterface
      * @param (Closure(LogEntry): bool) $callback
      * @return Collection<int, LogEntry>
      */
-    public function logged(Closure $callback): Collection
+    private function logged(Closure $callback): Collection
     {
         return $this->logs()
             ->filter(fn (LogEntry $log): bool => (bool) $callback($log)) /** @phpstan-ignore-line */

@@ -513,12 +513,65 @@ The same as [`dumpAll()`](https://github.com/timacdonald/log-fake#dumpall), but 
 
 ## Other APIs
 
-### Log::allLogs()
+### logs()
 
+Get a collection of all log entries from a channel or stack.
 
-### Log::allChannelsAndStacks()
-### Log::logged()
-### Log::logs()
+#### Can be called on...
+
+- [x] Facade base (default channel)
+- [x] Channels
+- [x] Stacks
+
+#### Example usage...
+
+```php
+/*
+ * implementation...
+ */
+
+Log::channel('slack')->info('User logged in.');
+
+Log::channel('slack')->alert('Stripe request initiated.');
+
+/*
+ * example usage...
+ */
+
+$logs = Log::channel('slack')->logs();
+
+assert($logs->count() === 2); ✅
+```
+
+### allLogs()
+
+Similar to [`logs()`](https://github.com/timacdonald/log-fake#logs), except that it is called on the Facade base and returns a collection of logs from all the channels and stacks.
+
+#### Can be called on...
+
+- [x] Facade base ~(default channel)~
+- [ ] Channels
+- [ ] Stacks
+
+#### Example usage...
+
+```php
+/*
+ * implementation...
+ */
+
+Log::info('User logged in.');
+
+Log::channel('slack')->alert('Stripe request initiated.');
+
+/*
+ * example usage...
+ */
+
+$logs = Log::allLogs();
+
+assert($logs->count() === 2); ✅
+```
 
 ## Credits
 
@@ -530,21 +583,3 @@ And a special (vegi) thanks to [Caneco](https://twitter.com/caneco) for the logo
 ## Thanksware
 
 You are free to use this package, but I ask that you reach out to someone (not me) who has previously, or is currently, maintaining or contributing to an open source library you are using in your project and thank them for their work. Consider your entire tech stack: packages, frameworks, languages, databases, operating systems, frontend, backend, etc.
-
-## Upgrading
-
-- Failure messages have been updated.
-- assertLoggedTimes no longer has a default $times value.
-- assertLogged no longer accepts an integer as the second parameter. Use `assertLoggedTimes` directly instead
-- the `hasLogged` function has been removed. use assertions or the Log::logged(...)->isEmpty()" instead
-- the `hasNotLogged` function has been removed. use assertions or the Log::logged(...)->isNotEmpty()" instead
-- the `getLogger` method now returns a `ChannelFake`
-- raw log arrays now contain the 'times_channel_has_been_forgotten_at_time_of_writing_log' key, indicating how many times the channel has been forgotten at the time of creation
-`
-- assertion closures now recieve an addition 3rd parameter int: times_forgotten
-- Don't support named parameters
-- The "stack:" prefix has been removed and now uses the channel name or the default value. channels are now comma seperated
-
-- a stack never has "currentContext" as it is reset each time it is resolved from the manager.
-- `getChannels` returns all channels - forgotten or not
-- Note that exception messages could change at any time and are not protected and are not considered breaking changes.

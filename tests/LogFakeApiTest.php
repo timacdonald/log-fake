@@ -9,6 +9,7 @@ use PHPUnit\Framework\ExpectationFailedException;
 use Stringable;
 use Symfony\Component\VarDumper\VarDumper;
 use Throwable;
+use TiMacDonald\CallableFake\CallableFake;
 use TiMacDonald\Log\ChannelFake;
 use TiMacDonald\Log\LogEntry;
 use TiMacDonald\Log\LogFake;
@@ -20,35 +21,6 @@ use function config;
  */
 class LogFakeApiTest extends TestCase
 {
-    public function testLogged(): void
-    {
-        $log = new LogFake();
-
-        // default channel...
-        self::assertTrue($log->logged(fn () => true)->isEmpty());
-        self::assertTrue($log->logged(fn () => false)->isEmpty());
-        $log->info('xxxx');
-        self::assertCount(1, $log->logged(fn () => true));
-        self::assertSame('xxxx', $log->logged(fn () => true)[0]->message);
-        self::assertTrue($log->logged(fn () => false)->isEmpty());
-
-        // channel...
-        self::assertTrue($log->channel('channel')->logged(fn () => true)->isEmpty());
-        self::assertTrue($log->channel('channel')->logged(fn () => false)->isEmpty());
-        $log->channel('channel')->info('xxxx');
-        self::assertCount(1, $log->channel('channel')->logged(fn () => true));
-        self::assertSame('xxxx', $log->channel('channel')->logged(fn () => true)[0]->message);
-        self::assertTrue($log->channel('channel')->logged(fn () => false)->isEmpty());
-
-        // stack...
-        self::assertTrue($log->stack(['c1', 'c2'], 'name')->logged(fn () => true)->isEmpty());
-        self::assertTrue($log->stack(['c1', 'c2'], 'name')->logged(fn () => false)->isEmpty());
-        $log->stack(['c1', 'c2'], 'name')->info('xxxx');
-        self::assertCount(1, $log->stack(['c1', 'c2'], 'name')->logged(fn () => true));
-        self::assertSame('xxxx', $log->stack(['c1', 'c2'], 'name')->logged(fn () => true)[0]->message);
-        self::assertTrue($log->stack(['c1', 'c2'], 'name')->logged(fn () => false)->isEmpty());
-    }
-
     public function testLoggingLevelMethods(): void
     {
         $log = new LogFake();
@@ -199,18 +171,6 @@ class LogFakeApiTest extends TestCase
         $log->setDefaultDriver('expected-driver');
 
         self::assertSame('expected-driver', config()->get('logging.default'));
-    }
-
-    public function testLoggedClosureWithNonBooleanReturn(): void
-    {
-        $log = new LogFake();
-        $log->info('xxxx');
-
-        $logs = $log->logged(fn () => 0); /** @phpstan-ignore-line */
-        self::assertCount(0, $logs);
-
-        $logs = $log->logged(fn () => 1); /** @phpstan-ignore-line */
-        self::assertCount(1, $logs);
     }
 
     public function testDummyMethods(): void
@@ -516,50 +476,58 @@ class LogFakeApiTest extends TestCase
     public function testItCanLogStringableObjects(): void
     {
         $log = new LogFake();
-        $stringable = new class () implements Stringable {
+        $callable = new CallableFake(fn () => true);
+        $log->info(new class () implements Stringable {
             public function __toString(): string
             {
                 return 'expected message';
             }
-        };
+        });
+        $log->assertLogged($callable->asClosure());
 
-        $log->info($stringable);
-
-        $message = $log->logged(fn () => true)[0]->message;
-        assert($message instanceof Stringable);
-        self::assertSame($message->__toString(), 'expected message');
+        $callable->assertCalledTimes(function (LogEntry $log) {
+            return $log->message instanceof Stringable && $log->message->__toString() === 'expected message';
+        }, 1);
     }
 
     public function testItAddsContextToLogs(): void
     {
         $log = new LogFake();
+        $callable = new CallableFake(fn () => true);
 
         $log->withContext(['foo' => 'xxxx'])
             ->withContext(['bar' => 'xxxx'])
             ->info('expected message', [
                 'baz' => 'xxxx',
             ]);
+        $log->assertLogged($callable->asClosure());
 
-        self::assertSame($log->logged(fn () => true)[0]->context, [
-            'foo' => 'xxxx',
-            'bar' => 'xxxx',
-            'baz' => 'xxxx',
-        ]);
+        $callable->assertCalledTimes(function (LogEntry $log) {
+            return $log->context === [
+                'foo' => 'xxxx',
+                'bar' => 'xxxx',
+                'baz' => 'xxxx',
+            ];
+        }, 1);
     }
 
     public function testItCanClearContext(): void
     {
         $log = new LogFake();
+        $callable = new CallableFake(fn () => true);
 
         $log->withContext(['foo' => 'xxxx'])
             ->withoutContext()
             ->info('expected message', [
                 'baz' => 'xxxx',
             ]);
+        $log->assertLogged($callable->asClosure());
 
-        self::assertSame($log->logged(fn () => true)[0]->context, [
-            'baz' => 'xxxx',
-        ]);
+        $callable->assertCalledTimes(function (LogEntry $log) {
+            return $log->context === [
+                'baz' => 'xxxx',
+            ];
+        }, 1);
     }
 
 

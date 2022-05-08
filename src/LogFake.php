@@ -201,7 +201,7 @@ class LogFake implements LoggerInterface
     /**
      * @return Collection<string, ChannelFake>
      */
-    public function allChannelsAndStacks(): Collection
+    private function allChannelsAndStacks(): Collection
     {
         return Collection::make($this->channels)->merge($this->stacks);
     }
