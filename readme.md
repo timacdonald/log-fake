@@ -363,7 +363,7 @@ Log::assertChannelIsCurrentlyForgotten('stderr'); // ❌ as the `single` channel
 
 ### assertCurrentContext()
 
-Assert that the channel currently has the specified context. It is possible to provide the expected context as an array or alternatively you can provide a [truth-test closure](#truth-test-closures) to check the current context.
+Assert that the channel currently has the specified context. It is possible to provide the expected context as an array or alternatively you can provide a truth-test closure to check the current context.
 
 #### Can be called on...
 
