@@ -83,6 +83,7 @@ jobs:
       with:
         php-version: ${{ matrix.php }}
         coverage: none
+
     - name: Get composer cache directory 
       id: composer-cache
       run: echo "::set-output name=dir::$(composer config cache-files-dir)"
@@ -91,8 +92,11 @@ jobs:
       uses: actions/cache@v3
       with:
         path: ${{ steps.composer-cache.outputs.dir }}
-        key: ${{ runner.os }}-dependencies-${{ matrix.dependency-version }}-php-${{ matrix.php }}
+        key: ${{ runner.os }}-dependencies-${{ matrix.dependency-version }}-php-${{ matrix.php }}-php-${{ matrix.laravel }}
         restore-keys: ${{ runner.os }}-dependencies-
+
+    - name: Require Laravel version
+      run: composer require --no-update illuminate/collections:{{ matrix.laravel }} illuminate/contracts:{{ matrix.laravel }} illuminate/log:{{ matrix.laravel }} illuminate/support:{{ matrix.laravel }} illuminate/config:{{ matrix.laravel }} illuminate/container:{{ matrix.laravel }}
 
     - name: Install dependencies
       run: composer update --${{ matrix.dependency-version }} --prefer-dist --no-suggest --no-interaction --verbose --no-scripts
