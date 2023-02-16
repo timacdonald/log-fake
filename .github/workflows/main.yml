@@ -67,8 +67,12 @@ jobs:
     name: 'PHP: ${{ matrix.php }}; Dependecies: ${{ matrix.dependency-version }}'
     strategy:
       matrix:
-        php: ['8.0', '8.1']
+        php: ['8.0', '8.1', '8.2']
+        laravel: ['^9.0', '^10.0']
         dependency-version: ['prefer-lowest', 'prefer-stable']
+        exclude:
+          - php: '8.0'
+            laravel: '^10.0'
 
     steps:
     - name: checkout code
