@@ -96,7 +96,7 @@ jobs:
         restore-keys: ${{ runner.os }}-dependencies-
 
     - name: Require Laravel version
-      run: composer require --no-update illuminate/collections:{{ matrix.laravel }} illuminate/contracts:{{ matrix.laravel }} illuminate/log:{{ matrix.laravel }} illuminate/support:{{ matrix.laravel }} illuminate/config:{{ matrix.laravel }} illuminate/container:{{ matrix.laravel }}
+      run: composer require --no-update illuminate/collections:${{ matrix.laravel }} illuminate/contracts:${{ matrix.laravel }} illuminate/log:${{ matrix.laravel }} illuminate/support:${{ matrix.laravel }} illuminate/config:${{ matrix.laravel }} illuminate/container:${{ matrix.laravel }}
 
     - name: Install dependencies
       run: composer update --${{ matrix.dependency-version }} --prefer-dist --no-suggest --no-interaction --verbose --no-scripts
