@@ -27,6 +27,7 @@ class TestCase extends BaseTestCase
         Facade::clearResolvedInstances();
     }
 
+    /** @param  non-empty-string  $message */
     protected static function assertFailsWithMessage(Closure $callback, string $message): void
     {
         try {
