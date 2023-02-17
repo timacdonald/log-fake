@@ -14,22 +14,22 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.1'
-          coverage: pcov
-
-      - name: Get composer cache directory 
+      - name: Get composer cache directory
         id: composer-cache
-        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
       - name: Cache dependencies
         uses: actions/cache@v3
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('./composer.json', './vendor-bin/dev/composer.json') }}
-          restore-keys: ${{ runner.os }}-composer-
+          key: ${{ runner.os }}-composer-${{ matrix.prefer }}-${{ hashFiles('**/composer.json') }}
+          restore-keys: ${{ runner.os }}-composer-${{ matrix.prefer }}-
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          coverage: pcov
 
       - name: Install dependencies
         run: composer install --prefer-dist --no-suggest --no-interaction
@@ -64,19 +64,27 @@ jobs:
 
   tests:
     runs-on: ubuntu-latest
-    name: 'PHP: ${{ matrix.php }}; Dependecies: ${{ matrix.dependency-version }}'
+    name: 'PHP: ${{ matrix.php }}; Prefer: ${{ matrix.prefer }}'
     strategy:
       matrix:
-        php: ['8.0', '8.1', '8.2']
+        php: ['8.1', '8.2']
         laravel: ['^9.0', '^10.0']
-        dependency-version: ['prefer-lowest', 'prefer-stable']
-        exclude:
-          - php: '8.0'
-            laravel: '^10.0'
+        prefer: ['prefer-lowest', 'prefer-stable']
 
     steps:
     - name: checkout code
       uses: actions/checkout@v3
+
+    - name: Get composer cache directory
+      id: composer-cache
+      run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+    - name: Cache dependencies
+      uses: actions/cache@v3
+      with:
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: ${{ runner.os }}-composer-${{ matrix.prefer }}-php-${{ matrix.php }}-${{ hashFiles('**/composer.json') }}
+        restore-keys: ${{ runner.os }}-composer-${{ matrix.prefer }}-php-${{ matrix.php }}-
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
@@ -84,22 +92,11 @@ jobs:
         php-version: ${{ matrix.php }}
         coverage: none
 
-    - name: Get composer cache directory 
-      id: composer-cache
-      run: echo "::set-output name=dir::$(composer config cache-files-dir)"
-
-    - name: Cache dependencies
-      uses: actions/cache@v3
-      with:
-        path: ${{ steps.composer-cache.outputs.dir }}
-        key: ${{ runner.os }}-dependencies-${{ matrix.dependency-version }}-php-${{ matrix.php }}-php-${{ matrix.laravel }}
-        restore-keys: ${{ runner.os }}-dependencies-
-
     - name: Require Laravel version
       run: composer require --no-update illuminate/collections:${{ matrix.laravel }} illuminate/contracts:${{ matrix.laravel }} illuminate/log:${{ matrix.laravel }} illuminate/support:${{ matrix.laravel }} illuminate/config:${{ matrix.laravel }} illuminate/container:${{ matrix.laravel }}
 
     - name: Install dependencies
-      run: composer update --${{ matrix.dependency-version }} --prefer-dist --no-suggest --no-interaction --verbose --no-scripts
+      run: composer update --${{ matrix.prefer }} --prefer-dist --no-suggest --no-interaction --verbose --no-scripts
 
     - name: Check platform requirements
       run: composer check-platform-reqs --verbose
