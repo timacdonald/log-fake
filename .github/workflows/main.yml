@@ -32,19 +32,19 @@ jobs:
           coverage: pcov
 
       - name: Install dependencies
-        run: composer install --prefer-dist --no-suggest --no-interaction
+        run: composer install
 
       - name: Check platform requirements
-        run: composer check-platform-reqs --verbose
+        run: composer check-platform-reqs
 
       - name: Check for unused dependencies
-        run: ./vendor/bin/composer-unused --verbose
+        run: ./vendor/bin/composer-unused
 
       - name: Check for soft dependencies
-        run: ./vendor/bin/composer-require-checker --verbose
+        run: ./vendor/bin/composer-require-checker
 
       - name: PHP-CS-Fixer
-        run: ./vendor/bin/php-cs-fixer fix --dry-run --no-interaction --verbose
+        run: ./vendor/bin/php-cs-fixer fix --dry-run
 
       - name: test coverage
         run: |
@@ -54,12 +54,12 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Infection
-        run: ./vendor/bin/infection --show-mutations --min-msi=100 --no-progress --no-interaction --verbose
+        run: ./vendor/bin/infection --min-msi=100
         env:
           INFECTION_BADGE_API_KEY: ${{ secrets.INFECTION_BADGE_API_KEY }}
 
       - name: PHPStan
-        run: ./vendor/bin/phpstan --no-interaction --verbose
+        run: ./vendor/bin/phpstan
 
 
   tests:
@@ -97,10 +97,10 @@ jobs:
       run: composer require --no-update illuminate/collections:${{ matrix.laravel }} illuminate/contracts:${{ matrix.laravel }} illuminate/log:${{ matrix.laravel }} illuminate/support:${{ matrix.laravel }} illuminate/config:${{ matrix.laravel }} illuminate/container:${{ matrix.laravel }} phpunit/phpunit:${{ matrix.phpunit }}
 
     - name: Install dependencies
-      run: composer update --${{ matrix.prefer }} --prefer-dist --no-suggest --no-interaction --verbose --no-scripts
+      run: composer update --${{ matrix.prefer }} --no-scripts
 
     - name: Check platform requirements
-      run: composer check-platform-reqs --verbose
+      run: composer check-platform-reqs
 
     - name: Run tests
       run: ./vendor/bin/phpunit
