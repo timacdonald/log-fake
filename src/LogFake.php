@@ -31,6 +31,13 @@ class LogFake implements LoggerInterface
     private array $stacks = [];
 
     /**
+     * The context shared across channels and stacks.
+     *
+     * @var array
+     */
+    protected $sharedContext = [];
+
+    /**
      * @link https://github.com/timacdonald/log-fake#basic-usage Documentation
      */
     public static function bind(): LogFake
@@ -224,5 +231,16 @@ class LogFake implements LoggerInterface
     private static function parseStackDriver(array $channels, ?string $channel): string
     {
         return 'stack::'.($channel ?? 'unnamed').':'.Collection::make($channels)->sort()->implode(',');
+    }
+
+    public function shareContext(array $context): LogFake
+    {
+        foreach ($this->channels as $channel) {
+            $channel->withContext($context);
+        }
+
+        $this->sharedContext = array_merge($this->sharedContext, $context);
+
+        return $this;
     }
 }
