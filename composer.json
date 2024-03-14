@@ -24,7 +24,7 @@
         "illuminate/support": "^9.0 || ^10.0 || ^11.0",
         "phpunit/phpunit": "^9.0 || ^10.0",
         "psr/log": "^1.0 || ^2.0 || ^3.0",
-        "symfony/var-dumper": "^6.0"
+        "symfony/var-dumper": "^6.0 || ^7.0"
     },
     "require-dev": {
         "bamarni/composer-bin-plugin": "^1.4",
