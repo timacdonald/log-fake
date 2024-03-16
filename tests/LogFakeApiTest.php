@@ -200,7 +200,6 @@ class LogFakeApiTest extends TestCase
                 //
             }
 
-            /** @phpstan-ignore-next-line */
             public function until($event, $payload = [])
             {
                 return null;
