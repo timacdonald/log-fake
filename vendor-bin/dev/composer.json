@@ -1,7 +1,7 @@
 {
     "require": {
         "friendsofphp/php-cs-fixer": "^3.0",
-        "infection/infection": "^0.26.0",
+        "infection/infection": "^0.27.0",
         "phpstan/phpstan": "^1.0",
         "phpstan/phpstan-phpunit": "^1.0",
         "phpstan/phpstan-strict-rules": "^1.2",

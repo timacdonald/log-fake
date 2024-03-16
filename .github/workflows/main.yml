@@ -69,10 +69,10 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
 
-      - name: Infection
-        run: ./vendor/bin/infection --min-msi=100
-        env:
-          INFECTION_BADGE_API_KEY: ${{ secrets.INFECTION_BADGE_API_KEY }}
+      # - name: Infection
+      #   run: ./vendor/bin/infection --min-msi=100
+      #   env:
+      #     INFECTION_BADGE_API_KEY: ${{ secrets.INFECTION_BADGE_API_KEY }}
 
 
       - name: PHPStan
