@@ -22,7 +22,7 @@
         "illuminate/contracts": "^9.0 || ^10.0 || ^11.0",
         "illuminate/log": "^9.0 || ^10.0 || ^11.0",
         "illuminate/support": "^9.0 || ^10.0 || ^11.0",
-        "phpunit/phpunit": "^9.0 || ^10.0",
+        "phpunit/phpunit": "^9.0 || ^10.0 || ^11.0",
         "psr/log": "^1.0 || ^2.0 || ^3.0",
         "symfony/var-dumper": "^6.0 || ^7.0"
     },
