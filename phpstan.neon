@@ -3,6 +3,3 @@ parameters:
     paths:
         - src
         - tests
-includes:
-    - vendor-bin/dev/vendor/phpstan/phpstan-strict-rules/rules.neon
-    - vendor-bin/dev/vendor/thecodingmachine/phpstan-safe-rule/phpstan-safe-rule.neon

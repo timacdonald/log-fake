@@ -18,26 +18,18 @@
     ],
     "require": {
         "php": "^8.1",
-        "illuminate/collections": "^9.0 || ^10.0 || ^11.0",
-        "illuminate/contracts": "^9.0 || ^10.0 || ^11.0",
-        "illuminate/log": "^9.0 || ^10.0 || ^11.0",
-        "illuminate/support": "^9.0 || ^10.0 || ^11.0",
-        "phpunit/phpunit": "^9.0 || ^10.0 || ^11.0",
+        "illuminate/collections": "^10.0 || ^11.0",
+        "illuminate/contracts": "^10.0 || ^11.0",
+        "illuminate/log": "^10.0 || ^11.0",
+        "illuminate/support": "^10.0 || ^11.0",
+        "phpunit/phpunit": "^10.0 || ^11.0",
         "psr/log": "^1.0 || ^2.0 || ^3.0",
         "symfony/var-dumper": "^6.0 || ^7.0"
     },
     "require-dev": {
-        "bamarni/composer-bin-plugin": "^1.4",
-        "illuminate/config": "^9.0 || ^10.0 || ^11.0",
-        "illuminate/container": "^9.0 || ^10.0 || ^11.0",
-        "timacdonald/callable-fake": "^1.5"
-    },
-    "config": {
-        "preferred-install": "dist",
-        "sort-packages": true,
-        "allow-plugins": {
-            "bamarni/composer-bin-plugin": true
-        }
+        "illuminate/config": "^10.0 || ^11.0",
+        "illuminate/container": "^10.0 || ^11.0",
+        "timacdonald/callable-fake": "^1.0"
     },
     "autoload": {
         "psr-4": {
@@ -49,34 +41,10 @@
             "Tests\\": "tests/"
         }
     },
-    "minimum-stability": "stable",
-    "prefer-stable": true,
-    "scripts": {
-        "bin": "echo 'bin not installed'",
-        "post-install-cmd": [
-            "@composer bin all install --ansi"
-        ],
-        "post-update-cmd": [
-            "@composer bin all update --ansi"
-        ],
-        "fix": [
-            "clear",
-            "./vendor/bin/php-cs-fixer fix"
-        ],
-        "lint": [
-            "clear",
-            "./vendor/bin/php-cs-fixer fix --dry-run",
-            "./vendor/bin/phpstan analyse"
-        ],
-        "test": [
-            "clear",
-            "./vendor/bin/phpunit",
-            "./vendor/bin/infection --threads=8"
-        ]
+    "config": {
+        "preferred-install": "dist",
+        "sort-packages": true
     },
-    "support": {
-        "issues": "https://github.com/timacdonald/log-fake/issues",
-        "source": "https://github.com/timacdonald/log-fake/releases/latest",
-        "docs": "https://github.com/timacdonald/log-fake/blob/master/readme.md"
-    }
+    "minimum-stability": "stable",
+    "prefer-stable": true
 }

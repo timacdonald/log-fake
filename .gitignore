@@ -1,7 +1,3 @@
-vendor/
-.phpunit.result.cache
-.phpunit.cache
-composer.lock
-.php_cs.cache
-infection.log
-.php-cs-fixer.cache
+/vendor
+/composer.lock
+/.phpunit.cache
