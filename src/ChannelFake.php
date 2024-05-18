@@ -39,7 +39,8 @@ class ChannelFake implements LoggerInterface
 
     /**
      * @link https://github.com/timacdonald/log-fake#dump Documentation
-     * @param (Closure(LogEntry): bool) $callback
+     *
+     * @param  (Closure(LogEntry): bool)  $callback
      */
     public function dump(?Closure $callback = null): ChannelFake
     {
@@ -53,9 +54,10 @@ class ChannelFake implements LoggerInterface
 
     /**
      * @link https://github.com/timacdonald/log-fake#dd Documentation
-     * @codeCoverageIgnore
+     *
      * @infection-ignore-all
-     * @param (Closure(LogEntry): bool) $callback
+     *
+     * @param  (Closure(LogEntry): bool)  $callback
      */
     public function dd(?Closure $callback = null): never
     {
@@ -66,7 +68,8 @@ class ChannelFake implements LoggerInterface
 
     /**
      * @link https://github.com/timacdonald/log-fake#assertlogged Documentation
-     * @param (Closure(LogEntry): bool) $callback
+     *
+     * @param  (Closure(LogEntry): bool)  $callback
      */
     public function assertLogged(Closure $callback, ?string $message = null): ChannelFake
     {
@@ -80,7 +83,8 @@ class ChannelFake implements LoggerInterface
 
     /**
      * @link https://github.com/timacdonald/log-fake#assertloggedtimes Documentation
-     * @param (Closure(LogEntry): bool) $callback
+     *
+     * @param  (Closure(LogEntry): bool)  $callback
      */
     public function assertLoggedTimes(Closure $callback, int $times, ?string $message = null): ChannelFake
     {
@@ -94,7 +98,8 @@ class ChannelFake implements LoggerInterface
 
     /**
      * @link https://github.com/timacdonald/log-fake#assertnotlogged Documentation
-     * @param (Closure(LogEntry): bool) $callback
+     *
+     * @param  (Closure(LogEntry): bool)  $callback
      */
     public function assertNotLogged(Closure $callback, ?string $message = null): ChannelFake
     {
@@ -151,20 +156,21 @@ class ChannelFake implements LoggerInterface
 
     /**
      * @link https://github.com/timacdonald/log-fake#assertcurrentcontext Documentation
-     * @param (Closure(array<array-key, mixed>): bool)|array<array-key, mixed> $context
+     *
+     * @param  (Closure(array<array-key, mixed>): bool)|array<array-key, mixed>  $context
      */
     public function assertCurrentContext(Closure|array $context, ?string $message = null): ChannelFake
     {
         if ($context instanceof Closure) {
             PHPUnit::assertTrue(
                 (bool) $context($this->currentContext()),
-                $message ?? 'Unexpected context found in the [' . $this->name . '] channel. Found [' . json_encode((object) $this->currentContext(), JSON_THROW_ON_ERROR) . '].'
+                $message ?? 'Unexpected context found in the ['.$this->name.'] channel. Found ['.json_encode((object) $this->currentContext(), JSON_THROW_ON_ERROR).'].'
             );
         } else {
             PHPUnit::assertSame(
                 $context,
                 $this->currentContext(),
-                'Expected to find the context [' . json_encode($context, JSON_THROW_ON_ERROR) . '] in the [' . $this->name . '] channel. Found [' . json_encode((object) $this->currentContext(), JSON_THROW_ON_ERROR) . '] instead.'
+                'Expected to find the context ['.json_encode($context, JSON_THROW_ON_ERROR).'] in the ['.$this->name.'] channel. Found ['.json_encode((object) $this->currentContext(), JSON_THROW_ON_ERROR).'] instead.'
             );
         }
 
@@ -188,8 +194,9 @@ class ChannelFake implements LoggerInterface
 
     /**
      * @see Logger::write()
-     * @param \Illuminate\Contracts\Support\Arrayable<array-key, mixed>|\Illuminate\Contracts\Support\Jsonable|\Illuminate\Support\Stringable|array<array-key, mixed>|string $message
-     * @param array<array-key, mixed> $context
+     *
+     * @param  \Illuminate\Contracts\Support\Arrayable<array-key, mixed>|\Illuminate\Contracts\Support\Jsonable|\Illuminate\Support\Stringable|array<array-key, mixed>|string  $message
+     * @param  array<array-key, mixed>  $context
      */
     public function write(string $level, $message, array $context = []): void
     {
@@ -198,7 +205,8 @@ class ChannelFake implements LoggerInterface
 
     /**
      * @see Logger::withContext()
-     * @param array<array-key, mixed> $context
+     *
+     * @param  array<array-key, mixed>  $context
      */
     public function withContext(array $context = []): ChannelFake
     {
@@ -250,7 +258,7 @@ class ChannelFake implements LoggerInterface
     }
 
     /**
-     * @param (Closure(LogEntry): bool) $callback
+     * @param  (Closure(LogEntry): bool)  $callback
      * @return Collection<int, LogEntry>
      */
     private function logged(Closure $callback): Collection

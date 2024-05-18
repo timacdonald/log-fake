@@ -44,7 +44,8 @@ class LogFake implements LoggerInterface
 
     /**
      * @link https://github.com/timacdonald/log-fake#dumpall Documentation
-     * @param (CLosure(LogEntry): bool) $callback
+     *
+     * @param  (CLosure(LogEntry): bool)  $callback
      */
     public function dumpAll(?Closure $callback = null): LogFake
     {
@@ -58,9 +59,10 @@ class LogFake implements LoggerInterface
 
     /**
      * @link https://github.com/timacdonald/log-fake#ddall Documentation
-     * @codeCoverageIgnore
+     *
      * @infection-ignore-all
-     * @param (Closure(LogEntry): bool) $callback
+     *
+     * @param  (Closure(LogEntry): bool)  $callback
      */
     public function ddAll(?Closure $callback = null): never
     {
@@ -84,7 +86,8 @@ class LogFake implements LoggerInterface
 
     /**
      * @see LogManager::build()
-     * @param array<string, mixed> $config
+     *
+     * @param  array<string, mixed>  $config
      */
     public function build(array $config): ChannelFake
     {
@@ -95,7 +98,8 @@ class LogFake implements LoggerInterface
 
     /**
      * @see LogManager::stack()
-     * @param array<int, string> $channels
+     *
+     * @param  array<int, string>  $channels
      */
     public function stack(array $channels, ?string $channel = null): ChannelFake
     {
@@ -105,7 +109,6 @@ class LogFake implements LoggerInterface
 
         return $this->stacks[$name]->clearContext();
     }
-
 
     /**
      * @see LogManager::channel()
@@ -164,6 +167,7 @@ class LogFake implements LoggerInterface
 
     /**
      * @see LogManager::getChannels()
+     *
      * @return array<string, ChannelFake>
      */
     public function getChannels(): array
@@ -174,7 +178,8 @@ class LogFake implements LoggerInterface
     /**
      * @see LogManager::log()
      * @see LoggerInterface::log()
-     * @param mixed $level
+     *
+     * @param  mixed  $level
      */
     public function log($level, $message, array $context = []): void
     {
@@ -183,7 +188,8 @@ class LogFake implements LoggerInterface
 
     /**
      * @see LogManager::__call()
-     * @param array<string, mixed> $parameters
+     *
+     * @param  array<string, mixed>  $parameters
      */
     public function __call(string $method, array $parameters): mixed
     {
@@ -213,10 +219,10 @@ class LogFake implements LoggerInterface
     }
 
     /**
-     * @param array<int, string> $channels
+     * @param  array<int, string>  $channels
      */
     private static function parseStackDriver(array $channels, ?string $channel): string
     {
-        return 'stack::' . ($channel ?? 'unnamed') . ':' . Collection::make($channels)->sort()->implode(',');
+        return 'stack::'.($channel ?? 'unnamed').':'.Collection::make($channels)->sort()->implode(',');
     }
 }

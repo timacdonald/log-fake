@@ -11,7 +11,8 @@ class StackFake extends ChannelFake
 {
     /**
      * @link https://github.com/timacdonald/log-fake#assertcurrentcontext Documentation
-     * @param (Closure(array<array-key, mixed>): bool)|array<array-key, mixed> $context
+     *
+     * @param  (Closure(array<array-key, mixed>): bool)|array<array-key, mixed>  $context
      */
     public function assertCurrentContext(Closure|array $context, ?string $message = null): StackFake
     {

@@ -38,72 +38,37 @@ jobs:
       - name: Check platform requirements
         run: composer check-platform-reqs
 
+      - name: Pint
+        run: pint --test
 
-      - name: Check for unused dependencies
-        run: ./vendor/bin/composer-unused
-
-
-      - name: Check for soft dependencies
-        run: ./vendor/bin/composer-require-checker
-
-
-      - name: PHP-CS-Fixer
-        run: ./vendor/bin/php-cs-fixer fix --dry-run
-
-
-      - name: test coverage
-        run: |
-          ./vendor/bin/phpunit --coverage-clover=coverage.xml
-          bash <(curl -s https://codecov.io/bash)
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-
-
-      # - name: Infection
-      #   run: ./vendor/bin/infection --min-msi=100
-      #   env:
-      #     INFECTION_BADGE_API_KEY: ${{ secrets.INFECTION_BADGE_API_KEY }}
-
+      - name: Infection
+        run: infection --show-mutations
 
       - name: PHPStan
-        run: ./vendor/bin/phpstan
+        run: phpstan
 
   tests:
     runs-on: ubuntu-latest
-
-
-    name: "PHP: ${{ matrix.php }}; Prefer: ${{ matrix.prefer }}; PHPUnit: {{ matrix.phpunit }};"
-
+    name: 'PHP ${{ matrix.php }} Illuminate ${{ matrix.illuminate }} PHPUnit ${{ matrix.phpunit }}'
     strategy:
       matrix:
         php: ['8.1', '8.2', '8.3']
-        phpunit: [^9.0, ^10.0, ^11.0]
-        laravel: [^9.0, ^10.0, ^11.0]
-        prefer: [prefer-lowest, prefer-stable]
-        exclude:
-          - laravel: ^11.0
-            php: '8.1'
-          - phpunit: ^11.0
-            php: '8.1'
-
-
+        illuminate: ['10', '11']
+        phpunit: ['10', '11']
     steps:
-      - name: checkout code
-        uses: actions/checkout@v3
-
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Get composer cache directory
         id: composer-cache
         run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
-
       - name: Cache dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ matrix.prefer }}-php-${{ matrix.php }}-phpunit-${{ matrix.phpunit }}-${{ hashFiles('**/composer.json') }}
-          restore-keys: ${{ runner.os }}-composer-${{ matrix.prefer }}-php-${{ matrix.php }}-phpunit-${{ matrix.phpunit }}-
-
+          key: ${{ runner.os }}-php-${{ matrix.php }}-illuminate-${{ matrix.illuminate }}-phpunit-${{ matrix.phpunit }}-composer-${{ hashFiles('**/composer.json') }}
+          restore-keys: ${{ runner.os }}-php-${{ matrix.php }}-illuminate-${{ matrix.illuminate }}-phpunit-${{ matrix.phpunit }}-composer-
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -111,18 +76,21 @@ jobs:
           php-version: ${{ matrix.php }}
           coverage: none
 
-
-      - name: Require dependency version
-        run: composer require --no-update illuminate/collections:${{ matrix.laravel }} illuminate/contracts:${{ matrix.laravel }} illuminate/log:${{ matrix.laravel }} illuminate/support:${{ matrix.laravel }} illuminate/config:${{ matrix.laravel }} illuminate/container:${{ matrix.laravel }} phpunit/phpunit:${{ matrix.phpunit }}
-
-
       - name: Install dependencies
-        run: composer update --${{ matrix.prefer }} --no-scripts
+        run: |
+          composer require --no-update \
+            illuminate/collections:^${{ matrix.illuminate }} \
+            illuminate/contracts:^${{ matrix.illuminate }} \
+            illuminate/log:^${{ matrix.illuminate }} \
+            illuminate/support:^${{ matrix.illuminate }} \
+            phpunit/phpunit:^${{ matrix.phpunit }}
+            composer require --no-update --dev \
+            illuminate/config:^${{ matrix.illuminate }} \
+            illuminate/container:^${{ matrix.illuminate }}
+          composer update
 
+      - name: Configure PHPUnit
+        run: "if [ -f './phpunit.${{ matrix.phpunit }}.xml' ]; then cp ./phpunit.${{ matrix.phpunit }}.xml ./phpunit.xml; fi"
 
-      - name: Check platform requirements
-        run: composer check-platform-reqs
-
-
-      - name: Run tests
-        run: ./vendor/bin/phpunit
+      - name: PHPUnit
+        run: ./vendor/bin/phpunit --do-not-cache-result

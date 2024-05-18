@@ -178,7 +178,8 @@ class LogFakeApiTest extends TestCase
         $log->extend('misc', function () {
             //
         });
-        $log->setEventDispatcher(new class () implements Dispatcher {
+        $log->setEventDispatcher(new class() implements Dispatcher
+        {
             public function listen($events, $listener = null)
             {
                 //
@@ -468,7 +469,8 @@ class LogFakeApiTest extends TestCase
     {
         $log = new LogFake();
         $callable = new CallableFake(fn () => true);
-        $log->info(new class () implements Stringable {
+        $log->info(new class() implements Stringable
+        {
             public function __toString(): string
             {
                 return 'expected message';
@@ -520,7 +522,6 @@ class LogFakeApiTest extends TestCase
             ];
         }, 1);
     }
-
 
     public function testItCanFakeOnDemandChannels(): void
     {
