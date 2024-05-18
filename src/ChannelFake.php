@@ -12,9 +12,6 @@ use Illuminate\Support\Collection;
 use PHPUnit\Framework\Assert as PHPUnit;
 use Psr\Log\LoggerInterface;
 
-/**
- * @no-named-arguments
- */
 class ChannelFake implements LoggerInterface
 {
     use LogHelpers;
@@ -160,7 +157,7 @@ class ChannelFake implements LoggerInterface
     {
         if ($context instanceof Closure) {
             PHPUnit::assertTrue(
-                (bool) $context($this->currentContext()), /** @phpstan-ignore-line */
+                (bool) $context($this->currentContext()),
                 $message ?? 'Unexpected context found in the [' . $this->name . '] channel. Found [' . json_encode((object) $this->currentContext(), JSON_THROW_ON_ERROR) . '].'
             );
         } else {
@@ -196,7 +193,7 @@ class ChannelFake implements LoggerInterface
      */
     public function write(string $level, $message, array $context = []): void
     {
-        $this->log($level, $message, $context); /** @phpstan-ignore-line */
+        $this->log($level, $message, $context);
     }
 
     /**
@@ -259,7 +256,7 @@ class ChannelFake implements LoggerInterface
     private function logged(Closure $callback): Collection
     {
         return $this->logs()
-            ->filter(fn (LogEntry $log): bool => (bool) $callback($log)) /** @phpstan-ignore-line */
+            ->filter(fn (LogEntry $log): bool => (bool) $callback($log))
             ->values();
     }
 

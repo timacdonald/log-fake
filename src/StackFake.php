@@ -7,9 +7,6 @@ namespace TiMacDonald\Log;
 use Closure;
 use RuntimeException;
 
-/**
- * @no-named-arguments
- */
 class StackFake extends ChannelFake
 {
     /**

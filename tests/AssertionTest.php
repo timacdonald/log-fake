@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Tests;
 
 use RuntimeException;
@@ -9,9 +7,6 @@ use TiMacDonald\CallableFake\CallableFake;
 use TiMacDonald\Log\LogEntry;
 use TiMacDonald\Log\LogFake;
 
-/**
- * @small
- */
 class AssertionTest extends TestCase
 {
     public function testAssertLoggedFunc(): void
@@ -523,9 +518,9 @@ class AssertionTest extends TestCase
     {
         $log = new LogFake();
 
-        $log->assertCurrentContext(fn () => 1); /** @phpstan-ignore-line */
+        $log->assertCurrentContext(fn () => 1);
         self::assertFailsWithMessage(
-            fn () => $log->assertCurrentContext(fn () => 0), /** @phpstan-ignore-line */
+            fn () => $log->assertCurrentContext(fn () => 0),
             'Unexpected context found in the [stack] channel. Found [{}].'
         );
     }
@@ -535,9 +530,9 @@ class AssertionTest extends TestCase
         $log = new LogFake();
         $log->info('xxxx');
 
-        $log->assertLogged(fn () => 1); /** @phpstan-ignore-line */
+        $log->assertLogged(fn () => 1);
         self::assertFailsWithMessage(
-            fn () => $log->assertLogged(fn () => 0), /** @phpstan-ignore-line */
+            fn () => $log->assertLogged(fn () => 0),
             'Expected log was not created in the [stack] channel.'
         );
     }

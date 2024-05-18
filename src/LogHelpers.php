@@ -1,15 +1,10 @@
 <?php
 
-declare(strict_types=1);
-
 namespace TiMacDonald\Log;
 
 use Illuminate\Log\Logger;
 use Illuminate\Log\LogManager;
 
-/**
- * @no-named-arguments
- */
 trait LogHelpers
 {
     /**

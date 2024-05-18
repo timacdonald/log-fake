@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Tests;
 
 use Illuminate\Contracts\Events\Dispatcher;
@@ -16,9 +14,6 @@ use TiMacDonald\Log\ChannelFake;
 use TiMacDonald\Log\LogEntry;
 use TiMacDonald\Log\LogFake;
 
-/**
- * @small
- */
 class LogFakeApiTest extends TestCase
 {
     public function testLoggingLevelMethods(): void
@@ -184,7 +179,6 @@ class LogFakeApiTest extends TestCase
             //
         });
         $log->setEventDispatcher(new class () implements Dispatcher {
-            /** @phpstan-ignore-next-line */
             public function listen($events, $listener = null)
             {
                 //
@@ -205,13 +199,11 @@ class LogFakeApiTest extends TestCase
                 return null;
             }
 
-            /** @phpstan-ignore-next-line */
             public function dispatch($event, $payload = [], $halt = false)
             {
                 return null;
             }
 
-            /** @phpstan-ignore-next-line */
             public function push($event, $payload = [])
             {
                 //

@@ -14,7 +14,6 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\VarDumper\VarDumper;
 
 /**
- * @no-named-arguments
  * @mixin ChannelFake
  */
 class LogFake implements LoggerInterface
@@ -188,7 +187,7 @@ class LogFake implements LoggerInterface
      */
     public function __call(string $method, array $parameters): mixed
     {
-        return $this->driver()->{$method}(...$parameters); /** @phpstan-ignore-line */
+        return $this->driver()->{$method}(...$parameters);
     }
 
     /**
