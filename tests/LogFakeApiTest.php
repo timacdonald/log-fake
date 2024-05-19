@@ -219,7 +219,6 @@ class LogFakeApiTest extends TestCase
             }
 
             /**
-             * @inheritdoc
              * @param  mixed  $payload
              * @param  bool  $halt
              * @return array<array-key, mixed>|null
