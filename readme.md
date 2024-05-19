@@ -398,6 +398,48 @@ Log::assertCurrentContext(
 ); // ❌ the 'env' key is set to "production"
 ```
 
+### assertHasSharedContext()
+
+Assert that the Log manager currently has the given shared context. It is possible to provide the expected context as an array or alternatively you can provide a truth-test closure to check the current context.
+
+#### Can be called on
+
+- [x] Facade base (default channel)
+- [ ] Channels
+- [ ] Stacks
+
+#### Example tests
+
+```php
+/*
+ * implementation...
+ */
+
+Log::shareContext([
+    'invocation-id' => '54',
+]);
+
+/*
+ * assertions...
+ */
+
+Log::assertHasSharedContext([
+    'invocation-id' => '54',
+]); // ✅
+
+Log::assertCurrentContext(
+    fn (array $context) => $context['invocation-id'] === '54')
+); // ✅
+
+Log::assertCurrentContext([
+    'invocation-id' => '99',
+]); // ❌ wrong invocation ID
+
+Log::assertCurrentContext(
+    fn (array $context) => $context['invocation-id'] === '99')
+); // ❌ wrong invocation ID
+```
+
 ## Inspection
 
 Sometimes when debugging tests it's useful to be able to take a peek at the messages that have been logged. There are a couple of helpers to assist with this.

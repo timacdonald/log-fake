@@ -540,4 +540,16 @@ class AssertionTest extends TestCase
             'Expected log was not created in the [stack] channel.'
         );
     }
+
+    public function testAssertHasSharedContext(): void
+    {
+        $log = new LogFake();
+        $log->shareContext(['shared' => 'context']);
+
+        $log->assertHasSharedContext(fn ($context) => $context === ['shared' => 'context']);
+        self::assertFailsWithMessage(
+            fn () => $log->assertHasSharedContext(fn ($context) => false),
+            'Expected shared context was not found.'
+        );
+    }
 }

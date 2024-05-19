@@ -92,6 +92,24 @@ class LogFake implements LoggerInterface
     }
 
     /**
+     * @link ... Documentation
+     * @param  (Closure(array<string, mixed>): bool)|array<string, mixed>  $callback
+     */
+    public function assertHasSharedContext(Closure|array $callback, ?string $message = null): LogFake
+    {
+        $callback = is_array($callback)
+            ? fn ($context) => $context === $callback
+            $callback;
+
+        PHPUnit::assertTrue(
+            $callback($this->sharedContext),
+            $message ?? "Expected shared context was not found."
+        );
+
+        return $this;
+    }
+
+    /**
      * @see LogManager::build()
      *
      * @param  array<string, mixed>  $config
