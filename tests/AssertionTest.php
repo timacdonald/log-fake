@@ -552,4 +552,15 @@ class AssertionTest extends TestCase
             'Expected shared context was not found.'
         );
     }
+
+    public function testItCanProvideCustomMessageWithAssertHasSharedContext(): void
+    {
+        $log = new LogFake();
+        $log->shareContext(['shared' => 'context']);
+
+        self::assertFailsWithMessage(
+            fn () => $log->assertHasSharedContext(fn ($context) => false, 'Whoops!'),
+            'Whoops!'
+        );
+    }
 }
