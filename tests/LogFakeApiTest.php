@@ -666,4 +666,20 @@ class LogFakeApiTest extends TestCase
             'local' => 'context',
         ]);
     }
+
+    public function testItMergesSharedContext(): void
+    {
+        $log = new LogFake();
+        $log->shareContext([
+            'shared' => 'first',
+        ])->shareContext([
+            'shared' => 'second',
+        ]);
+
+        $log->channel('channel')->info('expected message');
+
+        $log->channel('channel')->assertLogged(fn (LogEntry $log) => $log->context === [
+            'shared' => 'second',
+        ]);
+    }
 }
