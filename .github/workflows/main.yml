@@ -58,6 +58,8 @@ jobs:
         exclude:
           - php: '8.1'
             illuminate: '11'
+          - php: '8.1'
+            phpunit: '11'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
