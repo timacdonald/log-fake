@@ -33,7 +33,7 @@ class LogFake implements LoggerInterface
     /**
      * The context shared across channels and stacks.
      *
-     * @var array
+     * @var array<string, mixed>
      */
     protected $sharedContext = [];
 
@@ -134,7 +134,7 @@ class LogFake implements LoggerInterface
 
         $channel = $this->channels[$name] ??= new ChannelFake($name);
 
-        return $channel->remember();
+        return $channel->remember()->withContext($this->sharedContext);
     }
 
     /**
@@ -233,6 +233,9 @@ class LogFake implements LoggerInterface
         return 'stack::'.($channel ?? 'unnamed').':'.Collection::make($channels)->sort()->implode(',');
     }
 
+    /**
+     * @param  array<string, mixed>  $context
+     */
     public function shareContext(array $context): LogFake
     {
         foreach ($this->channels as $channel) {
