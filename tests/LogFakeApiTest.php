@@ -672,6 +672,7 @@ class LogFakeApiTest extends TestCase
         $log = new LogFake();
         $log->shareContext([
             'shared' => 'first',
+            'more' => 'context',
         ])->shareContext([
             'shared' => 'second',
         ]);
@@ -680,6 +681,7 @@ class LogFakeApiTest extends TestCase
 
         $log->channel('channel')->assertLogged(fn (LogEntry $log) => $log->context === [
             'shared' => 'second',
+            'more' => 'context',
         ]);
     }
 }
