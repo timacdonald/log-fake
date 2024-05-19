@@ -518,8 +518,10 @@ class AssertionTest extends TestCase
     {
         $log = new LogFake();
 
+        /** @phpstan-ignore argument.type */
         $log->assertCurrentContext(fn () => 1);
         self::assertFailsWithMessage(
+            /** @phpstan-ignore argument.type */
             fn () => $log->assertCurrentContext(fn () => 0),
             'Unexpected context found in the [stack] channel. Found [{}].'
         );
@@ -530,8 +532,10 @@ class AssertionTest extends TestCase
         $log = new LogFake();
         $log->info('xxxx');
 
+        /** @phpstan-ignore argument.type */
         $log->assertLogged(fn () => 1);
         self::assertFailsWithMessage(
+            /** @phpstan-ignore argument.type */
             fn () => $log->assertLogged(fn () => 0),
             'Expected log was not created in the [stack] channel.'
         );

@@ -180,46 +180,86 @@ class LogFakeApiTest extends TestCase
         });
         $log->setEventDispatcher(new class() implements Dispatcher
         {
+            /**
+             * @param  \Closure|string|array<string>  $events
+             * @param  \Closure|string|array<\Closure>|null  $listener
+             * @return void
+             */
             public function listen($events, $listener = null)
             {
                 //
             }
 
+            /**
+             * @param  string  $eventName
+             * @return bool
+             */
             public function hasListeners($eventName)
             {
                 return false;
             }
 
+            /**
+             * @param  object|string  $subscriber
+             * @return void
+             */
             public function subscribe($subscriber)
             {
                 //
             }
 
+            /**
+             * @param  string|object  $event
+             * @param  mixed  $payload
+             * @return mixed
+             */
             public function until($event, $payload = [])
             {
                 return null;
             }
 
+            /**
+             * @inheritdoc
+             * @param  mixed  $payload
+             * @param  bool  $halt
+             * @return array<array-key, mixed>|null
+             */
             public function dispatch($event, $payload = [], $halt = false)
             {
                 return null;
             }
 
+            /**
+             * @param  string  $event
+             * @param  array<array-key, mixed>  $payload
+             * @return void
+             */
             public function push($event, $payload = [])
             {
                 //
             }
 
+            /**
+             * @param  string  $event
+             * @return void
+             */
             public function flush($event)
             {
                 //
             }
 
+            /**
+             * @param  string  $event
+             * @return void
+             */
             public function forget($event)
             {
                 //
             }
 
+            /**
+             * @return void
+             */
             public function forgetPushed()
             {
                 //
