@@ -31,6 +31,13 @@ class LogFake implements LoggerInterface
     private array $stacks = [];
 
     /**
+     * The context shared across channels and stacks.
+     *
+     * @var array<string, mixed>
+     */
+    protected $sharedContext = [];
+
+    /**
      * @link https://github.com/timacdonald/log-fake#basic-usage Documentation
      */
     public static function bind(): LogFake
@@ -85,6 +92,25 @@ class LogFake implements LoggerInterface
     }
 
     /**
+     * @link ... Documentation
+     *
+     * @param  (Closure(array<string, mixed>): bool)|array<string, mixed>  $callback
+     */
+    public function assertHasSharedContext(Closure|array $callback, ?string $message = null): LogFake
+    {
+        $callback = is_array($callback)
+            ? fn ($context) => $context === $callback
+            : $callback;
+
+        PHPUnit::assertTrue(
+            $callback($this->sharedContext),
+            $message ?? 'Expected shared context was not found.'
+        );
+
+        return $this;
+    }
+
+    /**
      * @see LogManager::build()
      *
      * @param  array<string, mixed>  $config
@@ -127,7 +153,7 @@ class LogFake implements LoggerInterface
 
         $channel = $this->channels[$name] ??= new ChannelFake($name);
 
-        return $channel->remember();
+        return $channel->remember()->withContext($this->sharedContext);
     }
 
     /**
@@ -224,5 +250,19 @@ class LogFake implements LoggerInterface
     private static function parseStackDriver(array $channels, ?string $channel): string
     {
         return 'stack::'.($channel ?? 'unnamed').':'.Collection::make($channels)->sort()->implode(',');
+    }
+
+    /**
+     * @param  array<string, mixed>  $context
+     */
+    public function shareContext(array $context): LogFake
+    {
+        foreach ($this->channels as $channel) {
+            $channel->withContext($context);
+        }
+
+        $this->sharedContext = array_merge($this->sharedContext, $context);
+
+        return $this;
     }
 }

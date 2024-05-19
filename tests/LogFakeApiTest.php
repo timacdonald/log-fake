@@ -632,4 +632,56 @@ class LogFakeApiTest extends TestCase
 
         $log->channel('channel')->assertLogged(fn (LogEntry $log) => $log->context === []);
     }
+
+    public function testItSupportsSharedContextForAlreadyBuiltDrivers(): void
+    {
+        $log = new LogFake();
+        $channel = $log->channel('channel');
+        $log->shareContext([
+            'shared' => 'context',
+        ]);
+        $channel->info('expected message', [
+            'local' => 'context',
+        ]);
+
+        $log->channel('channel')->assertLogged(fn (LogEntry $log) => $log->context === [
+            'shared' => 'context',
+            'local' => 'context',
+        ]);
+    }
+
+    public function testItSupportsSharedContextForNewlyBuiltDrivers(): void
+    {
+        $log = new LogFake();
+        $log->shareContext([
+            'shared' => 'context',
+        ]);
+
+        $log->channel('channel')->info('expected message', [
+            'local' => 'context',
+        ]);
+
+        $log->channel('channel')->assertLogged(fn (LogEntry $log) => $log->context === [
+            'shared' => 'context',
+            'local' => 'context',
+        ]);
+    }
+
+    public function testItMergesSharedContext(): void
+    {
+        $log = new LogFake();
+        $log->shareContext([
+            'shared' => 'first',
+            'more' => 'context',
+        ])->shareContext([
+            'shared' => 'second',
+        ]);
+
+        $log->channel('channel')->info('expected message');
+
+        $log->channel('channel')->assertLogged(fn (LogEntry $log) => $log->context === [
+            'shared' => 'second',
+            'more' => 'context',
+        ]);
+    }
 }
