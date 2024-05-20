@@ -563,4 +563,17 @@ class AssertionTest extends TestCase
             'Whoops!'
         );
     }
+
+    public function testItCanPassContextArrayDirectlyToAssertHasSharedContext(): void
+    {
+        $log = new LogFake();
+        $log->shareContext(['shared' => 'context']);
+
+        $log->assertHasSharedContext(['shared' => 'context']);
+        self::assertFailsWithMessage(
+            fn () => $log->assertHasSharedContext([]),
+            'Expected shared context was not found.'
+        );
+
+    }
 }
