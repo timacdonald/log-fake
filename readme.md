@@ -11,6 +11,36 @@ You can install using [composer](https://getcomposer.org/):
 ```sh
 composer require timacdonald/log-fake --dev
 ```
+## Example Setup
+
+```php
+<?php
+use Illuminate\Container\Container;
+use Illuminate\Config\Repository;
+use Illuminate\Log\LogManager;
+use Illuminate\Support\Facades\Facade;
+use TiMacDonald\Log\LogFake;
+
+abstract class TestCase extends PHPUnit\Framework\TestCase
+{
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $app = Container::setInstance(new Container());
+
+        $app->singleton('config', fn() => new Repository(['logging' => ['default' => 'stack']]));
+        /** @phpstan-ignore argument.type */
+        $app->singleton('log', fn() => new LogManager($app));
+
+        /** @phpstan-ignore argument.type */
+        Facade::setFacadeApplication($app);
+        Facade::clearResolvedInstances();
+
+        LogFake::bind();
+    }
+}
+```
 
 ## Basic usage
 
