@@ -17,7 +17,7 @@
         }
     ],
     "require": {
-        "php": "^8.3",
+        "php": "^8.2",
         "illuminate/collections": "^10.0 || ^13.0",
         "illuminate/contracts": "^10.0 || ^13.0",
         "illuminate/log": "^10.0 || ^13.0",
