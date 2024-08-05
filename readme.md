@@ -15,6 +15,10 @@ composer require timacdonald/log-fake --dev
 ## Basic usage
 
 ```php
+use Illuminate\Support\Facades\Log;
+use TiMacDonald\Log\LogEntry;
+use TiMacDonald\Log\LogFake;
+
 public function testItLogsWhenAUserAuthenticates()
 {
     /*
