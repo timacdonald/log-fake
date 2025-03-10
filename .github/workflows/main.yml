@@ -25,7 +25,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ hashFiles("**/composer.json") }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
           restore-keys: ${{ runner.os }}-composer-
 
       - name: Setup PHP
@@ -71,7 +71,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-php-${{ matrix.php }}-illuminate-${{ matrix.illuminate }}-phpunit-${{ matrix.phpunit }}-composer-${{ hashFiles("**/composer.json") }}
+          key: ${{ runner.os }}-php-${{ matrix.php }}-illuminate-${{ matrix.illuminate }}-phpunit-${{ matrix.phpunit }}-composer-${{ hashFiles('**/composer.json') }}
           restore-keys: ${{ runner.os }}-php-${{ matrix.php }}-illuminate-${{ matrix.illuminate }}-phpunit-${{ matrix.phpunit }}-composer-
 
       - name: Setup PHP
