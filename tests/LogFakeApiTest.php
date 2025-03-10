@@ -16,9 +16,9 @@ use TiMacDonald\Log\LogFake;
 
 class LogFakeApiTest extends TestCase
 {
-    public function testLoggingLevelMethods(): void
+    public function test_logging_level_methods(): void
     {
-        $log = new LogFake();
+        $log = new LogFake;
 
         // default channel...
         $log->emergency('emergency log');
@@ -90,18 +90,18 @@ class LogFakeApiTest extends TestCase
         $log->stack(['c1', 'c2'], 'name')->assertLogged(fn (LogEntry $log): bool => $log->level === 'custom_2');
     }
 
-    public function testAssertChannelAndDriverMethodsCanBeUsedInterchangably(): void
+    public function test_assert_channel_and_driver_methods_can_be_used_interchangably(): void
     {
-        $log = new LogFake();
+        $log = new LogFake;
 
         $log->driver('channel')->info('expected message');
 
         $log->channel('channel')->assertLogged(fn (): bool => true);
     }
 
-    public function testCurrentStackIsTakenIntoAccount(): void
+    public function test_current_stack_is_taken_into_account(): void
     {
-        $log = new LogFake();
+        $log = new LogFake;
 
         $log->stack(['bugsnag', 'sentry'], 'dev_team')->info('expected message');
 
@@ -109,18 +109,18 @@ class LogFakeApiTest extends TestCase
         $log->stack(['bugsnag', 'sentry'], 'dev_team')->assertLogged(fn () => true);
     }
 
-    public function testCanHaveStackChannelsInAnyOrder(): void
+    public function test_can_have_stack_channels_in_any_order(): void
     {
-        $log = new LogFake();
+        $log = new LogFake;
 
         $log->stack(['bugsnag', 'sentry'], 'dev_team')->info('expected message');
 
         $log->stack(['sentry', 'bugsnag'], 'dev_team')->assertLogged(fn () => true);
     }
 
-    public function testItDifferentiatesBetweenStacksWithANameAndThoseWithout(): void
+    public function test_it_differentiates_between_stacks_with_a_name_and_those_without(): void
     {
-        $log = new LogFake();
+        $log = new LogFake;
 
         $log->stack(['bugsnag', 'sentry'], 'dev_team')->info('expected message');
         $log->stack(['bugsnag', 'sentry'])->alert('expected message');
@@ -131,9 +131,9 @@ class LogFakeApiTest extends TestCase
 
     // up to here...
 
-    public function testDifferentiatesBetweenStacksAndChannelsWithTheSameName(): void
+    public function test_differentiates_between_stacks_and_channels_with_the_same_name(): void
     {
-        $log = new LogFake();
+        $log = new LogFake;
 
         $log->stack(['bugsnag', 'sentry'])->info('expected message');
         $log->channel('bugsnag,sentry')->alert('expected message');
@@ -148,9 +148,9 @@ class LogFakeApiTest extends TestCase
         $log->channel('name:bugsnag,sentry')->assertNotLogged(fn (LogEntry $log) => $log->level === 'info');
     }
 
-    public function testAssertLoggedInStackDotNotatesSortedChannels(): void
+    public function test_assert_logged_in_stack_dot_notates_sorted_channels(): void
     {
-        $log = new LogFake();
+        $log = new LogFake;
 
         try {
             $log->stack(['c', 'b', 'a'], 'name')->assertLogged(fn () => false);
@@ -160,17 +160,17 @@ class LogFakeApiTest extends TestCase
         }
     }
 
-    public function testSetDefaultDriver(): void
+    public function test_set_default_driver(): void
     {
-        $log = new LogFake();
+        $log = new LogFake;
         $log->setDefaultDriver('expected-driver');
 
         self::assertSame('expected-driver', Config::get('logging.default'));
     }
 
-    public function testDummyMethods(): void
+    public function test_dummy_methods(): void
     {
-        $log = new LogFake();
+        $log = new LogFake;
 
         $log->listen(function () {
             //
@@ -178,7 +178,7 @@ class LogFakeApiTest extends TestCase
         $log->extend('misc', function () {
             //
         });
-        $log->setEventDispatcher(new class() implements Dispatcher
+        $log->setEventDispatcher(new class implements Dispatcher
         {
             /**
              * @param  \Closure|string|array<string>  $events
@@ -268,9 +268,9 @@ class LogFakeApiTest extends TestCase
         self::assertSame($log->getLogger(), $log->channel());
     }
 
-    public function testItCanDumpDefaultChannel(): void
+    public function test_it_can_dump_default_channel(): void
     {
-        $log = new LogFake();
+        $log = new LogFake;
         $dumps = [];
         VarDumper::setHandler(static function (array $logs) use (&$dumps) {
             $dumps[] = $logs;
@@ -307,9 +307,9 @@ class LogFakeApiTest extends TestCase
         VarDumper::setHandler(null);
     }
 
-    public function testItCanDumpALevelForTheDefaultChannel(): void
+    public function test_it_can_dump_a_level_for_the_default_channel(): void
     {
-        $log = new LogFake();
+        $log = new LogFake;
         $dumps = [];
         VarDumper::setHandler(static function (array $logs) use (&$dumps) {
             $dumps[] = $logs;
@@ -334,9 +334,9 @@ class LogFakeApiTest extends TestCase
         VarDumper::setHandler(null);
     }
 
-    public function testItCanDumpAChannel(): void
+    public function test_it_can_dump_a_channel(): void
     {
-        $log = new LogFake();
+        $log = new LogFake;
         $dumps = [];
         VarDumper::setHandler(static function (array $logs) use (&$dumps) {
             $dumps[] = $logs;
@@ -371,9 +371,9 @@ class LogFakeApiTest extends TestCase
         VarDumper::setHandler(null);
     }
 
-    public function testItCanDumpALevelForAChannel(): void
+    public function test_it_can_dump_a_level_for_a_channel(): void
     {
-        $log = new LogFake();
+        $log = new LogFake;
         $dumps = [];
         VarDumper::setHandler(static function (array $logs) use (&$dumps) {
             $dumps[] = $logs;
@@ -401,9 +401,9 @@ class LogFakeApiTest extends TestCase
         VarDumper::setHandler(null);
     }
 
-    public function testItCanDumpAllLogsForAllChannels(): void
+    public function test_it_can_dump_all_logs_for_all_channels(): void
     {
-        $log = new LogFake();
+        $log = new LogFake;
         $dumps = [];
         VarDumper::setHandler(static function (array $logs) use (&$dumps) {
             $dumps[] = $logs;
@@ -455,9 +455,9 @@ class LogFakeApiTest extends TestCase
         VarDumper::setHandler(null);
     }
 
-    public function testItCanDumpAllLogsForAllChannelsButFilterByLevel(): void
+    public function test_it_can_dump_all_logs_for_all_channels_but_filter_by_level(): void
     {
-        $log = new LogFake();
+        $log = new LogFake;
         $dumps = [];
         VarDumper::setHandler(static function (array $logs) use (&$dumps) {
             $dumps[] = $logs;
@@ -495,20 +495,20 @@ class LogFakeApiTest extends TestCase
         VarDumper::setHandler(null);
     }
 
-    public function testItHandlesNullDriverConfig(): void
+    public function test_it_handles_null_driver_config(): void
     {
-        $log = new LogFake();
+        $log = new LogFake;
         Config::set('logging.default', null);
 
         $log->info('xxxx');
         $log->channel('null')->assertLogged(fn () => true);
     }
 
-    public function testItCanLogStringableObjects(): void
+    public function test_it_can_log_stringable_objects(): void
     {
-        $log = new LogFake();
+        $log = new LogFake;
         $callable = new CallableFake(fn () => true);
-        $log->info(new class() implements Stringable
+        $log->info(new class implements Stringable
         {
             public function __toString(): string
             {
@@ -522,9 +522,9 @@ class LogFakeApiTest extends TestCase
         }, 1);
     }
 
-    public function testItAddsContextToLogs(): void
+    public function test_it_adds_context_to_logs(): void
     {
-        $log = new LogFake();
+        $log = new LogFake;
         $callable = new CallableFake(fn () => true);
 
         $log->withContext(['foo' => 'xxxx'])
@@ -543,9 +543,9 @@ class LogFakeApiTest extends TestCase
         }, 1);
     }
 
-    public function testItCanClearContext(): void
+    public function test_it_can_clear_context(): void
     {
-        $log = new LogFake();
+        $log = new LogFake;
         $callable = new CallableFake(fn () => true);
 
         $log->withContext(['foo' => 'xxxx'])
@@ -562,9 +562,9 @@ class LogFakeApiTest extends TestCase
         }, 1);
     }
 
-    public function testItCanFakeOnDemandChannels(): void
+    public function test_it_can_fake_on_demand_channels(): void
     {
-        $log = new LogFake();
+        $log = new LogFake;
 
         $log->build([])->info('expected message 1');
         $log->channel('ondemand::{}')->assertLogged(fn (LogEntry $log) => $log->message === 'expected message 1');
@@ -573,16 +573,16 @@ class LogFakeApiTest extends TestCase
         $log->channel('ondemand::{"foo":"bar"}')->assertLogged(fn (LogEntry $log) => $log->message === 'expected message 2');
     }
 
-    public function testItCanRetrieveChannels(): void
+    public function test_it_can_retrieve_channels(): void
     {
-        $log = new LogFake();
+        $log = new LogFake;
 
         $channel = $log->channel('expected-channel');
 
         self::assertSame(['expected-channel' => $channel], $log->getChannels());
     }
 
-    public function testItCanBindItselfToTheContainer(): void
+    public function test_it_can_bind_itself_to_the_container(): void
     {
         self::assertNotInstanceOf(LogFake::class, Log::getFacadeRoot());
 
@@ -591,9 +591,9 @@ class LogFakeApiTest extends TestCase
         self::assertSame($log, Log::getFacadeRoot());
     }
 
-    public function testItResetsStackContextOnChannelBuild(): void
+    public function test_it_resets_stack_context_on_channel_build(): void
     {
-        $log = new LogFake();
+        $log = new LogFake;
 
         $stack1 = $log->stack(['c1'], 'name');
         $stack1->withContext(['bound' => 'context']);
@@ -611,9 +611,9 @@ class LogFakeApiTest extends TestCase
         });
     }
 
-    public function testItGivesStacksANameWhenNoneIsProvided(): void
+    public function test_it_gives_stacks_a_name_when_none_is_provided(): void
     {
-        $log = new LogFake();
+        $log = new LogFake;
 
         try {
             $log->stack(['c1'])->assertLogged(fn () => true);
@@ -623,9 +623,9 @@ class LogFakeApiTest extends TestCase
         }
     }
 
-    public function testItClearsContextWhenAChannelIsForgotten(): void
+    public function test_it_clears_context_when_a_channel_is_forgotten(): void
     {
-        $log = new LogFake();
+        $log = new LogFake;
         $log->channel('channel')->withContext(['foo' => 'bar']);
         $log->forgetChannel('channel');
         $log->channel('channel')->info('expected message');
@@ -633,9 +633,9 @@ class LogFakeApiTest extends TestCase
         $log->channel('channel')->assertLogged(fn (LogEntry $log) => $log->context === []);
     }
 
-    public function testItSupportsSharedContextForAlreadyBuiltDrivers(): void
+    public function test_it_supports_shared_context_for_already_built_drivers(): void
     {
-        $log = new LogFake();
+        $log = new LogFake;
         $channel = $log->channel('channel');
         $log->shareContext([
             'shared' => 'context',
@@ -650,9 +650,9 @@ class LogFakeApiTest extends TestCase
         ]);
     }
 
-    public function testItSupportsSharedContextForNewlyBuiltDrivers(): void
+    public function test_it_supports_shared_context_for_newly_built_drivers(): void
     {
-        $log = new LogFake();
+        $log = new LogFake;
         $log->shareContext([
             'shared' => 'context',
         ]);
@@ -667,9 +667,9 @@ class LogFakeApiTest extends TestCase
         ]);
     }
 
-    public function testItMergesSharedContext(): void
+    public function test_it_merges_shared_context(): void
     {
-        $log = new LogFake();
+        $log = new LogFake;
         $log->shareContext([
             'shared' => 'first',
             'more' => 'context',

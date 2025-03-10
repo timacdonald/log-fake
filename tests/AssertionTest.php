@@ -9,9 +9,9 @@ use TiMacDonald\Log\LogFake;
 
 class AssertionTest extends TestCase
 {
-    public function testAssertLoggedFunc(): void
+    public function test_assert_logged_func(): void
     {
-        $log = new LogFake();
+        $log = new LogFake;
 
         // default...
         self::assertFailsWithMessage(
@@ -62,9 +62,9 @@ class AssertionTest extends TestCase
         );
     }
 
-    public function testAssertLoggedArgs(): void
+    public function test_assert_logged_args(): void
     {
-        $log = new LogFake();
+        $log = new LogFake;
         $callable = new CallableFake(fn () => true);
         $log->info('expected message', ['expected' => 'context']);
 
@@ -75,9 +75,9 @@ class AssertionTest extends TestCase
         }, 1);
     }
 
-    public function testAssertLoggedCustomError(): void
+    public function test_assert_logged_custom_error(): void
     {
-        $log = new LogFake();
+        $log = new LogFake;
 
         self::assertFailsWithMessage(
             fn () => $log->assertLogged(fn () => false, 'expected message'),
@@ -85,9 +85,9 @@ class AssertionTest extends TestCase
         );
     }
 
-    public function testAssertLoggedTimes(): void
+    public function test_assert_logged_times(): void
     {
-        $log = new LogFake();
+        $log = new LogFake;
 
         // default...
         $log->info('xxxx');
@@ -145,9 +145,9 @@ class AssertionTest extends TestCase
         );
     }
 
-    public function testAssertLoggedTimesArgs(): void
+    public function test_assert_logged_times_args(): void
     {
-        $log = new LogFake();
+        $log = new LogFake;
         $callable = new CallableFake(fn () => true);
         $log->info('expected message', ['expected' => 'context']);
 
@@ -158,9 +158,9 @@ class AssertionTest extends TestCase
         }, 1);
     }
 
-    public function testAssertLoggedTimesCustomError(): void
+    public function test_assert_logged_times_custom_error(): void
     {
-        $log = new LogFake();
+        $log = new LogFake;
 
         self::assertFailsWithMessage(
             fn () => $log->assertLoggedTimes(fn () => false, 3, 'expected message'),
@@ -168,9 +168,9 @@ class AssertionTest extends TestCase
         );
     }
 
-    public function testAssertNotLogged(): void
+    public function test_assert_not_logged(): void
     {
-        $log = new LogFake();
+        $log = new LogFake;
 
         // default channel...
         $log->assertNotLogged(fn () => true);
@@ -203,9 +203,9 @@ class AssertionTest extends TestCase
         $log->stack(['c1', 'c2'], 'name')->assertNotLogged(fn () => false);
     }
 
-    public function testAssertNotLoggedArgs(): void
+    public function test_assert_not_logged_args(): void
     {
-        $log = new LogFake();
+        $log = new LogFake;
         $callable = new CallableFake(fn () => false);
         $log->info('expected message', ['expected' => 'context']);
 
@@ -216,9 +216,9 @@ class AssertionTest extends TestCase
         }, 1);
     }
 
-    public function testAssertNotLoggedCustomMessage(): void
+    public function test_assert_not_logged_custom_message(): void
     {
-        $log = new LogFake();
+        $log = new LogFake;
         $log->info('xxxx');
 
         self::assertFailsWithMessage(
@@ -227,9 +227,9 @@ class AssertionTest extends TestCase
         );
     }
 
-    public function testAssertNothingLogged(): void
+    public function test_assert_nothing_logged(): void
     {
-        $log = new LogFake();
+        $log = new LogFake;
 
         // default channel...
         $log->assertNothingLogged();
@@ -256,9 +256,9 @@ class AssertionTest extends TestCase
         );
     }
 
-    public function testAssertNothingLoggedCustomError(): void
+    public function test_assert_nothing_logged_custom_error(): void
     {
-        $log = new LogFake();
+        $log = new LogFake;
         $log->info('xxxx');
 
         self::assertFailsWithMessage(
@@ -267,9 +267,9 @@ class AssertionTest extends TestCase
         );
     }
 
-    public function testAssertWasForgotten(): void
+    public function test_assert_was_forgotten(): void
     {
-        $log = new LogFake();
+        $log = new LogFake;
 
         // default channel...
         self::assertFailsWithMessage(
@@ -294,9 +294,9 @@ class AssertionTest extends TestCase
         );
     }
 
-    public function testAssertWasForgottenCustomError(): void
+    public function test_assert_was_forgotten_custom_error(): void
     {
-        $log = new LogFake();
+        $log = new LogFake;
 
         self::assertFailsWithMessage(
             fn () => $log->assertWasForgotten('expected message'),
@@ -304,9 +304,9 @@ class AssertionTest extends TestCase
         );
     }
 
-    public function testAssertWasForgottenTimes(): void
+    public function test_assert_was_forgotten_times(): void
     {
-        $log = new LogFake();
+        $log = new LogFake;
 
         // default channel...
         self::assertFailsWithMessage(
@@ -332,9 +332,9 @@ class AssertionTest extends TestCase
         );
     }
 
-    public function testAssertWasForgottenTimesCustomError(): void
+    public function test_assert_was_forgotten_times_custom_error(): void
     {
-        $log = new LogFake();
+        $log = new LogFake;
 
         self::assertFailsWithMessage(
             fn () => $log->assertWasForgottenTimes(3, 'expected message'),
@@ -342,9 +342,9 @@ class AssertionTest extends TestCase
         );
     }
 
-    public function testAssertWasNotForgotten(): void
+    public function test_assert_was_not_forgotten(): void
     {
-        $log = new LogFake();
+        $log = new LogFake;
 
         // default channel...
         $log->assertWasNotForgotten();
@@ -369,9 +369,9 @@ class AssertionTest extends TestCase
         );
     }
 
-    public function testAssertWasNotForgottenCustomError(): void
+    public function test_assert_was_not_forgotten_custom_error(): void
     {
-        $log = new LogFake();
+        $log = new LogFake;
         $log->forgetChannel('stack');
 
         self::assertFailsWithMessage(
@@ -380,9 +380,9 @@ class AssertionTest extends TestCase
         );
     }
 
-    public function testAssertChannelIsCurrentlyForgotten(): void
+    public function test_assert_channel_is_currently_forgotten(): void
     {
-        $log = new LogFake();
+        $log = new LogFake;
 
         self::assertFailsWithMessage(
             fn () => $log->assertChannelIsCurrentlyForgotten('channel'),
@@ -397,9 +397,9 @@ class AssertionTest extends TestCase
         $log->assertChannelIsCurrentlyForgotten('channel');
     }
 
-    public function testAssertChannelIsCurrentlyForgottenCustomMessage(): void
+    public function test_assert_channel_is_currently_forgotten_custom_message(): void
     {
-        $log = new LogFake();
+        $log = new LogFake;
         $log->channel('channel');
 
         self::assertFailsWithMessage(
@@ -408,9 +408,9 @@ class AssertionTest extends TestCase
         );
     }
 
-    public function testAssertCurrentContext(): void
+    public function test_assert_current_context(): void
     {
-        $log = new LogFake();
+        $log = new LogFake;
 
         // default channel...
         $log->assertCurrentContext([]);
@@ -445,9 +445,9 @@ class AssertionTest extends TestCase
         );
     }
 
-    public function testAssertCurrentContextCustomMesage(): void
+    public function test_assert_current_context_custom_mesage(): void
     {
-        $log = new LogFake();
+        $log = new LogFake;
 
         self::assertFailsWithMessage(
             fn () => $log->assertCurrentContext(fn () => false, 'expected message'),
@@ -455,9 +455,9 @@ class AssertionTest extends TestCase
         );
     }
 
-    public function testAssertCurrentContextWithClosure(): void
+    public function test_assert_current_context_with_closure(): void
     {
-        $log = new LogFake();
+        $log = new LogFake;
 
         // default channel...
         $log->assertCurrentContext(fn () => true);
@@ -486,9 +486,9 @@ class AssertionTest extends TestCase
         );
     }
 
-    public function testAssertCurrentContextWithClosureArgs(): void
+    public function test_assert_current_context_with_closure_args(): void
     {
-        $log = new LogFake();
+        $log = new LogFake;
         $callable = new CallableFake(fn () => true);
 
         $log->withContext(['foo' => 'bar']);
@@ -504,9 +504,9 @@ class AssertionTest extends TestCase
         }, 1);
     }
 
-    public function testItCannotAssertCurrentContextForStacks(): void
+    public function test_it_cannot_assert_current_context_for_stacks(): void
     {
-        $log = new LogFake();
+        $log = new LogFake;
 
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Cannot call [Log::stack(...)->assertCurrentContext(...)] as stack contexts are reset each time they are resolved from the LogManager.');
@@ -514,9 +514,9 @@ class AssertionTest extends TestCase
         $log->stack(['c1', 'c2'], 'name')->assertCurrentContext(['foo' => 'bar']);
     }
 
-    public function testAssertCurrentContextWithNonBoolReturnedFromClosure(): void
+    public function test_assert_current_context_with_non_bool_returned_from_closure(): void
     {
-        $log = new LogFake();
+        $log = new LogFake;
 
         /** @phpstan-ignore argument.type */
         $log->assertCurrentContext(fn () => 1);
@@ -527,9 +527,9 @@ class AssertionTest extends TestCase
         );
     }
 
-    public function testAssertLoggedFuncWithNonBoolReturnedFromClosure(): void
+    public function test_assert_logged_func_with_non_bool_returned_from_closure(): void
     {
-        $log = new LogFake();
+        $log = new LogFake;
         $log->info('xxxx');
 
         /** @phpstan-ignore argument.type */
@@ -541,9 +541,9 @@ class AssertionTest extends TestCase
         );
     }
 
-    public function testAssertHasSharedContext(): void
+    public function test_assert_has_shared_context(): void
     {
-        $log = new LogFake();
+        $log = new LogFake;
         $log->shareContext(['shared' => 'context']);
 
         $log->assertHasSharedContext(fn ($context) => $context === ['shared' => 'context']);
@@ -553,9 +553,9 @@ class AssertionTest extends TestCase
         );
     }
 
-    public function testItCanProvideCustomMessageWithAssertHasSharedContext(): void
+    public function test_it_can_provide_custom_message_with_assert_has_shared_context(): void
     {
-        $log = new LogFake();
+        $log = new LogFake;
         $log->shareContext(['shared' => 'context']);
 
         self::assertFailsWithMessage(
@@ -564,9 +564,9 @@ class AssertionTest extends TestCase
         );
     }
 
-    public function testItCanPassContextArrayDirectlyToAssertHasSharedContext(): void
+    public function test_it_can_pass_context_array_directly_to_assert_has_shared_context(): void
     {
-        $log = new LogFake();
+        $log = new LogFake;
         $log->shareContext(['shared' => 'context']);
 
         $log->assertHasSharedContext(['shared' => 'context']);

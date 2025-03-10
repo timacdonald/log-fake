@@ -42,7 +42,7 @@ class LogFake implements LoggerInterface
      */
     public static function bind(): LogFake
     {
-        $instance = new LogFake();
+        $instance = new LogFake;
 
         Log::swap($instance);
 
