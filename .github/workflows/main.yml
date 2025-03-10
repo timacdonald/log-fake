@@ -106,6 +106,9 @@ jobs:
         php: [8.2, 8.3, 8.4]
         illuminate: [11, 12]
         phpunit: [10, 11, 12]
+        exclude:
+          - phpunit: 12
+            php: 8.2
 
     steps:
       - name: Checkout code
