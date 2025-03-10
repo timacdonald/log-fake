@@ -175,7 +175,7 @@ class LogFakeApiTest extends TestCase
         $log->listen(function () {
             //
         });
-        $log->extend('misc', function () {
+        $log->extend('misc', function () { // @phpstan-ignore method.resultUnused
             //
         });
         $log->setEventDispatcher(new class implements Dispatcher
@@ -264,7 +264,7 @@ class LogFakeApiTest extends TestCase
                 //
             }
         });
-        $log->getEventDispatcher();
+        $log->getEventDispatcher();  // @phpstan-ignore method.resultUnused
         self::assertSame($log->getLogger(), $log->channel());
     }
 

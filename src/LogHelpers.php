@@ -10,6 +10,8 @@ trait LogHelpers
     /**
      * @see LogManager::emergency()
      * @see Logger::emergency()
+     *
+     * @param  string|\Stringable  $message
      */
     public function emergency($message, $context = []): void
     {
@@ -19,6 +21,8 @@ trait LogHelpers
     /**
      * @see LogManager::alert()
      * @see Logger::alert()
+     *
+     * @param  string|\Stringable  $message
      */
     public function alert($message, array $context = []): void
     {
@@ -28,6 +32,8 @@ trait LogHelpers
     /**
      * @see LogManager::critical()
      * @see Logger::critical()
+     *
+     * @param  string|\Stringable  $message
      */
     public function critical($message, array $context = []): void
     {
@@ -37,6 +43,8 @@ trait LogHelpers
     /**
      * @see LogManager::error()
      * @see Logger::error()
+     *
+     * @param  string|\Stringable  $message
      */
     public function error($message, array $context = []): void
     {
@@ -46,6 +54,8 @@ trait LogHelpers
     /**
      * @see LogManager::warning()
      * @see Logger::warning()
+     *
+     * @param  string|\Stringable  $message
      */
     public function warning($message, array $context = []): void
     {
@@ -55,6 +65,8 @@ trait LogHelpers
     /**
      * @see LogManager::notice()
      * @see Logger::notice()
+     *
+     * @param  string|\Stringable  $message
      */
     public function notice($message, array $context = []): void
     {
@@ -64,6 +76,8 @@ trait LogHelpers
     /**
      * @see LogManager::info()
      * @see Logger::info()
+     *
+     * @param  string|\Stringable  $message
      */
     public function info($message, array $context = []): void
     {
@@ -73,6 +87,8 @@ trait LogHelpers
     /**
      * @see LogManager::debug()
      * @see Logger::debug()
+     *
+     * @param  string|\Stringable  $message
      */
     public function debug($message, array $context = []): void
     {
@@ -82,6 +98,8 @@ trait LogHelpers
     /**
      * @see LogManager::log()
      * @see Logger::log()
+     *
+     * @param  string|\Stringable  $message
      */
     abstract public function log($level, $message, array $context = []): void;
 }

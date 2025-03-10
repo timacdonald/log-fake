@@ -205,6 +205,7 @@ class LogFake implements LoggerInterface
      * @see LogManager::log()
      * @see LoggerInterface::log()
      *
+     * @param  string|\Stringable  $message
      * @param  mixed  $level
      */
     public function log($level, $message, array $context = []): void

@@ -178,10 +178,10 @@ class ChannelFake implements LoggerInterface
     }
 
     /**
-     * {@inheritdoc}
-     *
      * @see Logger::log()
      * @see LoggerInterface::log()
+     *
+     * @param  string|\Stringable  $message
      */
     public function log($level, $message, array $context = []): void
     {
@@ -202,7 +202,6 @@ class ChannelFake implements LoggerInterface
      */
     public function write(string $level, $message, array $context = []): void
     {
-        /** @phpstan-ignore argument.type */
         $this->log($level, $message, $context);
     }
 
