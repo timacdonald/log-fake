@@ -57,8 +57,8 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: 8.4
-          ## Temporary version pin as 21.0.0 is broken
-          tools: pint:20.0.0
+          ## Temporary version pin as 1.21.0 is broken
+          tools: pint:1.20.0
           coverage: none
 
       - name: Pint
