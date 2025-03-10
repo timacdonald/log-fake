@@ -178,6 +178,8 @@ class ChannelFake implements LoggerInterface
     }
 
     /**
+     * {@inheritdoc}
+     *
      * @see Logger::log()
      * @see LoggerInterface::log()
      */
