@@ -202,7 +202,7 @@ class ChannelFake implements LoggerInterface
      */
     public function write(string $level, $message, array $context = []): void
     {
-        $this->log($level, $message, $context);
+        $this->log($level, $message, $context); // @phpstan-ignore argument.type
     }
 
     /**
