@@ -55,14 +55,9 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php: [8.1, 8.2, 8.3]
-        illuminate: [10, 11, 12]
-        phpunit: [10, 11]
-        exclude:
-          - php: 8.1
-            illuminate: 11
-          - php: 8.1
-            phpunit: 11
+        php: [8.2, 8.3, 8.4]
+        illuminate: [11, 12]
+        phpunit: [10, 11, 12]
 
     steps:
       - name: Checkout code
