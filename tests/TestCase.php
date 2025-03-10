@@ -18,7 +18,7 @@ class TestCase extends BaseTestCase
     {
         parent::setUp();
 
-        $app = Container::setInstance(new Container());
+        $app = Container::setInstance(new Container);
 
         $app->singleton('config', fn () => new Repository(['logging' => ['default' => 'stack']]));
         /** @phpstan-ignore argument.type */

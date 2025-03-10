@@ -2,14 +2,17 @@ name: CI
 
 on:
   push:
-    branches: [ master ]
+    branches:
+      - master
   pull_request:
-    branches: [ master ]
+    branches:
+      - master
 
 jobs:
-  checks:
+  static-analysis:
+    name: Static analysis
     runs-on: ubuntu-latest
-    name: 'Check'
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -22,15 +25,15 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
-          restore-keys: ${{ runner.os }}-composer-
+          key: ${{ runner.os }}-php-8.2-composer-${{ hashFiles('**/composer.json') }}
+          restore-keys: ${{ runner.os }}-php-8.2-composer-
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.3'
-          coverage: pcov
-          tools: infection, pint, phpstan
+          php-version: 8.2
+          tools: phpstan
+          coverage: none
 
       - name: Install dependencies
         run: composer install
@@ -38,28 +41,75 @@ jobs:
       - name: Check platform requirements
         run: composer check-platform-reqs
 
+      - name: PHPStan
+        run: phpstan
+
+
+  code-style:
+    name: Code style
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.4
+          ## Temporary version pin as 1.21.0 is broken
+          tools: pint:1.20.0
+          coverage: none
+
       - name: Pint
         run: pint --test
+
+
+  mutation-testing:
+    name: Mutation testing
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-php-8.4-composer-${{ hashFiles('**/composer.json') }}
+          restore-keys: ${{ runner.os }}-php-8.4-composer-
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.4
+          tools: infection
+          coverage: pcov
+
+      - name: Install dependencies
+        run: composer install
 
       - name: Infection
         run: infection --show-mutations
 
-      - name: PHPStan
-        run: phpstan
 
   tests:
+    name: PHP ${{ matrix.php }} Illuminate ${{ matrix.illuminate }} PHPUnit ${{ matrix.phpunit }}
     runs-on: ubuntu-latest
-    name: 'PHP ${{ matrix.php }} Illuminate ${{ matrix.illuminate }} PHPUnit ${{ matrix.phpunit }}'
     strategy:
       matrix:
-        php: ['8.1', '8.2', '8.3']
-        illuminate: ['10', '11']
-        phpunit: ['10', '11']
+        php: [8.2, 8.3, 8.4]
+        illuminate: [11, 12]
+        phpunit: [10, 11, 12]
         exclude:
-          - php: '8.1'
-            illuminate: '11'
-          - php: '8.1'
-            phpunit: '11'
+          - phpunit: 12
+            php: 8.2
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -95,7 +145,7 @@ jobs:
           composer update
 
       - name: Configure PHPUnit
-        run: "if [ -f './phpunit.${{ matrix.phpunit }}.xml' ]; then cp ./phpunit.${{ matrix.phpunit }}.xml ./phpunit.xml; fi"
+        run: if [ -f "./phpunit.${{ matrix.phpunit }}.xml" ]; then cp ./phpunit.${{ matrix.phpunit }}.xml ./phpunit.xml; fi
 
       - name: PHPUnit
-        run: ./vendor/bin/phpunit --do-not-cache-result
+        run: ./vendor/bin/phpunit
