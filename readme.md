@@ -68,6 +68,10 @@ public function testItLogsWhenAUserAuthenticates()
     Log::channel('slack')->assertLogged(
         fn (LogEntry $log) => $log->message === 'User logged in.'
     );
+    
+    // if you only care about the message:
+    Log::channel('slack')->assertLogIs('User logged in.');
+    Log::channel('slack')->assertLogContains('logged in');
 }
 ```
 

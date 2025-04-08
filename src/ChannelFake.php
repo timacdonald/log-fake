@@ -11,6 +11,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use PHPUnit\Framework\Assert as PHPUnit;
 use Psr\Log\LoggerInterface;
+use Stringable;
 
 class ChannelFake implements LoggerInterface
 {
@@ -76,6 +77,34 @@ class ChannelFake implements LoggerInterface
         PHPUnit::assertTrue(
             $this->logged($callback)->count() > 0,
             $message ?? "Expected log was not created in the [{$this->name}] channel."
+        );
+
+        return $this;
+    }
+
+    /**
+     * @link https://github.com/timacdonald/log-fake#assertLogIs Documentation
+     */
+    public function assertLogIs(string|Stringable $log, ?string $message = null): ChannelFake
+    {
+        $callback = fn (LogEntry $entry) => $entry->message === (string) $log;
+        PHPUnit::assertTrue(
+            $this->logged($callback)->count() > 0,
+            $message ?? "Expected log [$log] was not in the [{$this->name}] channel."
+        );
+
+        return $this;
+    }
+
+    /**
+     * @link https://github.com/timacdonald/log-fake#assertLogContains Documentation
+     */
+    public function assertLogContains(string|Stringable $log, ?string $message = null): ChannelFake
+    {
+        $callback = fn (LogEntry $entry) => str_contains($entry->message, (string) $log);
+        PHPUnit::assertTrue(
+            $this->logged($callback)->count() > 0,
+            $message ?? "Expected log partial [$log] was not in the [{$this->name}] channel."
         );
 
         return $this;

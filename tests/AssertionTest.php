@@ -158,6 +158,40 @@ class AssertionTest extends TestCase
         }, 1);
     }
 
+    public function test_assert_log_is(): void
+    {
+        $log = new LogFake;
+        $log->info('expected message', ['expected' => 'context']);
+        $log->assertLogIs('expected message');
+    }
+
+    public function test_assert_log_is_fails(): void
+    {
+        $log = new LogFake;
+
+        self::assertFailsWithMessage(
+            fn () => $log->assertLogIs('expected message'),
+            "Expected log [expected message] was not in the [stack] channel."
+        );
+    }
+
+    public function test_assert_log_contains(): void
+    {
+        $log = new LogFake;
+        $log->info('expected 123 message', ['expected' => 'context']);
+        $log->assertLogContains(' 123 ');
+    }
+
+    public function test_assert_log_contains_fails(): void
+    {
+        $log = new LogFake;
+        $log->info('expected 123 message', ['expected' => 'context']);
+        self::assertFailsWithMessage(
+            fn () => $log->assertLogContains(' 444 '),
+            "Expected log partial [ 444 ] was not in the [stack] channel."
+        );
+    }
+
     public function test_assert_logged_times_custom_error(): void
     {
         $log = new LogFake;
