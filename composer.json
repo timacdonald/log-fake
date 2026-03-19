@@ -18,17 +18,17 @@
     ],
     "require": {
         "php": "^8.2",
-        "illuminate/collections": "^11.0 || ^12.0",
-        "illuminate/contracts": "^11.0 || ^12.0",
-        "illuminate/log": "^11.0 || ^12.0",
-        "illuminate/support": "^11.0 || ^12.0",
+        "illuminate/collections": "^11.0 || ^12.0 || ^13.0",
+        "illuminate/contracts": "^11.0 || ^12.0 || ^13.0",
+        "illuminate/log": "^11.0 || ^12.0 || ^13.0",
+        "illuminate/support": "^11.0 || ^12.0 || ^13.0",
         "phpunit/phpunit": "^10.0 || ^11.0 || ^12.0 || ^13.0",
         "psr/log": "^1.0 || ^2.0 || ^3.0",
         "symfony/var-dumper": "^7.0"
     },
     "require-dev": {
-        "illuminate/config": "^11.0 || ^12.0",
-        "illuminate/container": "^11.0 || ^12.0",
+        "illuminate/config": "^11.0 || ^12.0 || ^13.0",
+        "illuminate/container": "^11.0 || ^12.0 || ^13.0",
         "timacdonald/callable-fake": "^1.0"
     },
     "autoload": {
