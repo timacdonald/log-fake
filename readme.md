@@ -609,6 +609,31 @@ $logs = Log::allLogs();
 assert($logs->count() === 2); ✅
 ```
 
+## PHPStan
+
+The package ships with a [PHPStan](https://phpstan.org) extension that makes PHPStan aware of the fake's methods on the `Log` facade, e.g. `Log::assertLogged()`, `Log::dumpAll()`, and `Log::allLogs()`. Arguments are checked against the fake's real signatures and return types are resolved, so chained assertions are understood as well.
+
+If you use [phpstan/extension-installer](https://github.com/phpstan/extension-installer), the extension is registered automatically. Otherwise, include it in your `phpstan.neon`:
+
+```neon
+includes:
+    - vendor/timacdonald/log-fake/extension.neon
+```
+
+PHPStan does not check that `LogFake::bind()` was called before an assertion. Without the bind, the assertion fails at runtime with an "undefined method" error, so a test can never pass silently.
+
+### Known limitation
+
+The facade's `channel()` and `stack()` methods return a `Psr\Log\LoggerInterface`, so assertions chained from them, e.g. `Log::channel('slack')->assertLogged(...)`, are still reported by PHPStan. Use the instance returned by `LogFake::bind()` instead:
+
+```php
+$log = LogFake::bind();
+
+// ...
+
+$log->channel('slack')->assertLogged(fn (LogEntry $log) => $log->message === 'Stripe request initiated.');
+```
+
 ## Credits
 
 - [Tim MacDonald](https://github.com/timacdonald)

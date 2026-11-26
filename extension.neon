@@ -1,0 +1,4 @@
+services:
+    -
+        class: TiMacDonald\Log\PHPStan\LogFacadeFakeMethodsExtension
+        tags: [phpstan.broker.methodsClassReflectionExtension]

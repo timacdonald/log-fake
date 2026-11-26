@@ -32,7 +32,6 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: 8.2
-          tools: phpstan
           coverage: none
 
       - name: Install dependencies
@@ -42,7 +41,7 @@ jobs:
         run: composer check-platform-reqs
 
       - name: PHPStan
-        run: phpstan
+        run: ./vendor/bin/phpstan
 
 
   code-style:
